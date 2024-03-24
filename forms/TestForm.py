@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, FileField
+from wtforms import StringField, SelectField, TextAreaField, SubmitField, FileField
 from wtforms.validators import DataRequired
 
 
 class MakingTestForm(FlaskForm):
+    dropdown_list = ['Фильмы', 'Спорт', 'Еда', 'Игры', 'Музыка', 'Наука', 'Техника']
     name = StringField('Название', validators=[DataRequired()])
-    category = StringField('Категория', validators=[DataRequired()])
-    describe = StringField('Описание')
+    category = SelectField('Категория', choices=dropdown_list, default=1)
+    describe = TextAreaField('Описание')
     photo = FileField('Фото', validators=[DataRequired()])
     add_question = SubmitField('+ Добавить вопрос +')
     create = SubmitField('Создать')

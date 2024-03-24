@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Создание теста</h1>
-<form action="" method="post" novalidate>
+<form action="" method="post" novalidate enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <p>
         {{ form.name.label }}<br>
@@ -15,23 +15,23 @@
     </p>
     <p>
         {{ form.category.label }}<br>
-        {{ form.category(class="form-control")}}<br>
+        {{ form.category(class='form-control')}}<br>
         {% for error in form.category.errors %}
     <div class="alert alert-danger" role="alert">
         {{ error }}
-    </div>
+        </div>
     {% endfor %}
     </p>
     <p>
         {{ form.describe.label }}<br>
-        <textarea></textarea>
+        {{ form.describe(class='form-control')}}
         {% for error in form.describe.errors %}
     <div class="alert alert-danger" role="alert">
         {{ error }}
     </div>
     {% endfor %}
     </p>
-        <p>
+    <p>
         {{ form.photo(class="file")}}<br>
         {% for error in form.photo.errors %}
     <div class="alert alert-danger" role="alert">
@@ -39,14 +39,7 @@
     </div>
     {% endfor %}
     </p>
-        <p>
-        {{ form.add_question(class="form-control")}}<br>
-        {% for error in form.add_question.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
+    {% block body %}{% endblock body%}
     <p>{{ form.create(type="submit", class="btn btn-primary") }}</p>
 </form>
-{% endblock %}
+{% endblock content %}
