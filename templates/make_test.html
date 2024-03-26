@@ -39,7 +39,15 @@
     </div>
     {% endfor %}
     </p>
-    {% block body %}{% endblock body%}
+    <p>
+        {{ form.add_question(type='submit', class="form-control") }}
+    {% for error in form.add_question.errors %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% endfor %}
+    </p>
+        {% block body %}{% endblock body%}
     <p>{{ form.create(type="submit", class="btn btn-primary") }}</p>
 </form>
 {% endblock content %}

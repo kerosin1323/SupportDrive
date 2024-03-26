@@ -1,33 +1,35 @@
 {% extends "make_test.html" %}
 
 {% block body %}
-<h1>Вопрос № {{ number }}</h1>
 <form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.describe.label }}<br>
-        <textarea></textarea>
-        {% for error in form.describe.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
+    {{ form_question.hidden_tag() }}
+    {% for i in range(number) %}
+    <h1>Вопрос № {{ i + 1 }}</h1>
         <p>
-        {{ form.photo(class="file")}}<br>
-        {% for error in form.photo.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
+            {{ form_question.describe.label }}<br>
+            <textarea></textarea>
+            {% for error in form_question.describe.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+            <p>
+            {{ form_question.photo(class="file")}}<br>
+            {% for error in form_question.photo.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+            <p>
+            {{ form_question.add_answer(class="form-control")}}<br>
+            {% for error in form_question.add_answer.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
     {% endfor %}
-    </p>
-        <p>
-        {{ form.add_answer(class="form-control")}}<br>
-        {% for error in form.add_answer.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
 </form>
-{% endblock %}
+{% endblock body%}
