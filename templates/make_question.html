@@ -1,35 +1,48 @@
-{% extends "make_test.html" %}
+{% extends "base.html" %}
 
-{% block body %}
+{% block content %}
 <form action="" method="post" novalidate>
-    {{ form_question.hidden_tag() }}
-    {% for i in range(number) %}
-    <h1>Вопрос № {{ i + 1 }}</h1>
+    {{ form.hidden_tag() }}
+    <div class="col-md6 border rounded">
+    <h1>Вопрос № {{ number }}</h1>
         <p>
-            {{ form_question.describe.label }}<br>
-            <textarea></textarea>
-            {% for error in form_question.describe.errors %}
-        <div class="alert alert-danger" role="alert">
-            {{ error }}
-        </div>
-        {% endfor %}
+            {{ form.question.label }}<br>
+            {{ form.question(class="form-control")}}
+        </p>
         </p>
             <p>
-            {{ form_question.photo(class="file")}}<br>
-            {% for error in form_question.photo.errors %}
+            {{ form.photo.label }}
+            {{ form.photo(class="file")}}<br>
+            {% for error in form.photo.errors %}
         <div class="alert alert-danger" role="alert">
             {{ error }}
         </div>
         {% endfor %}
         </p>
-            <p>
-            {{ form_question.add_answer(class="form-control")}}<br>
-            {% for error in form_question.add_answer.errors %}
+        <h1> Ответы </h1>
+    <p> {{ form.check_right1.label}} {{ form.answer1.label }} </p>
+        <p>
+            {{ form.check_right1() }}{{ form.answer1(class='form-control') }}
+        </p>
+        <p>
+            {{ form.check_right2() }}{{ form.answer2(class='form-control') }}
+        </p>
+        <p>
+            {{ form.check_right3() }}{{ form.answer3(class='form-control') }}
+        </p>
+        <p>
+            {{ form.check_right4() }}{{ form.answer4(class='form-control') }}
+        </p>
+    </div>
+        <p>
+            {{ form.add_question(class="form-control")}}<br>
+            {% for error in form.add_question.errors %}
         <div class="alert alert-danger" role="alert">
             {{ error }}
         </div>
-        {% endfor %}
+                {% endfor %}
         </p>
-    {% endfor %}
+    </div>
+    <p>{{ form.create(type="submit", class="btn btn-primary") }}</p>
 </form>
-{% endblock body%}
+{% endblock %}

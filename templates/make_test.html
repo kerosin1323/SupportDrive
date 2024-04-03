@@ -47,7 +47,8 @@
     </div>
     {% endfor %}
     </p>
+    <main role="main" class="container">
         {% block body %}{% endblock body%}
-    <p>{{ form.create(type="submit", class="btn btn-primary") }}</p>
+    </main>
 </form>
 {% endblock content %}
