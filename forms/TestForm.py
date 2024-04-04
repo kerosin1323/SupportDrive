@@ -9,12 +9,23 @@ class MainForm(FlaskForm):
 
 
 class MakingTestForm(FlaskForm):
-    dropdown_list = ['Фильмы', 'Спорт', 'Еда', 'Игры', 'Музыка', 'Наука', 'Техника']
+    dropdown_list = ['Фильмы', 'Спорт', 'Еда', 'Игры', 'Музыка', 'Наука', 'Технологии', 'Другое']
     name = StringField('Название', validators=[DataRequired()])
     category = SelectField('Категория', choices=dropdown_list, default=1)
     describe = TextAreaField('Описание')
     photo = FileField('Фото', validators=[DataRequired()])
     add_question = SubmitField('+ Добавить вопрос +')
+
+
+class CategoryForm(FlaskForm):
+    films = SubmitField('Фильмы')
+    sport = SubmitField('Спорт')
+    foods = SubmitField('Еда')
+    games = SubmitField('Игры')
+    music = SubmitField('Музыка')
+    science = SubmitField('Наука')
+    tech = SubmitField('Технологии')
+    others = SubmitField('Другое')
 
 
 class MakingQuestion(FlaskForm):

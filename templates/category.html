@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Выберите категорию теста</h1>
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+        <p>
+            {{ form.films(class='form-control') }}
+        </p>
+        <p>
+            {{ form.games(class='form-control') }}
+        </p>
+            <p>
+            {{ form.sport(class='form-control') }}
+        </p>
+            <p>
+            {{ form.foods(class='form-control') }}
+        </p>
+            <p>
+            {{ form.science(class='form-control') }}
+        </p>
+            <p>
+            {{ form.tech(class='form-control') }}
+        </p>
+            <p>
+            {{ form.music(class='form-control') }}
+        </p>
+                <p>
+            {{ form.others(class='form-control') }}
+        </p>
+</form>
+{% endblock %}

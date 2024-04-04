@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 from data import db_session, tests, users
 from forms.TestForm import *
 
@@ -12,13 +12,34 @@ def index():
     if form.make_test.data:
         return redirect('/make_test')
     elif form.take_test.data:
-        return redirect('/take_test')
+        return redirect('/choose_category')
     return render_template('index.html', form=form)
 
 
-@app.route('/take_test', methods=['GET', 'POST'])
-def take_test():
-    return 'Страница в разработке'
+@app.route('/choose_category', methods=['GET', 'POST'])
+def choose_category():
+    form = CategoryForm()
+    if form.validate_on_submit():
+        pressed = [i for i, k in form.data.items() if k][0]
+        return redirect(f'/tests/{pressed}')
+    return render_template('category.html', form=form)
+
+
+@app.route('/tests/<category>', methods=['GET', 'POST'])
+def show_all_tests(category):
+    trans_dict={'films': 'Фильмы', 'sport': 'Спорт', 'foods': 'еда', 'games': 'Игры', 'science': 'Наука',
+                'tech': 'Технологии', 'other': 'другое', 'music': 'Музыка'}
+    db_sess = db_session.create_session()
+    test = db_sess.query(tests.Tests).filter(tests.Tests.category==trans_dict[category]).first()
+    if request.method == 'POST':
+        return redirect(f'/take_test/{test.id}')
+    return render_template('start_test.html', test=test)
+
+
+@app.route('/take_test/<id_test>', methods=['GET', 'POST'])
+def take_test(id_test):
+    return ('Страница в разработке\n'
+            f' Пока можем только вывести id теста: {id_test}')
 
 
 @app.route('/make_test', methods=['GET', 'POST'])

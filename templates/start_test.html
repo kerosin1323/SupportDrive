@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1> {{ test.name }} </h1>
+<form action="" method="post" novalidate>
+        <p>
+            Описание: {{ test.about }}
+        </p>
+        <p>
+            Категория: {{ test.category }}
+        </p>
+            <button type="submit" class="btn btn-primary">Начать</button>
+
+</form>
+{% endblock %}
