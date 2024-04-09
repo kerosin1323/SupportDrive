@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Вопрос № {{ number_question }}</h1>
+<form action="" method="post" novalidate>
+        <p>
+            {{ name }}
+        </p>
+        <button type="submit" class="form-control">{{ answer[0] }}</button>
+        <button type="submit" class="form-control">{{ answer[1] }}</button>
+        <button type="submit" class="form-control">{{ answer[2] }}</button>
+        <button type="submit" class="form-control">{{ answer[3] }}</button>
+</form>
+{% endblock %}
