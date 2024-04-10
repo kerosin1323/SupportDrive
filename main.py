@@ -44,19 +44,26 @@ def show_all_tests(category):
 
 @app.route('/take_test/<test_id>/<question>', methods=['GET', 'POST'])
 def take_test(test_id, question):
+    mark = session.get('mark', 0)
     right_answers = session.get('right_answers', 0)
     db_sess = db_session.create_session()
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
     data = json.loads(test.questions)[question]
     if request.method == 'POST' and int(question) <= len(data):
-        print(request.form.items())
-        if request.form == [i for i, k in data['answers'].items() if k][0]:
-            right_answers += 1
+        if [j for j, v in data['answers'].items()][int(request.form.get('index'))] == [i for i, k in data['answers'].items() if k][0]:
+            session['right_answers'] = right_answers + 1
         return redirect(f'/take_test/{test_id}/{int(question) + 1}')
+    if request.form.get('mark') == '+' and mark < 1:
+        session['mark'] += 1
+    elif request.form.get('mark') == '-' and mark > -1:
+        session['mark'] -= 1
     if int(question) <= len(data):
         return render_template('questions.html', number_question=question, name=data['name'], answer=[i for i in data['answers']])
-    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), )
-
+    if request.form.get('exit') == '1':
+        session['right_answers'] = 0
+        session['mark'] = 0
+        return redirect('/')
+    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{session['mark']}' if session['mark'] == 1 else session['mark'])
 
 
 @app.route('/make_test', methods=['GET', 'POST'])
@@ -92,7 +99,6 @@ def create_question(number, test_id):
             prev_questions = json.loads(test.questions)
         except TypeError:
             prev_questions = {}
-        print(prev_questions, questions_str)
         test.questions = json.dumps({**prev_questions, **questions_str}, ensure_ascii=False)
         db_sess.commit()
         if form.add_question.data:

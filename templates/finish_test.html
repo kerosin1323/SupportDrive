@@ -9,8 +9,8 @@
         <p>
             Процент выполнения: {{ percent }}
         </p>
-        <p>Оценка: </p><button type="submit" class="btn btn-primary">+</button><button type="submit" class="btn btn-primary">-</button><br>
-        <button type="submit" class="btn btn-primary">Выйти</button>
+        <p>Оценка: <button type="submit" class="btn btn-secondary" name="mark" value="+">+</button> {{ mark }} <button type="submit" class="btn btn-secondary" name="mark" value="-">-</button></p>
+        <button type="submit" class="btn btn-primary" name="exit" value="1">Выйти</button>
 
 </form>
 {% endblock %}
