@@ -19,6 +19,13 @@ def index():
         return redirect('/make_test')
     elif form.take_test.data:
         return redirect('/choose_category')
+    elif form.check_profile.data:
+        profile_id = int(request.cookies.get("profile_id", 111))
+        if profile_id:
+            return redirect(f'/profile/{profile_id}')
+        else:
+            return redirect(f'/profile/{profile_id}')
+            #  pass страница для авторизации
     return render_template('index.html', form=form)
 
 
@@ -49,7 +56,7 @@ def take_test(test_id, question):
     db_sess = db_session.create_session()
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
     data = json.loads(test.questions)[question]
-    if request.method == 'POST' and int(question) <= len(data):
+    if request.method == 'POST' and int(question) < len(data):
         if [j for j, v in data['answers'].items()][int(request.form.get('index'))] == [i for i, k in data['answers'].items() if k][0]:
             session['right_answers'] = right_answers + 1
         return redirect(f'/take_test/{test_id}/{int(question) + 1}')
@@ -63,7 +70,7 @@ def take_test(test_id, question):
         session['right_answers'] = 0
         session['mark'] = 0
         return redirect('/')
-    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{session['mark']}' if session['mark'] == 1 else session['mark'])
+    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{session["mark"]}' if session['mark'] == 1 else session['mark'])
 
 
 @app.route('/make_test', methods=['GET', 'POST'])
@@ -106,6 +113,16 @@ def create_question(number, test_id):
         elif form.create.data:
             return redirect('/')
     return render_template('make_question.html', form=form, number=number)
+
+
+@app.route('/profile/<profile_id>', methods=['GET', 'POST'])
+def open_profile(profile_id):
+    form = ProfileView()
+    if form.checked_tests.data:
+        return redirect(f'/checked_tests/{profile_id}')
+    if form.created_tests.data:
+        return redirect(f'/created_tests/{profile_id}')
+    return render_template('profile_check.html', name="name", checked_tests_count="chcount", percent="percent", form=form)  # name, chcount и percent позже сменим на имя с бд пользователей
 
 
 def main():
