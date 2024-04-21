@@ -1,5 +1,5 @@
 import datetime
-
+from flask_login import LoginManager, login_user, current_user
 from flask import Flask, render_template, redirect, request, session
 from data import db_session, tests, users
 from forms.TestForm import *
@@ -10,9 +10,54 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(users.User).get(user_id)
 
 
 @app.route('/', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(users.User).filter(users.User.name == form.username.data).first():
+            return render_template('register.html',
+                                   form=form,
+                                   message="Такой пользователь уже есть", current_user=current_user)
+        user = users.User(
+            name=form.username.data,
+        )
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+        return redirect('/menu')
+    elif form.to_login.data:
+        return redirect('/login')
+    return render_template('register.html', form=form, current_user=current_user)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(users.User).filter(users.User.name == form.username.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            return redirect("/menu")
+        return render_template('login.html',
+                               message="Неправильный логин или пароль",
+                               form=form, current_user=current_user)
+    return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
+
+
+@app.route('/menu', methods=['GET', 'POST'])
 def index():
     form = MainForm()
     if form.make_test.data:
@@ -26,7 +71,7 @@ def index():
         else:
             return redirect(f'/profile/{profile_id}')
             #  pass страница для авторизации
-    return render_template('index.html', form=form)
+    return render_template('index.html', form=form, current_user=current_user)
 
 
 @app.route('/choose_category', methods=['GET', 'POST'])
@@ -35,7 +80,7 @@ def choose_category():
     if form.validate_on_submit():
         pressed = [i for i, k in form.data.items() if k][0]
         return redirect(f'/tests/{pressed}')
-    return render_template('category.html', form=form)
+    return render_template('category.html', form=form, current_user=current_user)
 
 
 @app.route('/tests/<category>', methods=['GET', 'POST'])
@@ -49,7 +94,7 @@ def show_all_tests(category):
         return redirect(f'/tests/{test_id}/start')
     if not test:
         return 'Тестов с такой категорией пока нет'
-    return render_template('all_tests.html', test=test)
+    return render_template('all_tests.html', test=test, current_user=current_user)
 
 
 @app.route('/tests/<test_id>/start', methods=['GET', 'POST'])
@@ -58,7 +103,7 @@ def start_test(test_id):
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
     if request.method == 'POST':
         return redirect(f'/take_test/{test.id}/1')
-    return render_template('start_test.html', test=test, mark=f'+{test.mark}' if test.mark > 0 else test.mark)
+    return render_template('start_test.html', test=test, mark=f'+{test.mark}' if test.mark > 0 else test.mark, current_user=current_user)
 
 
 @app.route('/take_test/<test_id>/<question>', methods=['GET', 'POST'])
@@ -79,13 +124,13 @@ def take_test(test_id, question):
         session['mark'] -= 1
         mark -= 1
     if int(question) <= len(data):
-        return render_template('questions.html', number_question=question, name=data[question]['name'], answer=[i for i in data[question]['answers']])
+        return render_template('questions.html', number_question=question, name=data[question]['name'], answer=[i for i in data[question]['answers']], current_user=current_user)
     if request.form.get('exit') == '1':
         test.mark += mark
         db_sess.commit()
         session['right_answers'] = 0
-        return redirect('/')
-    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{mark}' if mark == 1 else mark)
+        return redirect('/menu')
+    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{mark}' if mark == 1 else mark, current_user=current_user)
 
 
 @app.route('/make_test', methods=['GET', 'POST'])
@@ -101,7 +146,7 @@ def make_test():
         db_sess.add(test)
         db_sess.commit()
         return redirect(f'/create_question/{test.id}/1')
-    return render_template('make_test.html', title='Создание теста', form=form)
+    return render_template('make_test.html', title='Создание теста', form=form, current_user=current_user)
 
 
 @app.route('/create_question/<test_id>/<number>', methods=['GET', "POST"])
@@ -126,20 +171,19 @@ def create_question(number, test_id):
         if form.add_question.data:
             return redirect(f'/create_question/{test_id}/{int(number) + 1}')
         elif form.create.data:
-            return redirect('/')
-    return render_template('make_question.html', form=form, number=number)
+            return redirect('/menu')
+    return render_template('make_question.html', form=form, number=number, current_user=current_user)
 
 
-@app.route('/profile/<profile_id>', methods=['GET', 'POST'])
-def open_profile(profile_id):
+@app.route('/profile', methods=['GET', 'POST'])
+def open_profile():
     form = ProfileView()
+    print(current_user.id)
     if form.checked_tests.data:
         return redirect(f'/checked_tests/{profile_id}')
     if form.created_tests.data:
         return redirect(f'/created_tests/{profile_id}')
-    return render_template('profile_check.html', name="name", checked_tests_count="chcount", percent="percent", form=form)  # name, chcount и percent позже сменим на имя с бд пользователей
-
-
+    return render_template('profile_check.html', name="name", checked_tests_count="chcount", percent="percent", form=form, current_user=current_user)  # name, chcount и percent позже сменим на имя с бд пользователей
 
 
 def main():
