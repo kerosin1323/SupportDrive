@@ -12,7 +12,9 @@ class User(SqlAlchemyBase, UserMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    percent_right = sqlalchemy.Column(sqlalchemy.Integer)
+    all_right_questions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    all_questions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    passed_tests = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     tests = orm.relationship("Tests", back_populates='user')
 
     def set_password(self, password):

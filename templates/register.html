@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base1.html" %}
 
 {% block content %}
 <h1>Регистрация</h1>
@@ -22,7 +22,6 @@
     </div>
     {% endfor %}
     </p>
-    <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
     <p><small>Если у вас есть аккаунт: {{ form.to_login }}</small><p/>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
 <h1>Создание теста</h1>
@@ -26,14 +26,6 @@
         {{ form.describe.label }}<br>
         {{ form.describe(class='form-control')}}
         {% for error in form.describe.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.photo(class="file")}}<br>
-        {% for error in form.photo.errors %}
     <div class="alert alert-danger" role="alert">
         {{ error }}
     </div>

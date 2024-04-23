@@ -1,5 +1,5 @@
 import datetime
-from flask_login import LoginManager, login_user, current_user
+from flask_login import LoginManager, login_user, current_user, logout_user
 from flask import Flask, render_template, redirect, request, session
 from data import db_session, tests, users
 from forms.TestForm import *
@@ -24,22 +24,23 @@ def load_user(user_id):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-    if form.validate_on_submit():
+    if form.to_login.data:
+        return redirect('/login')
+    elif form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(users.User).filter(users.User.name == form.username.data).first():
             return render_template('register.html',
                                    form=form,
-                                   message="Такой пользователь уже есть", current_user=current_user)
+                                   message="Такой пользователь уже есть")
         user = users.User(
             name=form.username.data,
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
+        login_user(user)
         return redirect('/menu')
-    elif form.to_login.data:
-        return redirect('/login')
-    return render_template('register.html', form=form, current_user=current_user)
+    return render_template('register.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -53,7 +54,7 @@ def login():
             return redirect("/menu")
         return render_template('login.html',
                                message="Неправильный логин или пароль",
-                               form=form, current_user=current_user)
+                               form=form)
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
@@ -64,13 +65,6 @@ def index():
         return redirect('/make_test')
     elif form.take_test.data:
         return redirect('/choose_category')
-    elif form.check_profile.data:
-        profile_id = int(request.cookies.get("profile_id", 111))
-        if profile_id:
-            return redirect(f'/profile/{profile_id}')
-        else:
-            return redirect(f'/profile/{profile_id}')
-            #  pass страница для авторизации
     return render_template('index.html', form=form, current_user=current_user)
 
 
@@ -102,7 +96,7 @@ def start_test(test_id):
     db_sess = db_session.create_session()
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
     if request.method == 'POST':
-        return redirect(f'/take_test/{test.id}/1')
+        return redirect(f'/take_test/{test_id}/1')
     return render_template('start_test.html', test=test, mark=f'+{test.mark}' if test.mark > 0 else test.mark, current_user=current_user)
 
 
@@ -127,8 +121,12 @@ def take_test(test_id, question):
         return render_template('questions.html', number_question=question, name=data[question]['name'], answer=[i for i in data[question]['answers']], current_user=current_user)
     if request.form.get('exit') == '1':
         test.mark += mark
-        db_sess.commit()
+        user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+        user.all_questions += len(data)
+        user.all_right_questions += session['right_answers']
+        user.passed_tests += 1
         session['right_answers'] = 0
+        db_sess.commit()
         return redirect('/menu')
     return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{mark}' if mark == 1 else mark, current_user=current_user)
 
@@ -142,6 +140,7 @@ def make_test():
         test.category = form.category.data
         test.photo = 'xxx'
         test.about = form.describe.data
+        test.user_id = current_user.id
         db_sess = db_session.create_session()
         db_sess.add(test)
         db_sess.commit()
@@ -178,12 +177,29 @@ def create_question(number, test_id):
 @app.route('/profile', methods=['GET', 'POST'])
 def open_profile():
     form = ProfileView()
-    print(current_user.id)
-    if form.checked_tests.data:
-        return redirect(f'/checked_tests/{profile_id}')
+    db_sess = db_session.create_session()
+    user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+    percent = 0
+    if user.all_questions:
+        percent = user.all_right_questions / user.all_questions * 100
     if form.created_tests.data:
-        return redirect(f'/created_tests/{profile_id}')
-    return render_template('profile_check.html', name="name", checked_tests_count="chcount", percent="percent", form=form, current_user=current_user)  # name, chcount и percent позже сменим на имя с бд пользователей
+        return redirect(f'/created_tests')
+    if form.exit.data:
+        logout_user()
+        return redirect('/')
+    return render_template('profile_check.html', name=current_user.name, checked_tests_count=int(user.passed_tests), percent=int(percent), form=form, current_user=current_user)
+
+
+@app.route('/created_tests', methods=['GET', 'POST'])
+def show_created_tests():
+    db_sess = db_session.create_session()
+    test = db_sess.query(tests.Tests).filter(tests.Tests.user_id == current_user.id).all()
+    if request.method == 'POST':
+        test_id = request.form.get('id')
+        return redirect(f'/tests/{test_id}/start')
+    if not test:
+        return 'Пользователь не создал ни одного теста'
+    return render_template('all_tests_2.html', test=test, current_user=current_user)
 
 
 def main():

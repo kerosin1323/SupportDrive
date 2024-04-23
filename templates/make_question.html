@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
 <form action="" method="post" novalidate>
@@ -8,16 +8,6 @@
         <p>
             {{ form.question.label }}<br>
             {{ form.question(class="form-control")}}
-        </p>
-        </p>
-            <p>
-            {{ form.photo.label }}
-            {{ form.photo(class="file")}}<br>
-            {% for error in form.photo.errors %}
-        <div class="alert alert-danger" role="alert">
-            {{ error }}
-        </div>
-        {% endfor %}
         </p>
         <h1> Ответы </h1>
     <p> {{ form.check_right1.label}} {{ form.answer1.label }} </p>

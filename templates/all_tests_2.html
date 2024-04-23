@@ -1,7 +1,7 @@
 {% extends "base2.html" %}
 
 {% block content %}
-<h1>Все тесты по теме {{ test[0].category }}</h1>
+<h1>Все тесты пользователя {{ current_user.name }}</h1>
 <form action="" method="post" novalidate>
         {% for item in test %}
             <button type="submit" class="btn btn-secondary" name="id" value={{item.id}}> {{item.name}} </button>

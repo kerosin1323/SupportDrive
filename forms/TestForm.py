@@ -13,7 +13,6 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
-    remember_me = BooleanField('Запомнить меня')
     to_login = SubmitField('Войти')
     submit = SubmitField('Создать')
 
@@ -21,7 +20,6 @@ class RegisterForm(FlaskForm):
 class MainForm(FlaskForm):
     make_test = SubmitField('Создать тест')
     take_test = SubmitField('Пройти тест')
-    check_profile = SubmitField('Личный кабинет')
 
 
 class MakingTestForm(FlaskForm):
@@ -29,7 +27,6 @@ class MakingTestForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     category = SelectField('Категория', choices=dropdown_list, default=1)
     describe = TextAreaField('Описание')
-    photo = FileField('Фото', validators=[DataRequired()])
     add_question = SubmitField('+ Добавить вопрос +')
 
 
@@ -45,7 +42,6 @@ class CategoryForm(FlaskForm):
 
 
 class MakingQuestion(FlaskForm):
-    photo = FileField('Фото (600x600)')
     question = StringField('Текст вопроса')
     add_question = SubmitField('+ Добавить вопрос +')
     answer1 = StringField('Ответ')
@@ -60,5 +56,5 @@ class MakingQuestion(FlaskForm):
 
 
 class ProfileView(FlaskForm):
-    checked_tests = SubmitField('Пройденные тесты')
     created_tests = SubmitField('Созданные тесты')
+    exit = SubmitField('Выйти')

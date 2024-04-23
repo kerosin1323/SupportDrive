@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
 <h1>Профиль пользователя {{ name }}</h1>
@@ -10,10 +10,10 @@
             Процент правильности выполнения: {{ percent }}
         </p>
         <p>
-            {{ form.checked_tests(class='form-control') }}
+            {{ form.created_tests(class='form-control') }}
         </p>
         <p>
-            {{ form.created_tests(class='form-control') }}
+            {{ form.exit(class='btn btn-primary') }}
         </p>
 </form>
 {% endblock %}
