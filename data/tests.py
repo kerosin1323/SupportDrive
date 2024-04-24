@@ -11,7 +11,6 @@ class Tests(SqlAlchemyBase):
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     category = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    photo = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     questions = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)
