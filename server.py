@@ -22,6 +22,15 @@ def load_user(user_id):
 
 
 @app.route('/', methods=['GET', 'POST'])
+def welcome_page():
+    """Первая страница"""
+    return render_template('first_window.html', tests=3, visitors=5, 
+                           first='Kerosin', second='Dmitr', third='Serega',
+                           average='90%', name='РПЛ', describe='Тест про российский чемпионат',
+                           rating=20, amount=58)
+
+
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """Регистрация пользователя"""

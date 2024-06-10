@@ -1,0 +1,52 @@
+{% extends "base2.html" %}
+
+{% block content %}
+<form action="" method="post" novalidate>
+    <div class="container">
+        <div id="info">
+            <div class="test_info">
+                <h2>{{ tests }}</h2>
+                <h5>Количество тестов</h5>
+            </div>
+            <div class="visitors_info">
+                <h2>{{ visitors  }}</h2>
+                <h5>Количество посетителей</h5>
+            </div>
+            <div class="average_right_info">
+                <h2>{{ average }}</h2>
+                <h5>Средний процент правильности решения</h5>
+            </div>
+        </div>
+        <div class="leaders">
+            <h2>Лидеры</h2>
+            <ol>
+                <li>{{ first }}</li>
+                <li>{{ second }}</li>
+                <li>{{ third }}</li>
+            </ol>
+        </div>
+    </div>
+    <div id="top_tests">
+        <h2>Популярные тесты</h2>
+        <button class="popular_tests">
+            <img src="/photo.jpg" alt="Photo">
+            <h2>{{ name }}</h2>
+            <h5>{{ describe }}</h5>
+            <hr>
+            {% if rating > 0 %}
+                <div title="Оценка" style="color: green; font-size: 20px">
+                    <strong>
+                        +{{rating}}
+                    </strong>
+                </div>
+            {% else %}
+                <div title="Оценка" style="color: red">
+                    <strong>
+                        {{rating}}
+                    </strong>
+                </div>
+            {% endif %}
+        </button>
+    </div>
+</form>
+{% endblock %}
