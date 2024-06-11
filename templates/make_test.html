@@ -1,46 +1,45 @@
-{% extends "base2.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Создание теста</h1>
 <form action="" method="post" novalidate enctype="multipart/form-data">
     {{ form.hidden_tag() }}
-    <p>
-        {{ form.name.label }}<br>
-        {{ form.name(class="form-control") }}<br>
-        {% for error in form.name.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
+    <div class="make-test-form">
+        <h1>Создание теста</h1>
+        <p>
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.category.label }}
+            {{ form.category(class='form-control')}}
+            {% for error in form.category.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.describe.label }}<br>
+            {{ form.describe(class='form-control')}}
+            {% for error in form.describe.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.add_question(type='submit', class="btn btn-primary") }}
+            {% for error in form.add_question.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
     </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.category.label }}<br>
-        {{ form.category(class='form-control')}}<br>
-        {% for error in form.category.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-        </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.describe.label }}<br>
-        {{ form.describe(class='form-control')}}
-        {% for error in form.describe.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.add_question(type='submit', class="form-control") }}
-    {% for error in form.add_question.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <main role="main" class="container">
-        {% block body %}{% endblock body%}
-    </main>
 </form>
 {% endblock content %}

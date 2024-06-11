@@ -1,14 +1,62 @@
-{% extends "base2.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Главная страница</h1>
 <form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-        <p>
-            {{ form.make_test(class='form-control') }}
-        </p>
-        <p>
-            {{ form.take_test(class='form-control') }}
-        </p>
+    <div class="container">
+        <div id="info">
+            <div class="test_info">
+                <h2>{{ amount_tests }}</h2>
+                <h5>Количество тестов</h5>
+            </div>
+            <div class="visitors_info">
+                <h2>{{ visitors }}</h2>
+                <h5>Количество посетителей</h5>
+            </div>
+            <div class="average_right_info">
+                <h2>{{ average }}</h2>
+                <h5>Средний процент прохождения</h5>
+            </div>
+        </div>
+        <div class="leaders">
+            <h2>Лидеры по оценкам тестов</h2>
+            <ol>
+                <li>{{ leaders[0] }}</li>
+                <li>{{ leaders[1] }}</li>
+                <li>{{ leaders[2] }}</li>
+            </ol>
+        </div>
+    </div>
+    <h2 class="label-popular-test">Популярные тесты</h2>
+    <div class="container">
+        {% for test in tests %}
+            <button class="popular_tests">
+                <img src=test.photo alt="Photo">
+                <h2>{{ test.name }}</h2>
+                {{ test.describe }}
+                <hr>
+                <div class="underline-text">
+                    {% if test.mark > 0 %}
+                    <div title="Оценка" style="color: green; font-size: 20px">
+                        <strong>
+                            +{{test.mark}}
+                        </strong>
+                    </div>
+                    {% else %}
+                        <div title="Оценка" style="color: red">
+                            <strong>
+                                {{test.mark}}
+                            </strong>
+                        </div>
+                    {% endif %}
+                    <div class="average-result" style="color: black; font-weight: bold;" title="Средний процент прохождения">
+                        {{ test.average }}
+                    </div>
+                    <div class="amount" title="Кол-во прохождений">
+                        {{ test.passing_tests }}
+                    </div>
+                </div>
+            </button>
+        {% endfor %}
+    </div>
 </form>
 {% endblock %}

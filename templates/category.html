@@ -1,9 +1,10 @@
-{% extends "base2.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Выберите категорию теста</h1>
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
+    <div class="category-form">
+        <h1>Выберите категорию теста</h1>
         <p>
             {{ form.films(class='form-control') }}
         </p>
@@ -28,5 +29,6 @@
                 <p>
             {{ form.others(class='form-control') }}
         </p>
+    </div>
 </form>
 {% endblock %}

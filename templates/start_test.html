@@ -1,21 +1,15 @@
-{% extends "base2.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1> {{ test.name }} </h1>
 <form action="" method="post" novalidate>
-        <p>
-            {{ test.about }}
-        </p>
-        <p>
-            Категория: {{ test.category }}
-        </p>
-        <p>
-            Дата создания: {{ test.created_date }}
-        </p>
-        <p>
-            Оценка: {{ mark }}
-        </p>
-            <button type="submit" class="btn btn-primary">Начать</button>
-
+    <div class="start-form">
+        <h1> {{ test.name }} </h1>
+        <p>Описание: {{ test.describe }}</p>
+        <p>Категория: {{ test.category }}</p>
+        <p>Дата создания: {{ test.created_date }}</p>
+        <p>Оценка: {{ mark }}</p>
+        <p>Создатель: {{ user }}</p>
+        <button type="submit" class="btn btn-primary">Начать</button>
+    </div>
 </form>
 {% endblock %}

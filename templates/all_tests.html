@@ -1,11 +1,38 @@
-{% extends "base2.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Все тесты по теме {{ test[0].category }}</h1>
+<h1>Все тесты по теме {{ tests[0].category }}</h1>
 <form action="" method="post" novalidate>
-        {% for item in test %}
-            <button type="submit" class="btn btn-secondary" name="id" value={{item.id}}> {{item.name}} </button>
+    <div class="tests-form">
+        {% for test in tests %}
+            <button class="popular_tests" name="id" value={{test.id}}>
+                <img src={{test.photo}} alt="Photo">
+                <h2>{{ test.name }}</h2>
+                {{ test.describe }}
+                <hr>
+                <div class="underline-text">
+                    {% if test.mark > 0 %}
+                    <div title="Оценка" style="color: green; font-size: 20px">
+                        <strong>
+                            +{{test.mark}}
+                        </strong>
+                    </div>
+                    {% else %}
+                        <div title="Оценка" style="color: red">
+                            <strong>
+                                {{test.mark}}
+                            </strong>
+                        </div>
+                    {% endif %}
+                    <div class="average-result" style="color: black; font-weight: bold;" title="Средний процент прохождения">
+                        {{ test.average }}
+                    </div>
+                    <div class="amount" title="Кол-во прохождений">
+                        {{ test.passing_tests }}
+                    </div>
+                </div>
+            </button>
         {% endfor %}
-
+    </div>
 </form>
 {% endblock %}

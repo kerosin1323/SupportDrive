@@ -1,29 +1,33 @@
-{% extends "base1.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Регистрация</h1>
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
-    <p>
-        {{ form.username.label }}<br>
-        {{ form.username(class="form-control") }}<br>
-        {% for error in form.username.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
+    <div class="register-form">
+        <h1>Создание аккаунта</h1>
+        <p>
+            {{ form.username.label }}
+            {{ form.username(class="form-control") }}
+            {% for error in form.username.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}
+            {{ form.password(class="form-control", type="password") }}
+            {% for error in form.password.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <div class="register-submit">
+            <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+            <p>{{ form.to_login(class="btn btn-secondary") }}</p>
+        </div>
     </div>
-    {% endfor %}
-    </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(class="form-control", type="password") }}<br>
-        {% for error in form.password.errors %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endfor %}
-    </p>
-    <p><small>Если у вас есть аккаунт: {{ form.to_login }}</small><p/>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
 {% endblock %}

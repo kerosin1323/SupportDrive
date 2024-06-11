@@ -3,6 +3,7 @@ from flask_login import LoginManager, login_user, current_user, logout_user
 from flask import Flask, render_template, redirect, request, session
 from data import db_session, tests, users
 from forms.TestForm import *
+from sqlalchemy import desc
 import json
 
 app = Flask(__name__)
@@ -24,13 +25,18 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
     """Первая страница"""
-    return render_template('first_window.html', tests=3, visitors=5, 
-                           first='Kerosin', second='Dmitr', third='Serega',
-                           average='90%', name='РПЛ', describe='Тест про российский чемпионат',
-                           rating=20, amount=58)
+    db_sess = db_session.create_session()
+    db_sess.query(tests.Tests).filter(tests.Tests.questions == None).delete()
+    db_sess.commit()
+    amount_tests = len(db_sess.query(tests.Tests).all())
+    visitors = len(db_sess.query(users.User).all())
+    average = 80
+    leaders = db_sess.query(users.User).order_by(desc(users.User.marking_test)).all()[:5]
+    top_tests = db_sess.query(tests.Tests).order_by(desc(tests.Tests.passing_tests)).all()[:8]
+    return render_template('index.html', amount_tests=amount_tests, tests=top_tests,
+                           visitors=visitors, leaders=leaders, average=average)
 
 
-@app.route('/', methods=['GET', 'POST'])
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """Регистрация пользователя"""
@@ -52,7 +58,7 @@ def register():
         db_sess.add(user)
         db_sess.commit()
         login_user(user)
-        return redirect('/menu')
+        return redirect('/')
     return render_template('register.html', form=form)
 
 
@@ -60,28 +66,20 @@ def register():
 def login():
     """Авторизация пользователя"""
     form = LoginForm()
-    if form.validate_on_submit():
+    if form.register.data:
+        return redirect('/register')
+    elif form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(users.User).filter(users.User.name == form.username.data).first()
         # проверка пароля и тогоб есть ли такой пользователь
         if user and user.check_password(form.password.data):
             login_user(user)
-            return redirect("/menu")
+            return redirect("/")
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
+    print(form.register.data)
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
-
-
-@app.route('/menu', methods=['GET', 'POST'])
-def index():
-    """Главное меню"""
-    form = MainForm()
-    if form.make_test.data:
-        return redirect('/make_test')
-    elif form.take_test.data:
-        return redirect('/choose_category')
-    return render_template('index.html', form=form, current_user=current_user)
 
 
 @app.route('/choose_category', methods=['GET', 'POST'])
@@ -106,7 +104,7 @@ def show_all_tests(category):
     if request.method == 'POST' and test:
         test_id = request.form.get('id')
         return redirect(f'/tests/{test_id}/start')
-    return render_template('all_tests.html', test=test, current_user=current_user)
+    return render_template('all_tests.html', tests=test, current_user=current_user)
 
 
 @app.route('/tests/<test_id>/start', methods=['GET', 'POST'])
@@ -116,7 +114,7 @@ def start_test(test_id):
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
     if request.method == 'POST':
         return redirect(f'/take_test/{test_id}/1')
-    return render_template('start_test.html', test=test, mark=f'+{test.mark}' if test.mark > 0 else test.mark, current_user=current_user)
+    return render_template('start_test.html', test=test, mark=test.mark, current_user=current_user)
 
 
 @app.route('/take_test/<test_id>/<question>', methods=['GET', 'POST'])
@@ -151,7 +149,7 @@ def take_test(test_id, question):
         user.passed_tests += 1
         session['right_answers'] = 0
         db_sess.commit()
-        return redirect('/menu')
+        return redirect('/')
     return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{mark}' if mark == 1 else mark, current_user=current_user)
 
 
@@ -163,8 +161,9 @@ def make_test():
         test = tests.Tests()
         test.name = form.name.data
         test.category = form.category.data
-        test.about = form.describe.data
+        test.describe = form.describe.data
         test.user_id = current_user.id
+        test.created_date = datetime.date.today()
         db_sess = db_session.create_session()
         db_sess.add(test)
         db_sess.commit()
@@ -203,7 +202,7 @@ def create_question(number, test_id):
         if form.add_question.data:
             return redirect(f'/create_question/{test_id}/{int(number) + 1}')
         elif form.create.data:
-            return redirect('/menu')
+            return redirect('/')
     return render_template('make_question.html', form=form, number=number, current_user=current_user)
 
 
@@ -234,7 +233,7 @@ def show_created_tests():
         return redirect(f'/tests/{test_id}/start')
     if not test:
         return 'Пользователь не создал ни одного теста'
-    return render_template('all_tests_2.html', test=test, current_user=current_user)
+    return render_template('users_tests.html', test=test, current_user=current_user)
 
 
 def main():

@@ -1,39 +1,30 @@
-{% extends "base2.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
-    <div class="col-md6 border rounded">
-    <h1>Вопрос № {{ number }}</h1>
-        <p>
-            {{ form.question.label }}<br>
-            {{ form.question(class="form-control")}}
-        </p>
-        <h1> Ответы </h1>
-    <p> {{ form.check_right1.label}} {{ form.answer1.label }} </p>
-        <p>
-            {{ form.check_right1() }}{{ form.answer1(class='form-control') }}
-        </p>
-        <p>
-            {{ form.check_right2() }}{{ form.answer2(class='form-control') }}
-        </p>
-        <p>
-            {{ form.check_right3() }}{{ form.answer3(class='form-control') }}
-        </p>
-        <p>
-            {{ form.check_right4() }}{{ form.answer4(class='form-control') }}
-        </p>
-    </div>
-        <p>
-            {{ form.add_question(class="form-control")}}<br>
-            {% for error in form.add_question.errors %}
-        <div class="alert alert-danger" role="alert">
-            {{ error }}
-        </div>
+    <div class="make-question-form">
+        <h1>Вопрос № {{ number }}</h1>
+            <p>
+                {{ form.question.label }}
+                {{ form.question(class="form-control")}}
+            </p>
+            <h1>Варианты ответов</h1>
+            <h4> {{ form.check_right1.label}} {{ form.answer1.label }} </h4>
+            <p> {{ form.check_right1() }}{{ form.answer1(class='form-control') }} </p>
+            <p> {{ form.check_right2() }}{{ form.answer2(class='form-control') }} </p>
+            <p> {{ form.check_right3() }}{{ form.answer3(class='form-control') }} </p>
+            <p> {{ form.check_right4() }}{{ form.answer4(class='form-control') }} </p>
+            <div class="make-question-submit">
+                {{ form.create(type="submit", class="btn btn-primary") }}
+                {{ form.add_question(class="btn btn-secondary")}}
+                {% for error in form.add_question.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
                 {% endfor %}
-        </p>
+            </div>
     </div>
     <p>{{message}}</p>
-    <p>{{ form.create(type="submit", class="btn btn-primary") }}</p>
 </form>
 {% endblock %}
