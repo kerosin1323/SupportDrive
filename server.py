@@ -33,6 +33,9 @@ def welcome_page():
     average = 80
     leaders = db_sess.query(users.User).order_by(desc(users.User.marking_test)).all()[:5]
     top_tests = db_sess.query(tests.Tests).order_by(desc(tests.Tests.passing_tests)).all()[:8]
+    id_pressed_test = request.form.get('id')
+    if id_pressed_test:
+        return redirect(f'/tests/{id_pressed_test}/start')
     return render_template('index.html', amount_tests=amount_tests, tests=top_tests,
                            visitors=visitors, leaders=leaders, average=average)
 
@@ -104,7 +107,7 @@ def show_all_tests(category):
     if request.method == 'POST' and test:
         test_id = request.form.get('id')
         return redirect(f'/tests/{test_id}/start')
-    return render_template('all_tests.html', tests=test, current_user=current_user)
+    return render_template('all_tests.html', tests=test, current_user=current_user, title=f'Тесты по категории {trans_dict[category].lower()}')
 
 
 @app.route('/tests/<test_id>/start', methods=['GET', 'POST'])
@@ -112,9 +115,14 @@ def start_test(test_id):
     """Первое окно теста"""
     db_sess = db_session.create_session()
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
-    if request.method == 'POST':
+    user = db_sess.query(users.User).filter(users.User.id == test.user_id).first()
+    user_pressed = request.form.get('user')
+    to_start = request.form.get('start')
+    if request.method == 'POST' and to_start:
         return redirect(f'/take_test/{test_id}/1')
-    return render_template('start_test.html', test=test, mark=test.mark, current_user=current_user)
+    elif user_pressed:
+        return redirect(f'/profile/{user.id}')
+    return render_template('start_test.html', test=test, mark=test.mark, current_user=current_user, user=user)
 
 
 @app.route('/take_test/<test_id>/<question>', methods=['GET', 'POST'])
@@ -220,7 +228,24 @@ def open_profile():
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=current_user.name, checked_tests_count=int(user.passed_tests), percent=int(percent), form=form, current_user=current_user)
+    return render_template('profile_check.html', name=current_user.name, checked_tests_count=int(user.passed_tests), percent=int(percent), form=form, current_user=current_user, mark=user.marking_test)
+
+
+@app.route('/profile/<user_id>', methods=['GET', 'POST'])
+def profile_user(user_id):
+    form = ProfileView()
+    db_sess = db_session.create_session()
+    user = db_sess.query(users.User).filter(users.User.id == user_id).first()
+    percent = 0
+    if user.all_questions:
+        percent = user.all_right_questions / user.all_questions * 100
+    if form.created_tests.data:
+        return redirect(f'/created_tests')
+    if form.exit.data:
+        logout_user()
+        return redirect('/')
+    return render_template('profile_check.html', name=user.name, checked_tests_count=int(user.passed_tests),
+                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test)
 
 
 @app.route('/created_tests', methods=['GET', 'POST'])
@@ -233,7 +258,7 @@ def show_created_tests():
         return redirect(f'/tests/{test_id}/start')
     if not test:
         return 'Пользователь не создал ни одного теста'
-    return render_template('users_tests.html', test=test, current_user=current_user)
+    return render_template('all_tests.html', tests=test, current_user=current_user, title=f'Тесты пользователя {current_user.name}')
 
 
 def main():

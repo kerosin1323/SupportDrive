@@ -1,19 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Профиль пользователя {{ name }}</h1>
 <form action="" method="post" novalidate>
-        <p>
-            Пройденных тестов: {{ checked_tests_count }}
+    <div class="profile-form">
+        <h1>Профиль пользователя {{ name }}</h1>
+        <p>Пройденных тестов: {{ checked_tests_count }}</p>
+        <p>Процент правильности выполнения: {{ percent }}</p>
+        <p>Оценка тестов:
+        {% if mark > 0 %}
+            <a style="color: green;">
+                +{{mark}}
+            </a>
+        {% elif mark == 0 %}
+            <a style="color: black;">
+                {{mark}}
+            </a>
+        {% else %}
+            <a style="color: red">
+                {{mark}}
+            </a>
+        {% endif %}
         </p>
-        <p>
-            Процент правильности выполнения: {{ percent }}
-        </p>
-        <p>
-            {{ form.created_tests(class='form-control') }}
-        </p>
-        <p>
-            {{ form.exit(class='btn btn-primary') }}
-        </p>
+        <p>{{ form.created_tests(class='form-control') }}</p>
+        <p>{{ form.exit(class='btn btn-primary') }}</p>
+    </div>
 </form>
 {% endblock %}

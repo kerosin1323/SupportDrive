@@ -20,7 +20,7 @@
         <div class="leaders">
             <h2>Лидеры по оценкам тестов</h2>
             <ol>
-                <li>{{ leaders[0] }}</li>
+                <li>{{ leaders[0].name }}</li>
                 <li>{{ leaders[1] }}</li>
                 <li>{{ leaders[2] }}</li>
             </ol>
@@ -29,7 +29,7 @@
     <h2 class="label-popular-test">Популярные тесты</h2>
     <div class="container">
         {% for test in tests %}
-            <button class="popular_tests">
+            <button class="popular_tests" name="id" value="{{test.id}}">
                 <img src=test.photo alt="Photo">
                 <h2>{{ test.name }}</h2>
                 {{ test.describe }}
@@ -41,6 +41,12 @@
                             +{{test.mark}}
                         </strong>
                     </div>
+                    {% elif test.mark == 0 %}
+                        <div title="Оценка" style="color: black">
+                            <strong>
+                                {{test.mark}}
+                            </strong>
+                        </div>
                     {% else %}
                         <div title="Оценка" style="color: red">
                             <strong>

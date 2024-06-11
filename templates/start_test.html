@@ -8,8 +8,8 @@
         <p>Категория: {{ test.category }}</p>
         <p>Дата создания: {{ test.created_date }}</p>
         <p>Оценка: {{ mark }}</p>
-        <p>Создатель: {{ user }}</p>
-        <button type="submit" class="btn btn-primary">Начать</button>
+        <p>Создатель: <a href="/profile/{{user.id}}" name="user" value="1">{{ user.name }}</a></p>
+        <button type="submit" class="btn btn-primary" name="start" value="1">Начать</button>
     </div>
 </form>
 {% endblock %}

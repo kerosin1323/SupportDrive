@@ -1,16 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Результат теста</h1>
 <form action="" method="post" novalidate>
-        <p>
-            Вы набрали {{ right_answers }} из {{ all_questions }}
-        </p>
-        <p>
-            Процент выполнения: {{ percent }}
-        </p>
+    <div class="result-form">
+        <h1>Результат теста</h1>
+        <p>Вы набрали {{ right_answers }} из {{ all_questions }}</p>
+        <p>Процент выполнения: {{ percent }}</p>
         <p>Оценка: <button type="submit" class="btn btn-secondary" name="mark" value="+">+</button> {{ mark }} <button type="submit" class="btn btn-secondary" name="mark" value="-">-</button></p>
         <button type="submit" class="btn btn-primary" name="exit" value="1">Выйти</button>
-
+    </div>
 </form>
 {% endblock %}

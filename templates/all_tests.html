@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Все тесты по теме {{ tests[0].category }}</h1>
+<h1>{{title}}</h1>
 <form action="" method="post" novalidate>
     <div class="tests-form">
         {% for test in tests %}
@@ -17,6 +17,12 @@
                             +{{test.mark}}
                         </strong>
                     </div>
+                    {% elif test.mark == 0 %}
+                        <div title="Оценка" style="color: black">
+                            <strong>
+                                {{test.mark}}
+                            </strong>
+                        </div>
                     {% else %}
                         <div title="Оценка" style="color: red">
                             <strong>
