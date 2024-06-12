@@ -18,6 +18,9 @@
             <div class="make-question-submit">
                 {{ form.create(type="submit", class="btn btn-primary") }}
                 {{ form.add_question(class="btn btn-secondary")}}
+                {% if able_to_delete %}
+                    <button class="btn btn-primary" name="delete-question" value="1" style="background-color: red;">Удалить</button>
+                {% endif %}
                 {% for error in form.add_question.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}

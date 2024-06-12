@@ -4,7 +4,7 @@
 <form action="" method="post" novalidate enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <div class="make-test-form">
-        <h1>Создание теста</h1>
+        <h1>{{title}}</h1>
         <p>
             {{ form.name.label }}
             {{ form.name(class="form-control") }}

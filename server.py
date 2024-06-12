@@ -81,7 +81,6 @@ def login():
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
-    print(form.register.data)
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
@@ -98,6 +97,7 @@ def choose_category():
 @app.route('/tests/<category>', methods=['GET', 'POST'])
 def show_all_tests(category):
     """ВЫвод всех тестов выбранной категории"""
+    print(category)
     trans_dict = {'films': 'Фильмы', 'sport': 'Спорт', 'foods': 'еда', 'games': 'Игры', 'science': 'Наука',
                   'tech': 'Технологии', 'others': 'Другое', 'music': 'Музыка'}
     db_sess = db_session.create_session()
@@ -118,10 +118,18 @@ def start_test(test_id):
     user = db_sess.query(users.User).filter(users.User.id == test.user_id).first()
     user_pressed = request.form.get('user')
     to_start = request.form.get('start')
+    to_delete = request.form.get('delete')
+    to_change = request.form.get('change')
     if request.method == 'POST' and to_start:
         return redirect(f'/take_test/{test_id}/1')
     elif user_pressed:
         return redirect(f'/profile/{user.id}')
+    elif to_delete:
+        db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).delete()
+        db_sess.commit()
+        return redirect('/')
+    elif to_change:
+        return redirect(f'/change_test/{test_id}')
     return render_template('start_test.html', test=test, mark=test.mark, current_user=current_user, user=user)
 
 
@@ -179,6 +187,80 @@ def make_test():
     return render_template('make_test.html', title='Создание теста', form=form, current_user=current_user)
 
 
+@app.route('/change_test/<test_id>', methods=['GET', 'POST'])
+def change_test(test_id):
+    form = ChangingTestForm()
+    db_sess = db_session.create_session()
+    test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
+    if form.validate_on_submit():
+        test.name = form.name.data
+        test.category = form.category.data
+        test.describe = form.describe.data
+        test.created_date = datetime.date.today()
+        db_sess.commit()
+        return redirect(f'/change_question/{test.id}/1')
+    else:
+        form.name.data = test.name
+        form.category.data = test.category
+        form.describe.data = test.describe
+    return render_template('make_test.html', title='Изменение теста', form=form, current_user=current_user)
+
+
+@app.route('/change_question/<test_id>/<number>', methods=['GET', 'POST'])
+def change_questions(test_id, number):
+    db_sess = db_session.create_session()
+    test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
+    form = ChangingQuestion()
+    data = json.loads(test.questions)
+    if request.form.get('delete-question'):
+        del data[str(number)]
+        test.questions = json.dumps(data)
+        db_sess.commit()
+        return redirect(f'/change_question/{test_id}/{int(number) + 1}')
+    elif form.validate_on_submit():
+        checks = (form.check_right1.data, form.check_right2.data, form.check_right3.data, form.check_right4.data)
+        variants = (form.answer1.data, form.answer2.data, form.answer3.data, form.answer4.data)
+        # проверка: правильный ответ должен быть одним
+        if sum(1 for i in checks if i) > 1:
+            return render_template('make_question.html', form=form, number=number, current_user=current_user,
+                                   message='Правильный ответ должен быть одним!')
+        elif not sum(1 for i in checks if i):
+            return render_template('make_question.html', form=form, number=number, current_user=current_user,
+                                   message='Выберите верный вариант ответа!')
+        # Преобразуем данные вопроса в json
+        questions_str = {f'{number}': {'name': form.question.data,
+                                       'answers': {variants[0]: checks[0],
+                                                   variants[1]: checks[1],
+                                                   variants[2]: checks[2],
+                                                   variants[3]: checks[3]}}}
+        try:
+            prev_questions = json.loads(test.questions)
+        except TypeError:
+            prev_questions = {}
+        # и в строку, для хранения в БД
+
+        test.questions = json.dumps({**prev_questions, **questions_str}, ensure_ascii=False)
+        db_sess.commit()
+        if form.add_question.data:
+            return redirect(f'/change_question/{test_id}/{int(number) + 1}')
+        elif form.create.data:
+
+            return redirect('/')
+    else:
+        form.question.data = data[str(number)]['name']
+        answers = [i for i, k in data[str(number)]['answers'].items()]
+        checks = [k for i, k in data[str(number)]['answers'].items()]
+        form.answer1.data = answers[0]
+        form.answer2.data = answers[1]
+        form.answer3.data = answers[2]
+        form.answer4.data = answers[3]
+        form.check_right1.data = checks[0]
+        form.check_right2.data = checks[1]
+        form.check_right3.data = checks[2]
+        form.check_right4.data = checks[3]
+    return render_template('make_question.html', form=form, number=number, current_user=current_user, able_to_delete=True)
+
+
 @app.route('/create_question/<test_id>/<number>', methods=['GET', "POST"])
 def create_question(number, test_id):
     """Процесс создания вопросов"""
@@ -211,7 +293,7 @@ def create_question(number, test_id):
             return redirect(f'/create_question/{test_id}/{int(number) + 1}')
         elif form.create.data:
             return redirect('/')
-    return render_template('make_question.html', form=form, number=number, current_user=current_user)
+    return render_template('make_question.html', form=form, number=number, current_user=current_user, able_to_delete=False)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
