@@ -30,14 +30,18 @@ def welcome_page():
     db_sess.commit()
     amount_tests = len(db_sess.query(tests.Tests).all())
     visitors = len(db_sess.query(users.User).all())
-    average = 80
-    leaders = db_sess.query(users.User).order_by(desc(users.User.marking_test)).all()[:5]
+    average = sum(i[0] for i in db_sess.query(users.User.all_right_questions).all()) * 100 // sum(j[0] for j in db_sess.query(users.User.all_questions).all())
+    leaders = db_sess.query(users.User).order_by(desc(users.User.marking_test)).all()[:3]
+    marking = []
+    for i in leaders:
+        marking.append(db_sess.query(users.User.marking_test).filter(users.User.id == i.id).first()[0])
+    print(marking)
     top_tests = db_sess.query(tests.Tests).order_by(desc(tests.Tests.passing_tests)).all()[:8]
     id_pressed_test = request.form.get('id')
     if id_pressed_test:
         return redirect(f'/tests/{id_pressed_test}/start')
     return render_template('index.html', amount_tests=amount_tests, tests=top_tests,
-                           visitors=visitors, leaders=leaders, average=average)
+                           visitors=visitors, leaders=leaders, average=average, marking=marking)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -136,8 +140,15 @@ def start_test(test_id):
 @app.route('/take_test/<test_id>/<question>', methods=['GET', 'POST'])
 def take_test(test_id, question):
     """Процесс прохождения теста"""
-    mark = session['mark'] = session.get('mark', 0)
-    right_answers = session.get('right_answers', 0)
+    try:
+        number_trying = list(session.get(str(test_id), {}).keys())[-1]
+    except IndexError:
+        number_trying = str(0)
+    if question == '1' and request.method == 'GET':
+        number_trying = str(int(number_trying) + 1)
+    mark = session.get(str(test_id), {}).get(number_trying, {}).get('mark', 0)
+    right_answers = session.get(str(test_id), {}).get(number_trying, {}).get('right_answers', 0)
+    session[str(test_id)] = {**session.get(str(test_id), {}), number_trying: {"mark": mark, 'right_answers': right_answers}}
     db_sess = db_session.create_session()
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
     # загружаем данные в виде json
@@ -145,25 +156,30 @@ def take_test(test_id, question):
     if request.method == 'POST' and int(question) <= len(data):
         # проверяем на правильность ответ пользователя
         if [j for j, v in data[question]['answers'].items()][int(request.form.get('index'))] == [i for i, k in data[question]['answers'].items() if k][0]:
-            session['right_answers'] = right_answers + 1
+            session[str(test_id)][number_trying]['right_answers'] = right_answers + 1
         return redirect(f'/take_test/{test_id}/{int(question) + 1}')
     # обрабатываем данные оценки
     if request.form.get('mark') == '+' and mark < 1:
-        session['mark'] += 1
+        session[str(test_id)][number_trying]['mark'] += 1
         mark += 1
     elif request.form.get('mark') == '-' and mark > -1:
-        session['mark'] -= 1
+        session[str(test_id)][number_trying]['mark'] -= 1
         mark -= 1
     if int(question) <= len(data):
         return render_template('questions.html', number_question=question, name=data[question]['name'], answer=[i for i in data[question]['answers']], current_user=current_user)
     # обработка кнопки выхода
     if request.form.get('exit') == '1':
-        test.mark += mark
-        user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
-        user.all_questions += len(data)
-        user.all_right_questions += session['right_answers']
-        user.passed_tests += 1
-        session['right_answers'] = 0
+        if number_trying == '1':
+            test.mark += mark
+        else:
+            test.mark -= session[str(test_id)][str(int(number_trying) - 1)]['mark']
+            test.mark += mark
+        if number_trying == '1':
+            user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+            user.all_questions += len(data)
+            user.all_right_questions += session[str(test_id)][number_trying]['right_answers']
+            user.passed_tests += 1
+        session[str(test_id)][number_trying]['right_answers'] = 0
         db_sess.commit()
         return redirect('/')
     return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{mark}' if mark == 1 else mark, current_user=current_user)
@@ -244,7 +260,11 @@ def change_questions(test_id, number):
         if form.add_question.data:
             return redirect(f'/change_question/{test_id}/{int(number) + 1}')
         elif form.create.data:
-
+            result = {}
+            for i in range(1, len(data) + 1):
+                result[str(i)] = list(data.items())[i - 1][1]
+            test.questions = json.dumps(result, ensure_ascii=False)
+            db_sess.commit()
             return redirect('/')
     else:
         form.question.data = data[str(number)]['name']

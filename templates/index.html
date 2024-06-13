@@ -20,9 +20,9 @@
         <div class="leaders">
             <h2>Лидеры по оценкам тестов</h2>
             <ol>
-                <li>{{ leaders[0].name }}</li>
-                <li>{{ leaders[1].name }}</li>
-                <li>{{ leaders[2] }}</li>
+                <li>{{ leaders[0].name }}: {{ marking[0] }}</li>
+                <li>{{ leaders[1].name }}: {{ marking[1] }}</li>
+                <li>{{ leaders[2].name }}: {{ marking[2] }}</li>
             </ol>
         </div>
     </div>
@@ -54,9 +54,6 @@
                             </strong>
                         </div>
                     {% endif %}
-                    <div class="average-result" style="color: black; font-weight: bold;" title="Средний процент прохождения">
-                        {{ test.average }}
-                    </div>
                     <div class="amount" title="Кол-во прохождений">
                         {{ test.passing_tests }}
                     </div>
