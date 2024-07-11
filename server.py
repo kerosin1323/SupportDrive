@@ -1,9 +1,12 @@
 import datetime
+import os
+
 from flask_login import LoginManager, login_user, current_user, logout_user
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, url_for
 from data import db_session, tests, users
 from forms.TestForm import *
-from sqlalchemy import desc
+from werkzeug.utils import secure_filename
+from sqlalchemy import desc, func
 import json
 
 app = Flask(__name__)
@@ -11,6 +14,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
+app.config['UPLOAD_FOLDER'] = './static/images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -30,18 +34,35 @@ def welcome_page():
     db_sess.commit()
     amount_tests = len(db_sess.query(tests.Tests).all())
     visitors = len(db_sess.query(users.User).all())
-    average = sum(i[0] for i in db_sess.query(users.User.all_right_questions).all()) * 100 // sum(j[0] for j in db_sess.query(users.User.all_questions).all())
+    try:
+        average = sum(i[0] for i in db_sess.query(users.User.all_right_questions).all()) * 100 // sum(
+        j[0] for j in db_sess.query(users.User.all_questions).all())
+    except ZeroDivisionError:
+        average = 0
     leaders = db_sess.query(users.User).order_by(desc(users.User.marking_test)).all()[:3]
     marking = []
     for i in leaders:
         marking.append(db_sess.query(users.User.marking_test).filter(users.User.id == i.id).first()[0])
-    print(marking)
     top_tests = db_sess.query(tests.Tests).order_by(desc(tests.Tests.passing_tests)).all()[:8]
     id_pressed_test = request.form.get('id')
     if id_pressed_test:
         return redirect(f'/tests/{id_pressed_test}/start')
     return render_template('index.html', amount_tests=amount_tests, tests=top_tests,
                            visitors=visitors, leaders=leaders, average=average, marking=marking)
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    db_sess = db_session.create_session()
+    search_tests = request.args.get('search')
+    test = db_sess.query(tests.Tests).filter(tests.Tests.name.ilike('%' + search_tests + '%')).all()
+    if not test:
+        return 'Тестов с таким названием нет'
+    if request.method == 'POST' and test:
+        test_id = request.form.get('id')
+        return redirect(f'/tests/{test_id}/start')
+    return render_template('all_tests.html', tests=test, current_user=current_user,
+                           title=f'Тесты по названию {search_tests}')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -101,7 +122,6 @@ def choose_category():
 @app.route('/tests/<category>', methods=['GET', 'POST'])
 def show_all_tests(category):
     """ВЫвод всех тестов выбранной категории"""
-    print(category)
     trans_dict = {'films': 'Фильмы', 'sport': 'Спорт', 'foods': 'еда', 'games': 'Игры', 'science': 'Наука',
                   'tech': 'Технологии', 'others': 'Другое', 'music': 'Музыка'}
     db_sess = db_session.create_session()
@@ -111,7 +131,8 @@ def show_all_tests(category):
     if request.method == 'POST' and test:
         test_id = request.form.get('id')
         return redirect(f'/tests/{test_id}/start')
-    return render_template('all_tests.html', tests=test, current_user=current_user, title=f'Тесты по категории {trans_dict[category].lower()}')
+    return render_template('all_tests.html', tests=test, current_user=current_user,
+                           title=f'Тесты по категории {trans_dict[category].lower()}')
 
 
 @app.route('/tests/<test_id>/start', methods=['GET', 'POST'])
@@ -140,49 +161,67 @@ def start_test(test_id):
 @app.route('/take_test/<test_id>/<question>', methods=['GET', 'POST'])
 def take_test(test_id, question):
     """Процесс прохождения теста"""
-    try:
-        number_trying = list(session.get(str(test_id), {}).keys())[-1]
-    except IndexError:
-        number_trying = str(0)
-    if question == '1' and request.method == 'GET':
-        number_trying = str(int(number_trying) + 1)
-    mark = session.get(str(test_id), {}).get(number_trying, {}).get('mark', 0)
-    right_answers = session.get(str(test_id), {}).get(number_trying, {}).get('right_answers', 0)
-    session[str(test_id)] = {**session.get(str(test_id), {}), number_trying: {"mark": mark, 'right_answers': right_answers}}
     db_sess = db_session.create_session()
     test = db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).first()
+    user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
     # загружаем данные в виде json
     data = json.loads(test.questions)
+    try:
+        passed_tests_data = json.loads(user.passed_tests)
+    except TypeError:
+        passed_tests_data = {test_id: {'0': {'right_answers': 0, 'mark': 0}}}
+    if not passed_tests_data:
+        user.passed_tests = json.dumps({test_id: {'0': {'right_answers': 0, 'mark': 0}}})
+        db_sess.commit()
+    elif not passed_tests_data[test_id]:
+        user.passed_tests = json.dumps({**passed_tests_data, **{test_id: {'1': {'right_answers': 0, 'mark': 0}}}})
+        db_sess.commit()
+    elif passed_tests_data[test_id] and question == '1' and request.method != 'POST':
+        prev_number_trying = int([i for i in passed_tests_data[test_id].keys()][0])
+        prev_mark = passed_tests_data[test_id][str(prev_number_trying)]['mark']
+        user.passed_tests = json.dumps({**passed_tests_data, **{test_id: {str(prev_number_trying + 1): dict(
+            right_answers=0, mark=prev_mark)}}})
+        db_sess.commit()
+    passed_tests_data = json.loads(user.passed_tests)
+    number_trying = [i for i in passed_tests_data[test_id].keys()][0]
+    right_answers = passed_tests_data[test_id][number_trying]['right_answers']
+    mark = passed_tests_data[test_id][number_trying]['mark']
     if request.method == 'POST' and int(question) <= len(data):
         # проверяем на правильность ответ пользователя
-        if [j for j, v in data[question]['answers'].items()][int(request.form.get('index'))] == [i for i, k in data[question]['answers'].items() if k][0]:
-            session[str(test_id)][number_trying]['right_answers'] = right_answers + 1
+        if [j for j, v in data[question]['answers'].items()][int(request.form.get('index'))] == \
+                [i for i, k in data[question]['answers'].items() if k][0]:
+            passed_tests_data[test_id][number_trying]['right_answers'] += 1
+            user.passed_tests = json.dumps(passed_tests_data)
+            db_sess.commit()
         return redirect(f'/take_test/{test_id}/{int(question) + 1}')
     # обрабатываем данные оценки
     if request.form.get('mark') == '+' and mark < 1:
-        session[str(test_id)][number_trying]['mark'] += 1
         mark += 1
+        test.mark += 1
     elif request.form.get('mark') == '-' and mark > -1:
-        session[str(test_id)][number_trying]['mark'] -= 1
         mark -= 1
+        test.mark -= 1
+    passed_tests_data[test_id][number_trying]['mark'] = mark
+    user.passed_tests = json.dumps(passed_tests_data)
+    db_sess.commit()
     if int(question) <= len(data):
-        return render_template('questions.html', number_question=question, name=data[question]['name'], answer=[i for i in data[question]['answers']], current_user=current_user)
+        return render_template('questions.html', number_question=question, name=data[question]['name'],
+                               answer=[i for i in data[question]['answers']], current_user=current_user)
     # обработка кнопки выхода
     if request.form.get('exit') == '1':
         if number_trying == '1':
-            test.mark += mark
-        else:
-            test.mark -= session[str(test_id)][str(int(number_trying) - 1)]['mark']
-            test.mark += mark
-        if number_trying == '1':
-            user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+            test.passing_tests += 1
+            test.amount_right_answers += passed_tests_data[test_id][number_trying]['right_answers']
             user.all_questions += len(data)
-            user.all_right_questions += session[str(test_id)][number_trying]['right_answers']
-            user.passed_tests += 1
-        session[str(test_id)][number_trying]['right_answers'] = 0
+            user.all_right_questions += passed_tests_data[test_id][number_trying]['right_answers']
+        else:
+            test.mark -= passed_tests_data[test_id][number_trying]['mark']
+        test.mark += passed_tests_data[test_id][number_trying]['mark']
         db_sess.commit()
         return redirect('/')
-    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data), percent=int(right_answers/len(data)*100), mark=f'+{mark}' if mark == 1 else mark, current_user=current_user)
+    return render_template('finish_test.html', right_answers=right_answers, all_questions=len(data),
+                           percent=int(right_answers / len(data) * 100), mark=f'+{mark}' if mark == 1 else mark,
+                           current_user=current_user)
 
 
 @app.route('/make_test', methods=['GET', 'POST'])
@@ -190,7 +229,11 @@ def make_test():
     """Процесс создания теста"""
     form = MakingTestForm()
     if form.validate_on_submit():
+        file = form.add_photo.data
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         test = tests.Tests()
+        test.photo = filename
         test.name = form.name.data
         test.category = form.category.data
         test.describe = form.describe.data
@@ -278,7 +321,8 @@ def change_questions(test_id, number):
         form.check_right2.data = checks[1]
         form.check_right3.data = checks[2]
         form.check_right4.data = checks[3]
-    return render_template('make_question.html', form=form, number=number, current_user=current_user, able_to_delete=True)
+    return render_template('make_question.html', form=form, number=number, current_user=current_user,
+                           able_to_delete=True)
 
 
 @app.route('/create_question/<test_id>/<number>', methods=['GET', "POST"])
@@ -293,15 +337,17 @@ def create_question(number, test_id):
         variants = (form.answer1.data, form.answer2.data, form.answer3.data, form.answer4.data)
         # проверка: правильный ответ должен быть одним
         if sum(1 for i in checks if i) > 1:
-            return render_template('make_question.html', form=form, number=number, current_user=current_user, message='Правильный ответ должен быть одним!')
+            return render_template('make_question.html', form=form, number=number, current_user=current_user,
+                                   message='Правильный ответ должен быть одним!')
         elif not sum(1 for i in checks if i):
-            return render_template('make_question.html', form=form, number=number, current_user=current_user, message='Выберите верный вариант ответа!')
+            return render_template('make_question.html', form=form, number=number, current_user=current_user,
+                                   message='Выберите верный вариант ответа!')
         # Преобразуем данные вопроса в json
         questions_str = {f'{number}': {'name': form.question.data,
-                                                  'answers': {variants[0]: checks[0],
-                                                              variants[1]: checks[1],
-                                                              variants[2]: checks[2],
-                                                              variants[3]: checks[3]}}}
+                                       'answers': {variants[0]: checks[0],
+                                                   variants[1]: checks[1],
+                                                   variants[2]: checks[2],
+                                                   variants[3]: checks[3]}}}
         try:
             prev_questions = json.loads(test.questions)
         except TypeError:
@@ -313,7 +359,8 @@ def create_question(number, test_id):
             return redirect(f'/create_question/{test_id}/{int(number) + 1}')
         elif form.create.data:
             return redirect('/')
-    return render_template('make_question.html', form=form, number=number, current_user=current_user, able_to_delete=False)
+    return render_template('make_question.html', form=form, number=number, current_user=current_user,
+                           able_to_delete=False)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -330,7 +377,8 @@ def open_profile():
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=current_user.name, checked_tests_count=int(user.passed_tests), percent=int(percent), form=form, current_user=current_user, mark=user.marking_test)
+    return render_template('profile_check.html', name=current_user.name, checked_tests_count=len(json.loads(user.passed_tests).keys()),
+                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test)
 
 
 @app.route('/profile/<user_id>', methods=['GET', 'POST'])
@@ -346,7 +394,7 @@ def profile_user(user_id):
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=user.name, checked_tests_count=int(user.passed_tests),
+    return render_template('profile_check.html', name=user.name, checked_tests_count=len(json.loads(user.passed_tests).keys()),
                            percent=int(percent), form=form, current_user=current_user, mark=user.marking_test)
 
 
@@ -360,7 +408,8 @@ def show_created_tests():
         return redirect(f'/tests/{test_id}/start')
     if not test:
         return 'Пользователь не создал ни одного теста'
-    return render_template('all_tests.html', tests=test, current_user=current_user, title=f'Тесты пользователя {current_user.name}')
+    return render_template('all_tests.html', tests=test, current_user=current_user,
+                           title=f'Тесты пользователя {current_user.name}')
 
 
 def main():

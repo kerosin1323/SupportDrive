@@ -14,7 +14,7 @@ class User(SqlAlchemyBase, UserMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     all_right_questions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     all_questions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
-    passed_tests = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    passed_tests = sqlalchemy.Column(sqlalchemy.String)
     marking_test = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     tests = orm.relationship("Tests", back_populates='user')
 

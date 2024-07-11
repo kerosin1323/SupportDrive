@@ -30,32 +30,36 @@
     <div class="container">
         {% for test in tests %}
             <button class="popular_tests" name="id" value="{{test.id}}">
-                <img src=test.photo alt="Photo">
-                <h2>{{ test.name }}</h2>
+                <div class="image">
+                    <img src="/static/images/{{ test.photo }}" alt="photo" height="100%" width="100%">
+                </div>
+                <div class="under-photo">
+                    <h2>{{ test.name }}</h2>
                 {{ test.describe }}
                 <hr>
-                <div class="underline-text">
-                    {% if test.mark > 0 %}
-                    <div title="Оценка" style="color: green; font-size: 20px">
-                        <strong>
-                            +{{test.mark}}
-                        </strong>
-                    </div>
-                    {% elif test.mark == 0 %}
-                        <div title="Оценка" style="color: black">
-                            <strong>
-                                {{test.mark}}
-                            </strong>
+                    <div class="underline-text">
+                        {% if test.mark > 0 %}
+                            <div title="Оценка" style="color: green; font-size: 20px">
+                                <strong>
+                                    +{{test.mark}}
+                                </strong>
+                            </div>
+                        {% elif test.mark == 0 %}
+                            <div title="Оценка" style="color: black">
+                                <strong>
+                                    {{test.mark}}
+                                </strong>
+                            </div>
+                        {% else %}
+                            <div title="Оценка" style="color: red">
+                                <strong>
+                                    {{test.mark}}
+                                </strong>
+                            </div>
+                        {% endif %}
+                        <div class="amount" title="Кол-во прохождений">
+                            {{ test.passing_tests }}
                         </div>
-                    {% else %}
-                        <div title="Оценка" style="color: red">
-                            <strong>
-                                {{test.mark}}
-                            </strong>
-                        </div>
-                    {% endif %}
-                    <div class="amount" title="Кол-во прохождений">
-                        {{ test.passing_tests }}
                     </div>
                 </div>
             </button>

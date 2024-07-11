@@ -27,6 +27,7 @@ class MakingTestForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     category = SelectField('Категория', choices=dropdown_list, default=1)
     describe = TextAreaField('Описание')
+    add_photo = FileField('Добавить фото')
     add_question = SubmitField('+ Добавить вопрос +')
 
 
@@ -35,6 +36,7 @@ class ChangingTestForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     category = SelectField('Категория', choices=dropdown_list, default=1)
     describe = TextAreaField('Описание')
+    add_photo = FileField('Добавить фото')
     add_question = SubmitField('+ Изменить вопрос +')
 
 
@@ -60,6 +62,7 @@ class MakingQuestion(FlaskForm):
     check_right3 = BooleanField('Верный ответ')
     answer4 = StringField('Ответ', validators=[DataRequired()])
     check_right4 = BooleanField('Верный ответ')
+    add_photo = FileField('Добавить фото')
     create = SubmitField('Создать')
 
 

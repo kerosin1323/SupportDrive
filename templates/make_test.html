@@ -33,6 +33,14 @@
             {% endfor %}
         </p>
         <p>
+            {{ form.add_photo() }}
+            {% for error in form.add_photo.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.add_question(type='submit', class="btn btn-primary") }}
             {% for error in form.add_question.errors %}
                 <div class="alert alert-danger" role="alert">
