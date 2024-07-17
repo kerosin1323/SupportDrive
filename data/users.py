@@ -16,6 +16,7 @@ class User(SqlAlchemyBase, UserMixin):
     all_questions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     passed_tests = sqlalchemy.Column(sqlalchemy.String)
     marking_test = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     tests = orm.relationship("Tests", back_populates='user')
 
     def set_password(self, password):

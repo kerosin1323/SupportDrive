@@ -228,7 +228,11 @@
         <a class="navbar-brand" href="/choose_category">Тесты❔</a>
         <a class="navbar-brand" href="/make_test">Создать💡</a>
         {% if current_user.is_authenticated %}
+            {% if current_user.is_admin %}
+                <a class="btn btn-secondary" href="profile" style="background-color: red;">{{ current_user.name }}</a>
+            {% else %}
             <a class="btn btn-secondary" href="/profile">{{ current_user.name }}</a>
+            {% endif %}
         {% else %}
             <a class="btn btn-primary" href="/login">Войти</a>
         {% endif %}

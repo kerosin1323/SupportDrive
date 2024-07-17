@@ -1,12 +1,12 @@
 import datetime
 import os
-
+from secret_file import *
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask import Flask, render_template, redirect, request, session, url_for
 from data import db_session, tests, users
 from forms.TestForm import *
 from werkzeug.utils import secure_filename
-from sqlalchemy import desc, func
+from sqlalchemy import desc, and_
 import json
 
 app = Flask(__name__)
@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
-app.config['UPLOAD_FOLDER'] = './static/images'
+app.config['UPLOAD_FOLDER'] = '.\static\images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -72,6 +72,8 @@ def register():
     # Проверям нажатие на кнопку залогиниться
     if form.to_login.data:
         return redirect('/login')
+    if form.register_as_admin.data:
+        return redirect('/register_admin')
     elif form.validate_on_submit():
         db_sess = db_session.create_session()
         # проверяем, есть ли такой пользователь
@@ -96,6 +98,8 @@ def login():
     form = LoginForm()
     if form.register.data:
         return redirect('/register')
+    if form.login_as_admin.data:
+        return redirect('/login_admin')
     elif form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(users.User).filter(users.User.name == form.username.data).first()
@@ -107,6 +111,61 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
+
+
+@app.route('/register_admin', methods=['POST', 'GET'])
+def register_admin():
+    form = AdminRegisterForm()
+    if form.register_as_user.data:
+        return redirect('/register')
+    if form.login.data:
+        return redirect('/login_admin')
+    elif form.validate_on_submit():
+        db_sess = db_session.create_session()
+        # проверяем, есть ли такой пользователь
+        if db_sess.query(users.User).filter(and_(users.User.name == form.username.data, users.User.is_admin is True)).first():
+            return render_template('register_admin.html',
+                                   form=form,
+                                   message="Такой админ уже есть")
+        if str(form.admin_password.data) == PASSWORD_ADMIN:
+            user = users.User(
+                name=form.username.data,
+                is_admin=True
+            )
+            user.set_password(form.password.data)
+            db_sess.add(user)
+            db_sess.commit()
+            login_user(user)
+            return redirect('/')
+        elif str(form.admin_password.data) != PASSWORD_ADMIN:
+            return render_template('register_admin.html',
+                                   form=form,
+                                   message="Неверный Админ-пароль")
+    return render_template('register_admin.html', form=form, title='Регистрация как админ', current_user=current_user)
+
+
+@app.route('/login_admin', methods=['GET', 'POST'])
+def login_admin():
+    form = AdminLoginForm()
+    if form.register.data:
+        return redirect('/register_admin')
+    if form.login_as_user.data:
+        return redirect('/login')
+    elif form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(users.User).filter(and_(users.User.name == form.username.data, users.User.is_admin is True)).first()
+        # проверка пароля и тогоб есть ли такой пользователь
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            return redirect("/")
+        elif str(form.admin_password.data) != PASSWORD_ADMIN:
+            return render_template('login_admin.html',
+                                   message="Неправильный админ-пароль",
+                                   form=form)
+        return render_template('login_admin.html',
+                               message="Неправильный логин или пароль",
+                               form=form)
+    return render_template('login_admin.html', title='Вход в аккаунт админа', form=form, current_user=current_user)
 
 
 @app.route('/choose_category', methods=['GET', 'POST'])
@@ -206,7 +265,7 @@ def take_test(test_id, question):
     db_sess.commit()
     if int(question) <= len(data):
         return render_template('questions.html', number_question=question, name=data[question]['name'],
-                               answer=[i for i in data[question]['answers']], current_user=current_user)
+                               answer=[i for i in data[question]['answers']], current_user=current_user, photo=data[question]['photo'])
     # обработка кнопки выхода
     if request.form.get('exit') == '1':
         if number_trying == '1':
@@ -343,7 +402,12 @@ def create_question(number, test_id):
             return render_template('make_question.html', form=form, number=number, current_user=current_user,
                                    message='Выберите верный вариант ответа!')
         # Преобразуем данные вопроса в json
+        file = form.add_photo.data
+        print(file)
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         questions_str = {f'{number}': {'name': form.question.data,
+                                       'photo': filename,
                                        'answers': {variants[0]: checks[0],
                                                    variants[1]: checks[1],
                                                    variants[2]: checks[2],
@@ -370,6 +434,10 @@ def open_profile():
     db_sess = db_session.create_session()
     user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
     percent = 0
+    try:
+        checked_test_count = len(json.loads(user.passed_tests).keys())
+    except TypeError:
+        checked_test_count = 0
     if user.all_questions:
         percent = user.all_right_questions / user.all_questions * 100
     if form.created_tests.data:
@@ -377,8 +445,8 @@ def open_profile():
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=current_user.name, checked_tests_count=len(json.loads(user.passed_tests).keys()),
-                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test)
+    return render_template('profile_check.html', name=current_user.name, checked_tests_count=checked_test_count,
+                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test, user_id=user.id)
 
 
 @app.route('/profile/<user_id>', methods=['GET', 'POST'])
@@ -387,6 +455,25 @@ def profile_user(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(users.User).filter(users.User.id == user_id).first()
     percent = 0
+    try:
+        checked_test_count = len(json.loads(user.passed_tests).keys())
+    except TypeError:
+        checked_test_count = 0
+    if form.delete.data and current_user.is_admin:
+        db_sess.query(users.User).filter(users.User.id == user_id).delete()
+        db_sess.query(tests.Tests).filter(tests.Tests.user_id == user_id).delete()
+        all_tests = db_sess.query(tests.Tests).filter(tests.Tests.user_id == user_id).all()
+        files_photo = []
+        for test in all_tests:
+            files_photo.append(test.photo)
+            data = json.loads(test.questions)
+            for i, k in data.items():
+                files_photo.append(k['photo'])
+        print(files_photo)
+        for file in files_photo:
+            os.remove(f'static/images/{file}')
+        db_sess.commit()
+        return redirect('/')
     if user.all_questions:
         percent = user.all_right_questions / user.all_questions * 100
     if form.created_tests.data:
@@ -394,8 +481,8 @@ def profile_user(user_id):
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=user.name, checked_tests_count=len(json.loads(user.passed_tests).keys()),
-                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test)
+    return render_template('profile_check.html', name=user.name, checked_tests_count=checked_test_count,
+                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test, user_id=user_id)
 
 
 @app.route('/created_tests', methods=['GET', 'POST'])

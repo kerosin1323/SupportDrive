@@ -7,6 +7,7 @@ class LoginForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     register = SubmitField('Зарегестрироваться')
+    login_as_admin = SubmitField('Войти как админ')
     submit = SubmitField('Войти')
 
 
@@ -14,6 +15,25 @@ class RegisterForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     to_login = SubmitField('Войти в аккаунт')
+    register_as_admin = SubmitField('Создать админа')
+    submit = SubmitField('Создать')
+
+
+class AdminLoginForm(FlaskForm):
+    username = StringField('Логин', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    admin_password = PasswordField('Админ-пароль', validators=[DataRequired()])
+    register = SubmitField('Создать админа')
+    login_as_user = SubmitField('Создать пользователя')
+    submit = SubmitField('Войти')
+
+
+class AdminRegisterForm(FlaskForm):
+    username = StringField('Логин', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    admin_password = PasswordField('Админ-пароль', validators=[DataRequired()])
+    login = SubmitField('Войти как админ')
+    register_as_user = SubmitField('Войти как пользователь')
     submit = SubmitField('Создать')
 
 
@@ -77,9 +97,11 @@ class ChangingQuestion(FlaskForm):
     check_right3 = BooleanField('Верный ответ')
     answer4 = StringField('Ответ', validators=[DataRequired()])
     check_right4 = BooleanField('Верный ответ')
+    add_photo = FileField('Добавить фото')
     create = SubmitField('Сохранить')
 
 
 class ProfileView(FlaskForm):
     created_tests = SubmitField('Созданные тесты')
     exit = SubmitField('Выйти')
+    delete = SubmitField('Удалить пользователя')

@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate>
+<form action="" method="post" novalidate enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <div class="make-question-form">
         <h1>Вопрос № {{ number }}</h1>
             <p>
                 {{ form.question.label }}
                 {{ form.question(class="form-control")}}
+            </p>
+            <p>
+                {{ form.add_photo() }}
+                {% for error in form.add_photo.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </p>
             <h1>Варианты ответов</h1>
             <h4> {{ form.check_right1.label}} {{ form.answer1.label }} </h4>

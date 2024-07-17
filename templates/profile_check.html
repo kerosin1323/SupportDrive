@@ -22,7 +22,11 @@
         {% endif %}
         </p>
         <p>{{ form.created_tests(class='form-control') }}</p>
-        <p>{{ form.exit(class='btn btn-primary') }}</p>
+        {% if current_user.is_admin and current_user.id != user_id %}
+            <p>{{ form.delete(class="btn btn-secondary") }}</p>
+        {% elif current_user.id == user_id  %}
+            <p>{{ form.exit(class='btn btn-primary') }}</p>
+        {% endif %}
     </div>
 </form>
 {% endblock %}

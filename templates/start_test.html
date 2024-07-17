@@ -3,6 +3,9 @@
 {% block content %}
 <form action="" method="post" novalidate>
     <div class="start-form">
+        <div class="image">
+            <img src="/static/images/{{ test.photo }}" alt="photo" height="100%" width="100%">
+        </div>
         <h1> {{ test.name }} </h1>
         <p>Описание: {{ test.describe }}</p>
         <p>Категория: {{ test.category }}</p>
@@ -10,10 +13,11 @@
         <p>Оценка: {{ mark }}</p>
         <p>Создатель: <a href="/profile/{{user.id}}" name="user" value="1">{{ user.name }}</a></p>
         <div class="start-submit">
-            {% if current_user.id == test.user_id %}
+            {% if current_user.id == test.user_id or current_user.is_admin %}
                 <button type="submit" class="btn btn-secondary" name="change" value="1">Изменить</button>
                 <button type="submit" class="btn btn-primary" style="background-color: red;" name="delete" value="1">Удалить</button>
-            {% else %}
+            {% endif %}
+            {% if current_user.is_admin or current_user.id == test.user_id %}
                 <button type="submit" class="btn btn-primary" name="start" value="1">Начать</button>
             {% endif %}
         </div>
