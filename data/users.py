@@ -10,11 +10,11 @@ class User(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     all_right_questions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     all_questions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
-    passed_tests = sqlalchemy.Column(sqlalchemy.String)
+    passed_tests = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     marking_test = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     is_admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     tests = orm.relationship("Tests", back_populates='user')

@@ -37,17 +37,12 @@ class AdminRegisterForm(FlaskForm):
     submit = SubmitField('Создать')
 
 
-class MainForm(FlaskForm):
-    make_test = SubmitField('Создать тест')
-    take_test = SubmitField('Пройти тест')
-
-
 class MakingTestForm(FlaskForm):
     dropdown_list = ['Фильмы', 'Спорт', 'Еда', 'Игры', 'Музыка', 'Наука', 'Технологии', 'Другое']
     name = StringField('Название', validators=[DataRequired()])
     category = SelectField('Категория', choices=dropdown_list, default=1)
     describe = TextAreaField('Описание')
-    add_photo = FileField('Добавить фото')
+    add_photo = FileField('Добавить фото', validators=[DataRequired()])
     add_question = SubmitField('+ Добавить вопрос +')
 
 
@@ -56,7 +51,7 @@ class ChangingTestForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     category = SelectField('Категория', choices=dropdown_list, default=1)
     describe = TextAreaField('Описание')
-    add_photo = FileField('Добавить фото')
+    add_photo = FileField('Добавить фото', validators=[DataRequired()])
     add_question = SubmitField('+ Изменить вопрос +')
 
 
@@ -82,7 +77,7 @@ class MakingQuestion(FlaskForm):
     check_right3 = BooleanField('Верный ответ')
     answer4 = StringField('Ответ', validators=[DataRequired()])
     check_right4 = BooleanField('Верный ответ')
-    add_photo = FileField('Добавить фото')
+    add_photo = FileField('Добавить фото', validators=[DataRequired()])
     create = SubmitField('Создать')
 
 
@@ -97,7 +92,7 @@ class ChangingQuestion(FlaskForm):
     check_right3 = BooleanField('Верный ответ')
     answer4 = StringField('Ответ', validators=[DataRequired()])
     check_right4 = BooleanField('Верный ответ')
-    add_photo = FileField('Добавить фото')
+    add_photo = FileField('Добавить фото', validators=[DataRequired()])
     create = SubmitField('Сохранить')
 
 

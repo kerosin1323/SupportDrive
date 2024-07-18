@@ -109,7 +109,7 @@ def login():
             return redirect("/")
         return render_template('login.html',
                                message="Неправильный логин или пароль",
-                               form=form)
+                                form=form)
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
@@ -209,7 +209,16 @@ def start_test(test_id):
     elif user_pressed:
         return redirect(f'/profile/{user.id}')
     elif to_delete:
-        db_sess.query(tests.Tests).filter(tests.Tests.id == test_id).delete()
+        all_tests = db_sess.query(tests.Tests).filter(tests.Tests.id == test.id).all()
+        files_photo = []
+        for test in all_tests:
+            files_photo.append(test.photo)
+            data = json.loads(test.questions)
+            for i, k in data.items():
+                files_photo.append(k['photo'])
+        for file in files_photo:
+            os.remove(f'static/images/{file}')
+        db_sess.query(tests.Tests).filter(tests.Tests.id == test.id).delete()
         db_sess.commit()
         return redirect('/')
     elif to_change:
@@ -461,7 +470,6 @@ def profile_user(user_id):
         checked_test_count = 0
     if form.delete.data and current_user.is_admin:
         db_sess.query(users.User).filter(users.User.id == user_id).delete()
-        db_sess.query(tests.Tests).filter(tests.Tests.user_id == user_id).delete()
         all_tests = db_sess.query(tests.Tests).filter(tests.Tests.user_id == user_id).all()
         files_photo = []
         for test in all_tests:
@@ -472,6 +480,7 @@ def profile_user(user_id):
         print(files_photo)
         for file in files_photo:
             os.remove(f'static/images/{file}')
+        db_sess.query(tests.Tests).filter(tests.Tests.user_id == user_id).delete()
         db_sess.commit()
         return redirect('/')
     if user.all_questions:
