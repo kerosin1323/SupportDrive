@@ -1,9 +1,9 @@
 import datetime
 import os
 from secret_file import *
-from flask_login import LoginManager, login_user, current_user, logout_user
-from flask import Flask, render_template, redirect, request, session, url_for
-from data import db_session, tests, users
+from flask_login import *
+from flask import *
+from data import db_session, articles, users
 from forms.TestForm import *
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, and_
@@ -21,75 +21,80 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    """Загрузка пользователя"""
     db_sess = db_session.create_session()
     return db_sess.query(users.User).get(user_id)
 
 
+def deleteNoneArticles():
+    db_sess = db_session.create_session()
+    db_sess.query(articles.Articles).filter(articles.Articles.text is None).delete()
+    db_sess.commit()
+
+
+def getMostPopularArticle():
+    db_sess = db_session.create_session()
+    return db_sess.query(articles.Articles).order_by(desc(articles.Articles.marks))
+
+
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
-    """Первая страница"""
+    deleteNoneArticles()
+    popular_articles = getMostPopularArticle()
+    clickedOnArticle()
+    return render_template('index.html', articles=popular_articles)
+
+
+def clickedOnArticle():
+    id_article = request.form.get('id')
+    if id_article:
+        return redirect(f'/article/{id_article}/start')
+
+
+def getSearchArticles():
     db_sess = db_session.create_session()
-    db_sess.query(tests.Tests).filter(tests.Tests.questions == None).delete()
-    db_sess.commit()
-    amount_tests = len(db_sess.query(tests.Tests).all())
-    visitors = len(db_sess.query(users.User).all())
-    try:
-        average = sum(i[0] for i in db_sess.query(users.User.all_right_questions).all()) * 100 // sum(
-        j[0] for j in db_sess.query(users.User.all_questions).all())
-    except ZeroDivisionError:
-        average = 0
-    leaders = db_sess.query(users.User).order_by(desc(users.User.marking_test)).all()[:3]
-    marking = []
-    for i in leaders:
-        marking.append(db_sess.query(users.User.marking_test).filter(users.User.id == i.id).first()[0])
-    top_tests = db_sess.query(tests.Tests).order_by(desc(tests.Tests.passing_tests)).all()[:8]
-    id_pressed_test = request.form.get('id')
-    if id_pressed_test:
-        return redirect(f'/tests/{id_pressed_test}/start')
-    return render_template('index.html', amount_tests=amount_tests, tests=top_tests,
-                           visitors=visitors, leaders=leaders, average=average, marking=marking)
+    search_tests = request.args.get('search')
+    return db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + search_tests + '%')).all()
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    db_sess = db_session.create_session()
-    search_tests = request.args.get('search')
-    test = db_sess.query(tests.Tests).filter(tests.Tests.name.ilike('%' + search_tests + '%')).all()
-    if not test:
+    search_articles = getSearchArticles()
+    if not search_articles:
         return 'Тестов с таким названием нет'
-    if request.method == 'POST' and test:
-        test_id = request.form.get('id')
-        return redirect(f'/tests/{test_id}/start')
-    return render_template('all_tests.html', tests=test, current_user=current_user,
-                           title=f'Тесты по названию {search_tests}')
+    if request.method == 'POST' and search_articles:
+        clickedOnArticle()
+    return render_template('all_search_articles.html', articles=search_articles, current_user=current_user,
+                           title=f'Тесты по названию {search_articles[0].name}')
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register():
-    """Регистрация пользователя"""
+def registerUser():
     form = RegisterForm()
-    # Проверям нажатие на кнопку залогиниться
     if form.to_login.data:
         return redirect('/login')
     if form.register_as_admin.data:
         return redirect('/register_admin')
     elif form.validate_on_submit():
-        db_sess = db_session.create_session()
-        # проверяем, есть ли такой пользователь
-        if db_sess.query(users.User).filter(users.User.name == form.username.data).first():
-            return render_template('register.html',
-                                   form=form,
-                                   message="Такой пользователь уже есть")
-        user = users.User(
-            name=form.username.data,
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
-        login_user(user)
+        if userAlreadyExist(form.username.data):
+            return render_template('register.html', form=form, message="Такой пользователь уже есть")
+        createUser()
         return redirect('/')
     return render_template('register.html', form=form)
+
+
+def createUser():
+    form = RegisterForm()
+    db_sess = db_session.create_session()
+    user = users.User(name=form.username.data)
+    user.set_password(form.password.data)
+    db_sess.add(user)
+    db_sess.commit()
+    login_user(user)
+
+
+def userAlreadyExist(name):
+    db_sess = db_session.create_session()
+    return bool(len(db_sess.query(users.User).filter(users.User.name == name)))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -101,76 +106,20 @@ def login():
     if form.login_as_admin.data:
         return redirect('/login_admin')
     elif form.validate_on_submit():
-        db_sess = db_session.create_session()
-        user = db_sess.query(users.User).filter(users.User.name == form.username.data).first()
-        # проверка пароля и тогоб есть ли такой пользователь
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            return redirect("/")
-        return render_template('login.html',
-                               message="Неправильный логин или пароль",
-                                form=form)
+        checkAndLoginUser(form.username.data, form.password.data)
+        return render_template('login.html', message="Неправильный логин или пароль", form=form)
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
-@app.route('/register_admin', methods=['POST', 'GET'])
-def register_admin():
-    form = AdminRegisterForm()
-    if form.register_as_user.data:
-        return redirect('/register')
-    if form.login.data:
-        return redirect('/login_admin')
-    elif form.validate_on_submit():
-        db_sess = db_session.create_session()
-        # проверяем, есть ли такой пользователь
-        if db_sess.query(users.User).filter(and_(users.User.name == form.username.data, users.User.is_admin is True)).first():
-            return render_template('register_admin.html',
-                                   form=form,
-                                   message="Такой админ уже есть")
-        if str(form.admin_password.data) == PASSWORD_ADMIN:
-            user = users.User(
-                name=form.username.data,
-                is_admin=True
-            )
-            user.set_password(form.password.data)
-            db_sess.add(user)
-            db_sess.commit()
-            login_user(user)
-            return redirect('/')
-        elif str(form.admin_password.data) != PASSWORD_ADMIN:
-            return render_template('register_admin.html',
-                                   form=form,
-                                   message="Неверный Админ-пароль")
-    return render_template('register_admin.html', form=form, title='Регистрация как админ', current_user=current_user)
-
-
-@app.route('/login_admin', methods=['GET', 'POST'])
-def login_admin():
-    form = AdminLoginForm()
-    if form.register.data:
-        return redirect('/register_admin')
-    if form.login_as_user.data:
-        return redirect('/login')
-    elif form.validate_on_submit():
-        db_sess = db_session.create_session()
-        user = db_sess.query(users.User).filter(and_(users.User.name == form.username.data, users.User.is_admin is True)).first()
-        # проверка пароля и тогоб есть ли такой пользователь
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            return redirect("/")
-        elif str(form.admin_password.data) != PASSWORD_ADMIN:
-            return render_template('login_admin.html',
-                                   message="Неправильный админ-пароль",
-                                   form=form)
-        return render_template('login_admin.html',
-                               message="Неправильный логин или пароль",
-                               form=form)
-    return render_template('login_admin.html', title='Вход в аккаунт админа', form=form, current_user=current_user)
-
+def checkAndLoginUser(name, password):
+    db_sess = db_session.create_session()
+    user = db_sess.query(users.User).filter(users.User.name == name).first()
+    if user and user.check_password(password):
+        login_user(user)
+        return redirect("/")
 
 @app.route('/choose_category', methods=['GET', 'POST'])
 def choose_category():
-    """Вывод категорий"""
     form = CategoryForm()
     if form.validate_on_submit():
         pressed = [i for i, k in form.data.items() if k][0]
@@ -274,7 +223,8 @@ def take_test(test_id, question):
     db_sess.commit()
     if int(question) <= len(data):
         return render_template('questions.html', number_question=question, name=data[question]['name'],
-                               answer=[i for i in data[question]['answers']], current_user=current_user, photo=data[question]['photo'])
+                               answer=[i for i in data[question]['answers']], current_user=current_user,
+                               photo=data[question]['photo'])
     # обработка кнопки выхода
     if request.form.get('exit') == '1':
         if number_trying == '1':
@@ -455,7 +405,8 @@ def open_profile():
         logout_user()
         return redirect('/')
     return render_template('profile_check.html', name=current_user.name, checked_tests_count=checked_test_count,
-                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test, user_id=user.id)
+                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test,
+                           user_id=user.id)
 
 
 @app.route('/profile/<user_id>', methods=['GET', 'POST'])
@@ -491,7 +442,8 @@ def profile_user(user_id):
         logout_user()
         return redirect('/')
     return render_template('profile_check.html', name=user.name, checked_tests_count=checked_test_count,
-                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test, user_id=user_id)
+                           percent=int(percent), form=form, current_user=current_user, mark=user.marking_test,
+                           user_id=user_id)
 
 
 @app.route('/created_tests', methods=['GET', 'POST'])

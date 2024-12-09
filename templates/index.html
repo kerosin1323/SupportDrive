@@ -2,59 +2,39 @@
 
 {% block content %}
 <form action="" method="post" novalidate>
+    <h2 class="label-popular-test">Популярные статьи</h2>
     <div class="container">
-        <div id="info">
-            <div class="test_info">
-                <h2>{{ amount_tests }}</h2>
-                <h5>Количество тестов</h5>
-            </div>
-            <div class="visitors_info">
-                <h2>{{ visitors }}</h2>
-                <h5>Количество посетителей</h5>
-            </div>
-            <div class="average_right_info">
-                <h2>{{ average }}</h2>
-                <h5>Средний процент прохождения</h5>
-            </div>
-        </div>
-        <div class="leaders">
-            <h2>Лидеры по оценкам тестов</h2>
-
-        </div>
-    </div>
-    <h2 class="label-popular-test">Популярные тесты</h2>
-    <div class="container">
-        {% for test in tests %}
-            <button class="popular_tests" name="id" value="{{test.id}}">
+        {% for article in articles %}
+            <button class="popular_articles" name="id" value="{{article.id}}">
                 <div class="image">
-                    <img src="/static/images/{{ test.photo }}" alt="photo" height="100%" width="100%">
+                    <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
                 <div class="under-photo">
-                    <h2>{{ test.name }}</h2>
-                {{ test.describe }}
+                    <h2>{{ articles.name }}</h2>
+                {{ article.describe }}
                 <hr>
                     <div class="underline-text">
-                        {% if test.mark > 0 %}
+                        {% if article.mark > 0 %}
                             <div title="Оценка" style="color: green; font-size: 20px">
                                 <strong>
-                                    +{{test.mark}}
+                                    +{{article.mark}}
                                 </strong>
                             </div>
-                        {% elif test.mark == 0 %}
+                        {% elif article.mark == 0 %}
                             <div title="Оценка" style="color: black">
                                 <strong>
-                                    {{test.mark}}
+                                    {{article.mark}}
                                 </strong>
                             </div>
                         {% else %}
                             <div title="Оценка" style="color: red">
                                 <strong>
-                                    {{test.mark}}
+                                    {{article.mark}}
                                 </strong>
                             </div>
                         {% endif %}
-                        <div class="amount" title="Кол-во прохождений">
-                            {{ test.passing_tests }}
+                        <div class="amount" title="Кол-во просмотров">
+                            {{ article.readings }}
                         </div>
                     </div>
                 </div>
