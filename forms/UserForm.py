@@ -7,13 +7,17 @@ class LoginForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     register = SubmitField('Зарегестрироваться')
-    login_as_admin = SubmitField('Войти как админ')
     submit = SubmitField('Войти')
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Логин', validators=[DataRequired()])
+    login = StringField('Логин', validators=[DataRequired()])
+    username = StringField('Никнейм', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     to_login = SubmitField('Войти в аккаунт')
-    register_as_admin = SubmitField('Создать админа')
     submit = SubmitField('Создать')
+
+
+class ProfileView(FlaskForm):
+    created_articles = SubmitField('Созданные тесты')
+    exit = SubmitField('Выйти')

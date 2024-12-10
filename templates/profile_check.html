@@ -3,25 +3,7 @@
 {% block content %}
 <form action="" method="post" novalidate>
     <div class="profile-form">
-        <h1>Профиль пользователя {{ name }}</h1>
-        <p>Пройденных тестов: {{ checked_tests_count }}</p>
-        <p>Процент правильности выполнения: {{ percent }}</p>
-        <p>Оценка тестов:
-        {% if mark > 0 %}
-            <a style="color: green;">
-                +{{mark}}
-            </a>
-        {% elif mark == 0 %}
-            <a style="color: black;">
-                {{mark}}
-            </a>
-        {% else %}
-            <a style="color: red">
-                {{mark}}
-            </a>
-        {% endif %}
-        </p>
-        <p>{{ form.created_tests(class='form-control') }}</p>
+
         {% if current_user.is_admin and current_user.id != user_id %}
             <p>{{ form.delete(class="btn btn-secondary") }}</p>
         {% elif current_user.id == user_id  %}

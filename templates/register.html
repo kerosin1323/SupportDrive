@@ -6,6 +6,15 @@
     <div class="register-form">
         <h1>Создание аккаунта</h1>
         <p>
+            {{ form.login.label }}
+            {{ form.login(class="form-control") }}
+            {% for error in form.login.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.username.label }}
             {{ form.username(class="form-control") }}
             {% for error in form.username.errors %}
@@ -25,7 +34,6 @@
         </p>
         <div class="register-submit">
             <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-            <p>{{ form.register_as_admin(class="btn btn-secondary") }}</p>
             <p>{{ form.to_login(class="btn btn-secondary") }}</p>
         </div>
     </div>

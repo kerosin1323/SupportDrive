@@ -5,11 +5,12 @@ from data.db_session import SqlAlchemyBase
 
 
 class Articles(SqlAlchemyBase):
-    __tablename__ = 'tests'
+    __tablename__ = 'articles'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     key_words = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    categories = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     text = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)

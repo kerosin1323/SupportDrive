@@ -31,15 +31,25 @@ def deleteNoneArticles():
     db_sess.commit()
 
 
-def getMostPopularArticle():
+def getMostPopularArticle(category=None):
     db_sess = db_session.create_session()
-    return db_sess.query(articles.Articles).order_by(desc(articles.Articles.mark))
+    if category is None:
+        return db_sess.query(articles.Articles).order_by(desc(articles.Articles.mark))
+    return db_sess.query(articles.Articles).filter(articles.Articles.categories.ilike('%' + category + '%')).order_by(
+        desc(articles.Articles.mark))
 
 
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
     deleteNoneArticles()
     popular_articles = getMostPopularArticle()
+    clickedOnArticle()
+    return render_template('index.html', articles=popular_articles)
+
+
+@app.route('/all/<category>', methods=['GET', 'POST'])
+def popular_category_articles(category):
+    popular_articles = getMostPopularArticle(category)
     clickedOnArticle()
     return render_template('index.html', articles=popular_articles)
 
@@ -83,16 +93,16 @@ def registerUser():
 def createUser():
     form = RegisterForm()
     db_sess = db_session.create_session()
-    user = users.User(name=form.username.data)
+    user = users.User(name=form.username.data, login=form.login.data)
     user.set_password(form.password.data)
     db_sess.add(user)
     db_sess.commit()
     login_user(user)
 
 
-def userAlreadyExist(name):
+def userAlreadyExist(login):
     db_sess = db_session.create_session()
-    return bool(len(db_sess.query(users.User).filter(users.User.name == name)))
+    return bool(len(db_sess.query(users.User).filter(users.User.login == login).all()))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -118,9 +128,11 @@ def checkAndLoginUser(name, password):
 def reading_article(article_id):
     article = getArticle(article_id)
     user = getCreatorArticle(article)
+
     user_pressed = request.form.get('user')
     to_delete = request.form.get('delete')
     to_change = request.form.get('change')
+
     if user_pressed:
         return redirect(f'/profile/{user.id}')
     elif to_delete:
@@ -128,7 +140,8 @@ def reading_article(article_id):
         return redirect('/')
     elif to_change:
         return redirect(f'/change_article/{article_id}')
-    return render_template('reading_article.html', article=article, mark=article.mark, current_user=current_user, user=user)
+    return render_template('reading_article.html', article=article, mark=article.mark, current_user=current_user,
+                           user=user)
 
 
 def getArticle(article_id):
@@ -194,7 +207,8 @@ def user_profile():
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=current_user.name, form=form, current_user=current_user, user_id=user.id)
+    return render_template('profile_check.html', name=current_user.name, form=form, current_user=current_user,
+                           user_id=user.id)
 
 
 def getUser(user_id):

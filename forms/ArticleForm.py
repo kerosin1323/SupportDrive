@@ -21,7 +21,3 @@ class ChangingArticleForm(FlaskForm):
     add_question = SubmitField('+ Изменить вопрос +')
 
 
-class ProfileView(FlaskForm):
-    created_tests = SubmitField('Созданные тесты')
-    exit = SubmitField('Выйти')
-    delete = SubmitField('Удалить пользователя')

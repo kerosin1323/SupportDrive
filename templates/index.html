@@ -5,15 +5,26 @@
     <h2 class="label-popular-test">Популярные статьи</h2>
     <div class="container">
         {% for article in articles %}
-            <button class="popular_articles" name="id" value="{{article.id}}">
+            <div class="article">
+                <div class="creator">
+                    <a class="creator_name" href="/profile/{{article.user_id}}">{{article.user_name}}</a>
+                </div>
+                <div class="time">
+                    <h3>{{passed_time}}</h3>
+                </div>
+                <div class="name_article">
+                    <h2>{{article.name}}</h2>
+                </div>
                 <div class="image">
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
                 <div class="under-photo">
-                    <h2>{{ articles.name }}</h2>
-                {{ article.describe }}
+                    {{ article.describe }}
                 <hr>
-                    <div class="underline-text">
+                    <button
+                        class="popular_articles" name="id" value="{{article.id}}">Читать
+                    </button>
+                    <div class="article_mark">
                         {% if article.mark > 0 %}
                             <div title="Оценка" style="color: green; font-size: 20px">
                                 <strong>
@@ -33,12 +44,13 @@
                                 </strong>
                             </div>
                         {% endif %}
-                        <div class="amount" title="Кол-во просмотров">
+                        <div class="readings" title="Кол-во просмотров">
                             {{ article.readings }}
                         </div>
                     </div>
                 </div>
-            </button>
+
+            </div>
         {% endfor %}
     </div>
 </form>
