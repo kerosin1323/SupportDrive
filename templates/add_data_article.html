@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post" novalidate enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="write-article-form">
+        <h1>Настройки публикации</h1>
+        <p>
+            {{ form.category.label }}
+            {{ form.category(class="form-control") }}
+            {% for error in form.category.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.key_words.label }}
+            {{ form.key_words(class='form-control')}}
+            {% for error in form.key_words.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.back(type='submit', class="btn btn-secondary") }}
+        </p>
+        <p>
+            {{ form.create(type='submit', class="btn btn-primary") }}
+        </p>
+    </div>
+</form>
+{% endblock content %}

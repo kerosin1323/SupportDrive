@@ -161,23 +161,47 @@ def deleteArticle(article):
 
 
 @app.route('/create_article', methods=['GET', 'POST'])
-def create_article():
+def write_article():
     form = CreatingArticleForm()
+    menu = ArticleMenu()
+    redactor = TextRedactor()
     if form.validate_on_submit():
-        file = form.add_photo.data
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        article = articles.Articles()
-        article.photo = filename
-        article.name = form.name.data
-        article.category = form.category.data
-        article.describe = form.describe.data
-        article.user_id = current_user.id
-        article.created_date = datetime.date.today()
-        db_sess = db_session.create_session()
-        db_sess.add(article)
-        db_sess.commit()
-    return render_template('make_article.html', title='Создание статьи', form=form, current_user=current_user)
+        create_article(form)
+        return redirect('/create_article/data')
+    return render_template('write_article.html', form=form, current_user=current_user)
+
+
+def create_article(articleData):
+    article = articles.Articles()
+    article.name = articleData.name.data
+    article.text = articleData.text.data
+    article.user_id = current_user.id
+    article.created_date = datetime.date.today()
+    db_sess = db_session.create_session()
+    db_sess.add(article)
+    db_sess.commit()
+
+
+@app.route('/create_article/data', methods=['GET', 'POST'])
+def create_article_data():
+    form = CreatingArticleDataForm()
+    if form.validate_on_submit():
+        addDataArticle(form)
+    return render_template('add_data_article.html', form=form)
+
+
+def addDataArticle(data):
+    article = articles.Articles()
+    file = data.photo.data
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    article.photo = filename
+    article.category = data.category.data
+    article.key_words = data.key_words.data
+    db_sess = db_session.create_session()
+    db_sess.add(article)
+    db_sess.commit()
+
 
 
 @app.route('/change_article/<article_id>', methods=['GET', 'POST'])

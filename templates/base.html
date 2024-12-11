@@ -8,7 +8,17 @@
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
     <title>{{title}}</title>
+    <script>
+        function auto_grow(element) {
+          element.style.height = "5px";
+          element.style.height = (element.scrollHeight) + "px";
+        }
+    </script>
     <style>
+        textarea:focus, input:focus
+        {
+          outline: none;
+        }
         .container {
             display: flex;
         }
@@ -40,6 +50,13 @@
             margin: 20px;
             margin-bottom: 50px;
         }
+        textarea {
+          resize: none;
+          overflow: hidden;
+          min-height: 200px;
+          background-color: gray;
+          border: 0px;
+        }
         .label-popular-test {
             margin-left: 10px;
         }
@@ -56,23 +73,31 @@
             color: blue;
             font-weight: bold;
         }
-        .login-form, .register-form, .make-test-form, .make-question-form,
+        .login-form, .register-form, .make-question-form,
          .category-form, .start-form, .questions-form, .result-form,
-         .profile-form {
+         .profile-form, .write-article-form {
             width: 500px;
             padding: 20px;
             margin-top: 10px;
             margin-left: 40px;
             background-color: gray;
-            border-radius: 20px;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
         .submit-login, .register-submit, .make-question-submit, .start-submit {
             display: flex;
             justify-content: space-between;
+        }
+        .input_header {
+            background-color: gray;
+            border: 0px;
+        }
+        ::placeholder {
+            color: black;
+            opacity: 1;
         }
     </style>
 </head>
@@ -87,7 +112,7 @@
         <a class="navbar-brand" href="/all/russia" style="font-size: 16px;">Российские</a>
         <a class="navbar-brand" href="/all/foreign" style="font-size: 16px;">Иномарки</a>
         <a class="navbar-brand" href="/search" style="font-size: 16px;">Поиск</a>
-        <a class="navbar-brand" href="/make_test" style="font-size: 16px;">Создать💡</a>
+        <a class="navbar-brand" href="/create_article" style="font-size: 16px;">Создать💡</a>
         <a class="navbar-brand" href="/settings" style="font-size: 16px;">Настройки</a>
         {% if current_user.is_authenticated %}
             <a class="btn btn-secondary" href="/profile">{{ current_user.name }}</a>

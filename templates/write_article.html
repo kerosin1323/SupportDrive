@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post" novalidate enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="write-article-form">
+        <div class="label_write_article">
+            <h1>Создание статьи</h1>
+        </div>
+        <hr>
+        <div class="input_text_article">
+            <p>
+                <input class='input_header' placeholder="Заголовок" size="30" style="font-size: 25px;">
+            </p>
+            <textarea oninput="auto_grow(this)" cols="45" placeholder="Текст"></textarea>
+        <p>
+            {{ form.save(type='submit', class="btn btn-primary") }}
+        </p>
+        </div>
+    </div>
+</form>
+{% endblock content %}
