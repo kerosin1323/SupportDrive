@@ -7,7 +7,7 @@
         {% for article in articles %}
             <div class="article">
                 <div class="creator">
-                    <a class="creator_name" href="/profile/{{article.user_id}}">{{article.user_name}}</a>
+                    <a class="creator_name" href="/profile/{{article.user_id}}">{{users.article.user_id}}</a>
                 </div>
                 <div class="time">
                     <h3>{{passed_time}}</h3>
@@ -22,7 +22,7 @@
                     {{ article.describe }}
                 <hr>
                     <button
-                        class="popular_articles" name="id" value="{{article.id}}">Читать
+                        class="popular_articles" name="id" value="{{ article.id }}">Читать
                     </button>
                     <div class="article_mark">
                         {% if article.mark > 0 %}

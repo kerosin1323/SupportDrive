@@ -6,6 +6,15 @@
     <div class="write-article-form">
         <h1>Настройки публикации</h1>
         <p>
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.category.label }}
             {{ form.category(class="form-control") }}
             {% for error in form.category.errors %}
@@ -24,9 +33,10 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.back(type='submit', class="btn btn-secondary") }}
+            {{ form.photo(class='form-control') }}
         </p>
         <p>
+            {{ form.back(type='submit', class="btn btn-secondary") }}
             {{ form.create(type='submit', class="btn btn-primary") }}
         </p>
     </div>

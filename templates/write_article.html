@@ -1,22 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    <div class="write-article-form">
-        <div class="label_write_article">
-            <h1>Создание статьи</h1>
-        </div>
-        <hr>
-        <div class="input_text_article">
-            <p>
-                <input class='input_header' placeholder="Заголовок" size="30" style="font-size: 25px;">
-            </p>
-            <textarea oninput="auto_grow(this)" cols="45" placeholder="Текст"></textarea>
-        <p>
-            {{ form.save(type='submit', class="btn btn-primary") }}
-        </p>
-        </div>
-    </div>
+<form action="" method="post" novalidate>
+
+<!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/yz21sbvfhoqwvo3hl2p58u312quu2ubwy1n6vp9mtxaf2ctu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+  tinymce.init({
+    selector: 'textarea',
+    plugins: [
+      'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+      'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown','importword', 'exportword', 'exportpdf'
+    ],
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+    tinycomments_mode: 'embedded',
+    tinycomments_author: 'Author name',
+    mergetags_list: [
+      { value: 'First.Name', title: 'First Name' },
+      { value: 'Email', title: 'Email' },
+    ],
+    ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+  });
+</script>
+<textarea name="input">
+</textarea>
+<button class="btn btn-primary" name="next" value="1">Продолжить</button>
 </form>
 {% endblock content %}

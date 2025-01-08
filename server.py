@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
-app.config['UPLOAD_FOLDER'] = '.\static\images'
+app.config['UPLOAD_FOLDER'] = './static/images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -43,8 +43,11 @@ def getMostPopularArticle(category=None):
 def welcome_page():
     deleteNoneArticles()
     popular_articles = getMostPopularArticle()
-    clickedOnArticle()
-    return render_template('index.html', articles=popular_articles)
+    id_article = request.form.get('id')
+    print(id_article)
+    if id_article:
+        return redirect(f'/article/{id_article}/read')
+    return render_template('index.html', articles=popular_articles, users=users.User())
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -56,8 +59,9 @@ def popular_category_articles(category):
 
 def clickedOnArticle():
     id_article = request.form.get('id')
+    print(id_article)
     if id_article:
-        return redirect(f'/article/{id_article}/start')
+        return redirect(f'/article/{id_article}/read')
 
 
 def getSearchArticles():
@@ -124,24 +128,11 @@ def checkAndLoginUser(name, password):
         return redirect("/")
 
 
-@app.route('/articles/<article_id>/start', methods=['GET', 'POST'])
+@app.route('/article/<article_id>/read', methods=['GET', 'POST'])
 def reading_article(article_id):
     article = getArticle(article_id)
     user = getCreatorArticle(article)
-
-    user_pressed = request.form.get('user')
-    to_delete = request.form.get('delete')
-    to_change = request.form.get('change')
-
-    if user_pressed:
-        return redirect(f'/profile/{user.id}')
-    elif to_delete:
-        deleteArticle(article)
-        return redirect('/')
-    elif to_change:
-        return redirect(f'/change_article/{article_id}')
-    return render_template('reading_article.html', article=article, mark=article.mark, current_user=current_user,
-                           user=user)
+    return render_template('reading_article.html', article=article.text, current_user=current_user, creator=user)
 
 
 def getArticle(article_id):
@@ -162,44 +153,44 @@ def deleteArticle(article):
 
 @app.route('/create_article', methods=['GET', 'POST'])
 def write_article():
-    form = CreatingArticleForm()
-    menu = ArticleMenu()
-    redactor = TextRedactor()
-    if form.validate_on_submit():
-        create_article(form)
-        return redirect('/create_article/data')
-    return render_template('write_article.html', form=form, current_user=current_user)
+    data = request.form.get('input')
+    save = request.form.get('next')
+    if save:
+        id_article = addTextToArticle(data)
+        return redirect(f'/create_article/data/{id_article}')
+    return render_template('write_article.html', current_user=current_user)
 
 
-def create_article(articleData):
+def addTextToArticle(text):
     article = articles.Articles()
-    article.name = articleData.name.data
-    article.text = articleData.text.data
+    article.text = text
     article.user_id = current_user.id
-    article.created_date = datetime.date.today()
+    article.created_date = datetime.datetime.now().time()
     db_sess = db_session.create_session()
     db_sess.add(article)
     db_sess.commit()
+    return article.id
 
 
-@app.route('/create_article/data', methods=['GET', 'POST'])
-def create_article_data():
+@app.route('/create_article/data/<id_article>', methods=['GET', 'POST'])
+def create_article_data(id_article):
     form = CreatingArticleDataForm()
     if form.validate_on_submit():
-        addDataArticle(form)
+        addDataArticle(form, id_article)
+        return redirect('/')
     return render_template('add_data_article.html', form=form)
 
 
-def addDataArticle(data):
-    article = articles.Articles()
+def addDataArticle(data, id_article):
+    db_sess = db_session.create_session()
+    article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
     file = data.photo.data
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    article.name = data.name.data
     article.photo = filename
     article.category = data.category.data
     article.key_words = data.key_words.data
-    db_sess = db_session.create_session()
-    db_sess.add(article)
     db_sess.commit()
 
 
