@@ -9,60 +9,19 @@
           crossorigin="anonymous">
     <title>{{title}}</title>
     <style>
-        textarea:focus, input:focus
-        {
-          outline: none;
-        }
-        .leaders {
-            background-color: gray;
-            width: 500px;
-            padding: 20px;
-            margin: 20px;
-            border-radius: 20px;
-        }
-        #info {
-            background-color: gray;
-            width: 500px;
-            display: flex;
-            padding: 20px;
-            margin: 20px;
-            border-radius: 20px;
-        }
-        #info > div {
-            margin: 8px;
-            padding: 5px;
-        }
         .article {
             background-color: gray;
             width: 80%;
             height: 100%;
         }
-        .under-photo {
-            margin: 20px;
-            margin-bottom: 50px;
-        }
-        textarea {
-          resize: none;
-          overflow: hidden;
-          min-height: 200px;
-          background-color: gray;
-          border: 0px;
-        }
-        .label-popular-test {
-            margin-left: 10px;
+        .read_article {
+            background-color: gray;
+            width: 80%;
+            height: 100%;
         }
         hr {
             width: 90%;
             background-color: black;
-        }
-        .underline-text {
-            display: flex;
-            justify-content: space-between;
-        }
-        .amount {
-            text-align: right;
-            color: blue;
-            font-weight: bold;
         }
         .login-form, .register-form, .make-question-form,
          .category-form, .start-form, .questions-form, .result-form,
@@ -78,9 +37,12 @@
             transform: translate(-50%, -50%);
         }
 
-        .submit-login, .register-submit, .make-question-submit, .start-submit {
+        .submit-login, .register-submit, .make-question-submit, .start-submit, .under-photo {
             display: flex;
             justify-content: space-between;
+        }
+        .first_level, .second_level {
+            display: flex;
         }
         .input_header {
             background-color: gray;

@@ -132,7 +132,7 @@ def checkAndLoginUser(name, password):
 def reading_article(article_id):
     article = getArticle(article_id)
     user = getCreatorArticle(article)
-    return render_template('reading_article.html', article=article.text, current_user=current_user, creator=user)
+    return render_template('reading_article.html', article=article, current_user=current_user, user=user)
 
 
 def getArticle(article_id):
@@ -165,7 +165,6 @@ def addTextToArticle(text):
     article = articles.Articles()
     article.text = text
     article.user_id = current_user.id
-    article.created_date = datetime.datetime.now().time()
     db_sess = db_session.create_session()
     db_sess.add(article)
     db_sess.commit()
@@ -192,7 +191,6 @@ def addDataArticle(data, id_article):
     article.category = data.category.data
     article.key_words = data.key_words.data
     db_sess.commit()
-
 
 
 @app.route('/change_article/<article_id>', methods=['GET', 'POST'])

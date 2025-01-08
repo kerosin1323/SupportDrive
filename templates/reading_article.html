@@ -2,8 +2,35 @@
 
 {% block content %}
 <form action="" method="post" novalidate>
-    <div id="content">
-        {{ article|safe }}
+    <p></p>
+    <div class="container">
+        <div class="read_article">
+        <div class="first_level">
+            <div class="time">
+                {{ time }}
+            </div>
+            <div class="creator">
+                <a class="creator_name" href="/profile/{{article.user_id}}">{{user.name}}</a>
+            </div>
+        </div>
+        <div class="header">
+            <h1>{{ article.name }}</h1>
+        </div>
+        <div class="second_level">
+            <div class="readings">
+                {{ article.readings }}
+            </div>
+            <div class="mark">
+                {{ article.mark }}
+            </div>
+        </div>
+        <div class="tags">
+            {{ article.key_words }}
+        </div>
+        <div class="text">
+            {{ article.text|safe }}
+        </div>
+        </div>
     </div>
 </form>
 {% endblock %}
