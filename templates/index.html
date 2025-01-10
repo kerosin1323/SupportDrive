@@ -2,7 +2,6 @@
 
 {% block content %}
 <form action="" method="post" novalidate>
-    <h2 class="label-popular-test">Популярные статьи</h2>
     <div class="container">
         {% for article in articles %}
             <div class="article">
@@ -23,7 +22,7 @@
                 <div class="under-photo">
 
                     <button
-                        class="popular_articles" name="id" value="{{ article.id }}">Читать
+                        class="glow-on-hover" name="id" value="{{ article.id }}">Читать
                     </button>
                     <div class="article_mark">
                         {% if article.mark > 0 %}

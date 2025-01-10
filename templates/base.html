@@ -10,15 +10,17 @@
     <title>{{title}}</title>
     <style>
         .article {
-            background-color: gray;
+            background-color: #293245;
             width: 80%;
             height: 100%;
+            padding-left: 20px;
+            padding-right: 30px;
+            margin-top:18px;
+            box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);
+            border: 2px solid #1D2330;
         }
-        .read_article {
-            background-color: gray;
-            width: 80%;
-            height: 100%;
-        }
+        .name_article {
+            color:
         hr {
             width: 90%;
             background-color: black;
@@ -35,13 +37,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-        }
-
-        .submit-login, .register-submit, .make-question-submit, .start-submit, .under-photo {
+         }
+        .submit-login, .register-submit, .make-question-submit, .start-submit, {
             display: flex;
             justify-content: space-between;
         }
-        .first_level, .second_level {
+         .first_level, .second_level {
             display: flex;
         }
         .input_header {
@@ -52,25 +53,96 @@
             color: black;
             opacity: 1;
         }
+html,
+{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+}
 
+.glow-on-hover {
+    width: 220px;
+    height: 50px;
+    border: none;
+    outline: none;
+    color: #fff;
+    background: #111;
+    cursor: pointer;
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.glow-on-hover:before {
+    content: '';
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    position: absolute;
+    top: -2px;
+    left:-2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: 10px;
+}
+
+.glow-on-hover:active {
+    color: #000
+}
+
+.glow-on-hover:active:after {
+    background: transparent;
+}
+
+.glow-on-hover:hover:before {
+    opacity: 1;
+}
+
+.glow-on-hover:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+}
+
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
 
 
 
     </style>
 </head>
-<body>
+<body style="background-color: #343F52;">
 <header>
     <nav class="navbar navbar-light bg-dark">
-        <a class="navbar-brand" href="/" style="font-size: 16px;">SupportDrive</a>
-        <a class="navbar-brand" href="/all/sedans" style="font-size: 16px;">Легковые</a>
-        <a class="navbar-brand" href="/all/trucks" style="font-size: 16px;">Грузовые</a>
-        <a class="navbar-brand" href="/all/electrics" style="font-size: 16px;">Электро</a>
-        <a class="navbar-brand" href="/all/china" style="font-size: 16px;">Китайские</a>
-        <a class="navbar-brand" href="/all/russia" style="font-size: 16px;">Российские</a>
-        <a class="navbar-brand" href="/all/foreign" style="font-size: 16px;">Иномарки</a>
-        <a class="navbar-brand" href="/search" style="font-size: 16px;">Поиск</a>
-        <a class="navbar-brand" href="/create_article" style="font-size: 16px;">Создать💡</a>
-        <a class="navbar-brand" href="/settings" style="font-size: 16px;">Настройки</a>
+        <a class="navbar-brand" href="/" style="font-size: 16px; color:#dbdbdb;";>SupportDrive</a>
+        <a class="navbar-brand" href="/all/sedans" style="font-size: 16px; color:white;">Легковые</a>
+        <a class="navbar-brand" href="/all/trucks" style="font-size: 16px; color:white;">Грузовые</a>
+        <a class="navbar-brand" href="/all/electrics" style="font-size: 16px; color:white;">Электро</a>
+        <a class="navbar-brand" href="/all/china" style="font-size: 16px; color:white;">Китайские</a>
+        <a class="navbar-brand" href="/all/russia" style="font-size: 16px; color:white;">Российские</a>
+        <a class="navbar-brand" href="/all/foreign" style="font-size: 16px; color:white;">Иномарки</a>
+        <a class="navbar-brand" href="/search" style="font-size: 16px; color:white;">Поиск</a>
+        <a class="navbar-brand" href="/create_article" style="font-size: 16px; color:white;">Создать💡</a>
+        <a class="navbar-brand" href="/settings" style="font-size: 16px; color:white;">Настройки</a>
         {% if current_user.is_authenticated %}
             <a class="btn btn-secondary" href="/profile">{{ current_user.name }}</a>
         {% else %}
