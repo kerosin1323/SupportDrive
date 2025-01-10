@@ -15,6 +15,15 @@
             {% endfor %}
         </p>
         <p>
+            {{ form.describe.label }}
+            {{ form.describe(class="form-control") }}
+            {% for error in form.describe.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.category.label }}
             {{ form.category(class="form-control") }}
             {% for error in form.category.errors %}

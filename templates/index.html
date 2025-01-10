@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate>
-    <div class="container">
+<form action="" method="post" novalidate  style="overflow: hidden;">
+    <div class="container" style="float: left; width: 200%; margin-left: 100px">
         {% for article in articles %}
             <div class="article">
                 <div class="creator">
@@ -53,5 +53,44 @@
             </div>
         {% endfor %}
     </div>
+    <div class="leaders" style="width: 100px; border: 2px solid white; float: left; margin-left: 100px">
+        <div class="mark_leaders" style="color:white">
+            <b>Лидеры по рейтингу:</b>
+            <p>1. {{ mark_leaders[0].name }}</p>
+            <p>2. {{ mark_leaders[1].name }}</p>
+            <p>3. {{ mark_leaders[2].name }}</p>
+            <p>4. {{ mark_leaders[3].name }}</p>
+            <p>5. {{ mark_leaders[4].name }}</p>
+        </div>
+        <div class="readings_leaders" style="color:white">
+            <b>Лидеры по просмотрам:</b>
+            <p>1. {{ readings_leaders[0].name }}</p>
+            <p>2. {{ readings_leaders[1].name }}</p>
+            <p>3. {{ readings_leaders[2].name }}</p>
+            <p>4. {{ readings_leaders[3].name }}</p>
+            <p>5. {{ readings_leaders[4].name }}</p>
+        </div>
+        <div class="subscribers_leaders" style="color:white">
+            <b>Лидеры по подписчикам:</b>
+            <p>1. {{ subscribers_leaders[0].name }}</p>
+            <p>2. {{ subscribers_leaders[1].name }}</p>
+            <p>3. {{ subscribers_leaders[2].name }}</p>
+            <p>4. {{ subscribers_leaders[3].name }}</p>
+            <p>5. {{ subscribers_leaders[4].name }}</p>
+        </div>
+    </div>
 </form>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
