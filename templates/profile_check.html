@@ -2,17 +2,17 @@
 
 {% block content %}
 <form action="" method="post" novalidate>
-    <div class="profile-form">
-        <p>Имя:{{ name }}</p>
+    <div class="profile" style="color:white; text-align: center; align-items: center;">
+        <p>Имя: {{ name }}</p>
         <p>Оценка: {{ mark }}</p>
-        <p>Подписчики:{{ subscribers }}</p>
-        <p>Количество статей:{{ amount_articles }}</p>
-        <button name="to_subscribe" value="1">Подписаться</button>
+        <p>Подписчики: {{ subscribers }}</p>
+        <p>Количество статей: {{ amount_articles }}</p>
+            <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
         <p>{{ form.created_articles }}</p>
         {% if current_user.is_admin and current_user.id != user_id %}
-            <p>{{ form.delete(class="btn btn-secondary") }}</p>
+            <p>{{ form.exit(class="btn btn-outline-primary") }}</p>
         {% elif current_user.id == user_id  %}
-            <p>{{ form.exit(class='btn btn-primary') }}</p>
+            <p>{{ form.exit(class='btn btn-outline-primary') }}</p>
         {% endif %}
     </div>
 </form>

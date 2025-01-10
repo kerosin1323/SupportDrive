@@ -11,7 +11,7 @@
                 <div class="time">
                     <h3>{{passed_time}}</h3>
                 </div>
-                <div class="name_article">
+                <div class="name_article" style="color:white">
                     <h2>{{article.name}}</h2>
                 </div>
                 <div class="image">
@@ -19,35 +19,37 @@
                 </div>
                 {{ article.describe }}
                 <hr>
-                <div class="under-photo">
+                <div class="under-photo" style="display: flex; justify-content: space-between">
 
                     <button
-                        class="glow-on-hover" name="id" value="{{ article.id }}">Читать
+                        class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
-                    <div class="article_mark">
-                        {% if article.mark > 0 %}
-                            <div title="Оценка" style="color: green; font-size: 20px">
-                                <strong>
-                                    +{{article.mark}}
-                                </strong>
+                    <div class="mark_and_readings" style='overflow: hidden;'>
+                    <div class="article_mark" style="float: right">
+                            {% if article.mark > 0 %}
+                                <div title="Оценка" style="color: green; float: right">
+                                    <strong>
+                                        +{{article.mark}}
+                                    </strong>
+                                </div>
+                            {% elif article.mark == 0 %}
+                                <div title="Оценка" style="color:white; float: right">
+                                    <strong>
+                                        {{article.mark}}
+                                    </strong>
+                                </div>
+                            {% else %}
+                                <div title="Оценка" style="color: red; float: right">
+                                    <strong>
+                                        {{article.mark}}
+                                    </strong>
+                                </div>
+                            {% endif %}
+                            <div class="readings" title="Кол-во просмотров" style="color:white" >
+                                {{ article.readings }}
                             </div>
-                        {% elif article.mark == 0 %}
-                            <div title="Оценка" style="color: black">
-                                <strong>
-                                    {{article.mark}}
-                                </strong>
-                            </div>
-                        {% else %}
-                            <div title="Оценка" style="color: red">
-                                <strong>
-                                    {{article.mark}}
-                                </strong>
-                            </div>
-                        {% endif %}
-                        <div class="readings" title="Кол-во просмотров">
-                            {{ article.readings }}
-                        </div>
                     </div>
+                        </div>
                 </div>
 
             </div>
