@@ -12,6 +12,7 @@ class User(SqlAlchemyBase, UserMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     login = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    subscribers = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     articles = orm.relationship("Articles", back_populates='user')
 

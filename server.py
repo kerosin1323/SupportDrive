@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
-app.config['UPLOAD_FOLDER'] = './static/images'
+app.config['UPLOAD_FOLDER'] = '.\static\images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -44,7 +44,6 @@ def welcome_page():
     deleteNoneArticles()
     popular_articles = getMostPopularArticle()
     id_article = request.form.get('id')
-    print(id_article)
     if id_article:
         return redirect(f'/article/{id_article}/read')
     return render_template('index.html', articles=popular_articles, users=users.User())
@@ -131,7 +130,12 @@ def checkAndLoginUser(name, password):
 @app.route('/article/<article_id>/read', methods=['GET', 'POST'])
 def reading_article(article_id):
     article = getArticle(article_id)
-    user = getCreatorArticle(article)
+    db_sess = db_session.create_session()
+    user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+    to_subscribe = request.form.get('to_subscribe')
+    if to_subscribe:
+        user.subscribers += 1
+        db_sess.commit()
     return render_template('reading_article.html', article=article, current_user=current_user, user=user)
 
 
@@ -234,6 +238,9 @@ def getUser(user_id):
 def profile_user(user_id):
     form = ProfileView()
     user = getUser(user_id)
+    db_sess = db_session.create_session()
+    created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
+    subscribers = user.subscribers
     if form.created_articles.data:
         return redirect(f'/created_articles/{user.id}')
     if form.exit.data:
