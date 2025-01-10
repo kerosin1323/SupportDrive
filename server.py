@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
-app.config['UPLOAD_FOLDER'] = '.\static\images'
+app.config['UPLOAD_FOLDER'] = './static/images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -25,16 +25,9 @@ def load_user(user_id):
     return db_sess.query(users.User).get(user_id)
 
 
-def deleteNoneArticles():
-    db_sess = db_session.create_session()
-    db_sess.query(articles.Articles).filter(articles.Articles.text is None).delete()
-    db_sess.commit()
-
-
 def getMostPopularArticle(category=None):
     db_sess = db_session.create_session()
     if category is None:
-        print()
         return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
         desc(articles.Articles.readings))
     return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike(datetime.datetime.today() + '%')).order_by(
@@ -43,19 +36,25 @@ def getMostPopularArticle(category=None):
 
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
-    deleteNoneArticles()
     db_sess = db_session.create_session()
+    db_sess.query(articles.Articles).filter(articles.Articles.text == None).delete()
+    db_sess.query(articles.Articles).filter(articles.Articles.name == None).delete()
+    db_sess.commit()
     mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
     reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
     popular_articles = getMostPopularArticle()
     id_article = request.form.get('id')
-    article = db_sess.query(articles.Articles).filter(articles.Articles.id==id_article).first()
     if id_article:
-        article.readings +=1
+        article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
+        article.readings += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
-    return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders= subscribers_leaders)
+    elif len(db_sess.query(users.User).all()) < 5:
+        return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=False,
+                               readings_leaders=False, subscribers_leaders=False)
+
+    return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -137,20 +136,20 @@ def checkAndLoginUser(name, password):
 
 @app.route('/article/<article_id>/read', methods=['GET', 'POST'])
 def reading_article(article_id):
-    article = getArticle(article_id)
     db_sess = db_session.create_session()
+    article = db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
     user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
     to_subscribe = request.form.get('to_subscribe')
+    mark = request.form.get('mark')
+    if mark:
+        if f'{current_user.id}' not in session or str(article_id) not in session[f'{current_user.id}'] or 1 >= int(session[f'{current_user.id}'][str(article_id)]) + int(mark) >= -1:
+            article.mark += int(mark)
+            db_sess.commit()
+            session[f'{current_user.id}'] = {f'{article_id}': article.mark}
     if to_subscribe:
         user.subscribers += 1
         db_sess.commit()
     return render_template('reading_article.html', article=article, current_user=current_user, user=user)
-
-
-def getArticle(article_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
-
 
 def getCreatorArticle(article):
     db_sess = db_session.create_session()
@@ -168,6 +167,7 @@ def write_article():
     data = request.form.get('input')
     save = request.form.get('next')
     if save and data != '':
+        data = data.replace('<img', '<img height="100%" width="100%"')
         id_article = addTextToArticle(data)
         return redirect(f'/create_article/data/{id_article}')
     elif data == '':
@@ -180,7 +180,6 @@ def addTextToArticle(text):
     article.text = text
     article.user_id = current_user.id
     article.created_date = str(datetime.datetime.now())
-    print(datetime.datetime.now())
     db_sess = db_session.create_session()
     db_sess.add(article)
     db_sess.commit()
@@ -204,7 +203,6 @@ def addDataArticle(data, id_article):
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     article.name = data.name.data
     article.photo = filename
-    print(data.describe.data)
     article.describe = data.describe.data
     article.category = data.category.data
     article.key_words = data.key_words.data
