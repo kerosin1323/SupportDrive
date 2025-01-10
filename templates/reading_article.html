@@ -19,6 +19,9 @@
         <div class="header">
             <h1>{{ article.name }}</h1>
         </div>
+            <div class="image">
+                    <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
+                </div>
         <div class="second_level">
             <div class="readings">
                 {{ article.readings }}
@@ -32,6 +35,15 @@
         </div>
         <div class="text">
             {{ article.text|safe }}
+        </div>
+        <div class="make_mark">
+            <button>
+                <p>-1</p>
+            </button>
+            <button>
+                <p>+1</p>
+            </button>
+
         </div>
         </div>
     </div>

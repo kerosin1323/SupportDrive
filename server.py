@@ -34,19 +34,28 @@ def deleteNoneArticles():
 def getMostPopularArticle(category=None):
     db_sess = db_session.create_session()
     if category is None:
-        return db_sess.query(articles.Articles).order_by(desc(articles.Articles.mark))
-    return db_sess.query(articles.Articles).filter(articles.Articles.categories.ilike('%' + category + '%')).order_by(
-        desc(articles.Articles.mark))
+        print()
+        return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
+        desc(articles.Articles.readings))
+    return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike(datetime.datetime.today() + '%')).order_by(
+        desc(articles.Articles.readings))
 
 
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
     deleteNoneArticles()
+    db_sess = db_session.create_session()
+    mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
+    reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
+    subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
     popular_articles = getMostPopularArticle()
     id_article = request.form.get('id')
+    article = db_sess.query(articles.Articles).filter(articles.Articles.id==id_article).first()
     if id_article:
+        article.readings +=1
+        db_sess.commit()
         return redirect(f'/article/{id_article}/read')
-    return render_template('index.html', articles=popular_articles, users=users.User())
+    return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders= subscribers_leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -58,7 +67,6 @@ def popular_category_articles(category):
 
 def clickedOnArticle():
     id_article = request.form.get('id')
-    print(id_article)
     if id_article:
         return redirect(f'/article/{id_article}/read')
 
@@ -159,9 +167,11 @@ def deleteArticle(article):
 def write_article():
     data = request.form.get('input')
     save = request.form.get('next')
-    if save:
+    if save and data != '':
         id_article = addTextToArticle(data)
         return redirect(f'/create_article/data/{id_article}')
+    elif data == '':
+        return 'Текст не должен быть пустым'
     return render_template('write_article.html', current_user=current_user)
 
 
@@ -169,6 +179,8 @@ def addTextToArticle(text):
     article = articles.Articles()
     article.text = text
     article.user_id = current_user.id
+    article.created_date = str(datetime.datetime.now())
+    print(datetime.datetime.now())
     db_sess = db_session.create_session()
     db_sess.add(article)
     db_sess.commit()
@@ -192,6 +204,8 @@ def addDataArticle(data, id_article):
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     article.name = data.name.data
     article.photo = filename
+    print(data.describe.data)
+    article.describe = data.describe.data
     article.category = data.category.data
     article.key_words = data.key_words.data
     db_sess.commit()
