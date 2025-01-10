@@ -1,43 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{title}}</h1>
 <form action="" method="post" novalidate>
-    <div class="tests-form">
-        {% for test in tests %}
-            <button class="popular_tests" name="id" value={{test.id}}>
-                <img src={{test.photo}} alt="Photo">
-                <h2>{{ test.name }}</h2>
-                {{ test.describe }}
+    <h2 class="label-popular-test">Статьи пользователя {{ name }}</h2>
+    <div class="container">
+        {% for article in articles %}
+            <div class="article">
+                <div class="creator">
+                    <a class="creator_name" href="/profile/{{article.user_id}}">{{user}}</a>
+                </div>
+                <div class="time">
+                    <h3>{{passed_time}}</h3>
+                </div>
+                <div class="name_article">
+                    <h2>{{article.name}}</h2>
+                </div>
+                <div class="image">
+                    <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
+                </div>
+                {{ article.describe }}
                 <hr>
-                <div class="underline-text">
-                    {% if test.mark > 0 %}
-                    <div title="Оценка" style="color: green; font-size: 20px">
-                        <strong>
-                            +{{test.mark}}
-                        </strong>
-                    </div>
-                    {% elif test.mark == 0 %}
-                        <div title="Оценка" style="color: black">
-                            <strong>
-                                {{test.mark}}
-                            </strong>
+                <div class="under-photo">
+
+                    <button
+                        class="popular_articles" name="id" value="{{ article.id }}">Читать
+                    </button>
+                    <div class="article_mark">
+                        {% if article.mark > 0 %}
+                            <div title="Оценка" style="color: green; font-size: 20px">
+                                <strong>
+                                    +{{article.mark}}
+                                </strong>
+                            </div>
+                        {% elif article.mark == 0 %}
+                            <div title="Оценка" style="color: black">
+                                <strong>
+                                    {{article.mark}}
+                                </strong>
+                            </div>
+                        {% else %}
+                            <div title="Оценка" style="color: red">
+                                <strong>
+                                    {{article.mark}}
+                                </strong>
+                            </div>
+                        {% endif %}
+                        <div class="readings" title="Кол-во просмотров">
+                            {{ article.readings }}
                         </div>
-                    {% else %}
-                        <div title="Оценка" style="color: red">
-                            <strong>
-                                {{test.mark}}
-                            </strong>
-                        </div>
-                    {% endif %}
-                    <div class="average-result" style="color: black; font-weight: bold;" title="Средний процент прохождения">
-                        {{ test.average }}
-                    </div>
-                    <div class="amount" title="Кол-во прохождений">
-                        {{ test.passing_tests }}
                     </div>
                 </div>
-            </button>
+
+            </div>
         {% endfor %}
     </div>
 </form>

@@ -219,12 +219,19 @@ def refactorArticle(article, form):
 def user_profile():
     form = ProfileView()
     user = getUser(current_user.id)
+    db_sess = db_session.create_session()
+    created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
+    subscribers = user.subscribers
+    amount_articles = len(created_articles)
+    mark = 0
+    for article in created_articles:
+        mark += article.mark
     if form.created_articles.data:
-        return redirect(f'/created_articles')
+        return redirect(f'/created_articles/{user.id}')
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=current_user.name, form=form, current_user=current_user,
+    return render_template('profile_check.html', amount_articles=amount_articles, subscribers=subscribers, mark=mark, name=user.name, form=form, current_user=current_user,
                            user_id=user.id)
 
 
@@ -241,24 +248,34 @@ def profile_user(user_id):
     db_sess = db_session.create_session()
     created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
     subscribers = user.subscribers
+    amount_articles = len(created_articles)
+    mark = 0
+    to_subscribe = request.form.get('to_subscribe')
+    if to_subscribe:
+        user = db_sess.query(users.User).filter(users.User.id == user_id).first()
+        user.subscribers += 1
+        db_sess.commit()
+    for article in created_articles:
+        mark += article.mark
     if form.created_articles.data:
         return redirect(f'/created_articles/{user.id}')
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', name=user.name, form=form, current_user=current_user, user_id=user_id)
+    return render_template('profile_check.html', amount_articles=amount_articles, subscribers=subscribers, mark=mark, name=user.name, form=form, current_user=current_user, user_id=user_id)
 
 
 @app.route('/created_articles/<user_id>', methods=['GET', 'POST'])
 def show_user_articles(user_id):
-    user_articles = getUserArticles(user_id)
+    db_sess = db_session.create_session()
+    user_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user_id).all()
     if request.method == 'POST':
         article_id = request.form.get('id')
         return redirect(f'/articles/{article_id}/reading')
     if not user_articles:
-        return 'Пользователь не создал ни одного теста'
+        return 'Пользователь не создал ни одной статьи'
     return render_template('all_articles.html', articles=user_articles, current_user=current_user,
-                           title=f'Статьи пользователя {current_user.name}')
+                           name=current_user.name)
 
 
 def getUserArticles(user_id):

@@ -3,7 +3,12 @@
 {% block content %}
 <form action="" method="post" novalidate>
     <div class="profile-form">
-
+        <p>Имя:{{ name }}</p>
+        <p>Оценка: {{ mark }}</p>
+        <p>Подписчики:{{ subscribers }}</p>
+        <p>Количество статей:{{ amount_articles }}</p>
+        <button name="to_subscribe" value="1">Подписаться</button>
+        <p>{{ form.created_articles }}</p>
         {% if current_user.is_admin and current_user.id != user_id %}
             <p>{{ form.delete(class="btn btn-secondary") }}</p>
         {% elif current_user.id == user_id  %}
