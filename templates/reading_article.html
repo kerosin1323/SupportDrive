@@ -3,7 +3,7 @@
 {% block content %}
 <form action="" method="post" novalidate>
     <p></p>
-    <div class="container">
+    <div class="container" style="color:white">
         <div class="read_article">
         <div class="first_level">
             <div class="time">
@@ -13,7 +13,7 @@
                 <a class="creator_name" href="/profile/{{article.user_id}}">{{user.name}}</a>
             </div>
             <div class="follow">
-                <button name="to_subscribe" value="1">Подписаться</button>
+                <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
             </div>
         </div>
         <div class="header">
