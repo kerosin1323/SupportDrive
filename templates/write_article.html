@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate>
+<form method="POST" action="" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
 {% if current_user.is_authenticated %}
 
 

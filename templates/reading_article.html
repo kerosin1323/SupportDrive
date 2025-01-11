@@ -75,6 +75,10 @@
             <div class="author">{{comment.username}}</div>
             <div class="text">{{comment.text|safe}}</div>
             <div class="mark">{{comment.mark}}</div>
+            <div class="make_mark">
+                <button name="comment_mark" value="{{ comment.id }}, -1">-1</button>
+                <button name="comment_mark" value="{{ comment.id }}, 1">+1</button>
+            </div>
             {% endfor %}
         </div>
     </div>

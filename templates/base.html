@@ -8,13 +8,6 @@
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
     <title>{{title}}</title>
-    <script>
-        let cords = ['scrollX','scrollY'];
-        // Перед закрытием записываем в локалсторадж window.scrollX и window.scrollY как scrollX и scrollY
-        window.addEventListener('unload', e => cords.forEach(cord => localStorage[cord] = window[cord]));
-        // Прокручиваем страницу к scrollX и scrollY из localStorage (либо 0,0 если там еще ничего нет)
-        window.scroll(...cords.map(cord => localStorage[cord]));
-    </script>
     <style>
          .article {
 
