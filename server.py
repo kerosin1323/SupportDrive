@@ -240,20 +240,27 @@ def refactorArticle(article, form):
 @app.route('/profile', methods=['GET', 'POST'])
 def user_profile():
     form = ProfileView()
-    user = getUser(current_user.id)
     db_sess = db_session.create_session()
+    user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
     created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
     subscribers = user.subscribers
     amount_articles = len(created_articles)
+    add_photo = request.form.get('load_photo')
+    photo = form.photo.data
     mark = 0
     for article in created_articles:
         mark += article.mark
+    if add_photo and photo:
+        filename = secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        user.photo = filename
+        db_sess.commit()
     if form.created_articles.data:
         return redirect(f'/created_articles/{user.id}')
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', amount_articles=amount_articles, subscribers=subscribers, mark=mark, name=user.name, form=form, current_user=current_user,
+    return render_template('profile_check.html', photo=user.photo, amount_articles=amount_articles, subscribers=subscribers, mark=mark, name=user.name, form=form, current_user=current_user,
                            user_id=user.id)
 
 
