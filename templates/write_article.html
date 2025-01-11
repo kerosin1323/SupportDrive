@@ -2,6 +2,8 @@
 
 {% block content %}
 <form action="" method="post" novalidate>
+{% if current_user.is_authenticated %}
+
 
 <!-- Place the first <script> tag in your HTML's <head> -->
 <script src="https://cdn.tiny.cloud/1/yz21sbvfhoqwvo3hl2p58u312quu2ubwy1n6vp9mtxaf2ctu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
@@ -27,5 +29,8 @@
 <textarea name="input">
 </textarea>
 <button class="btn btn-primary" name="next" value="1">Продолжить</button>
+{% else %}
+    <p>Чтобы создать статью, необходимо зарегестрироваться</p>
+{% endif %}
 </form>
 {% endblock content %}

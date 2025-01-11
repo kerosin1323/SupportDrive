@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate  style="overflow: hidden;">
-    <div class="container" style="float: left; width: 200%; margin-left: 100px">
+<form action="" method="post" novalidate  style="overflow: hidden">
+    <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
         {% for article in articles %}
             <div class="article">
                 <div class="creator">
@@ -14,9 +14,11 @@
                 <div class="name_article" style="color:white">
                     <h2>{{article.name}}</h2>
                 </div>
+                {% if article.photo %}
                 <div class="image">
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
+                {% endif %}
                 {{ article.describe }}
                 <hr>
                 <div class="under-photo" style="display: flex; justify-content: space-between">

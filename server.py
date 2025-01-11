@@ -2,7 +2,7 @@ import datetime
 import os
 from flask_login import *
 from flask import *
-from data import db_session, articles, users
+from data import db_session, articles, users, comments
 from forms.ArticleForm import *
 from werkzeug.utils import secure_filename
 from sqlalchemy import desc, and_
@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
-app.config['UPLOAD_FOLDER'] = './static/images'
+app.config['UPLOAD_FOLDER'] = '.\static\images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -139,8 +139,16 @@ def reading_article(article_id):
     db_sess = db_session.create_session()
     article = db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
     user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+    all_comments = db_sess.query(comments.Comment).filter(comments.Comment.article_id == article_id).all()
     to_subscribe = request.form.get('to_subscribe')
     mark = request.form.get('mark')
+    make_comment = request.form.get('comment')
+    if make_comment:
+        text = request.form.get('input')
+        creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+        comment = comments.Comment(username=creator.name, user=current_user.id, text=text, article_id=article_id, created_date=str(datetime.datetime.now()))
+        db_sess.add(comment)
+        db_sess.commit()
     if mark:
         if f'{current_user.id}' not in session or str(article_id) not in session[f'{current_user.id}'] or 1 >= int(session[f'{current_user.id}'][str(article_id)]) + int(mark) >= -1:
             article.mark += int(mark)
@@ -149,7 +157,8 @@ def reading_article(article_id):
     if to_subscribe:
         user.subscribers += 1
         db_sess.commit()
-    return render_template('reading_article.html', article=article, current_user=current_user, user=user)
+    return render_template('reading_article.html', time_now = datetime.datetime.now(), article=article, current_user=current_user, user=user, all_comments=all_comments)
+
 
 def getCreatorArticle(article):
     db_sess = db_session.create_session()
@@ -199,10 +208,11 @@ def addDataArticle(data, id_article):
     db_sess = db_session.create_session()
     article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
     file = data.photo.data
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        article.photo = filename
     article.name = data.name.data
-    article.photo = filename
     article.describe = data.describe.data
     article.category = data.category.data
     article.key_words = data.key_words.data
