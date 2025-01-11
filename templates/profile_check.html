@@ -1,8 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate>
+<form action="" method="post" novalidate enctype=multipart/form-data>
     <div class="profile" style="color:white; text-align: center; align-items: center;">
+        {% if photo %}
+        <div class="image">
+            <img src="/static/images/{{ photo }}" alt="photo" height="100%" width="100%">
+        </div>
+        {% else %}
+        <form action="" method=post enctype=multipart/form-data>
+            {{ form.photo(class='form-control') }}
+             <input type=submit value=Upload name="load_photo">
+        </form>
+        {% endif %}
         <p>Имя: {{ name }}</p>
         <p>Оценка: {{ mark }}</p>
         <p>Подписчики: {{ subscribers }}</p>
