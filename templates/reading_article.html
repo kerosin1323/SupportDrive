@@ -4,13 +4,13 @@
 <form action="" method="post" novalidate>
     <p></p>
     <div class="container" style="color:white">
-        <div class="read_article">
+        <div class="read_article" style="box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;padding:10px">
         <div class="first_level">
             <div class="time">
                 {{ time }}
             </div>
             <div class="creator">
-                <a class="creator_name" href="/profile/{{article.user_id}}">{{user.name}}</a>
+                <a class="creator_name" style="text-decoration: none;color:white" href="/profile/{{article.user_id}}">{{user.name}}</a>
             </div>
             <div class="follow">
                 <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
@@ -24,23 +24,38 @@
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
                 {% endif %}
-        <div class="second_level">
-            <div class="readings">
-                {{ article.readings }}
-            </div>
-            <div class="mark">
-                {{ article.mark }}
-            </div>
-        </div>
-        <div class="tags">
-            {{ article.key_words }}
-        </div>
         <div class="text">
             {{ article.text|safe }}
         </div>
+        <div class="second_level">
+            <div class="readings">
+                👁{{ article.readings }}
+            </div>
+            <div class="article_mark">
+                {% if article.mark > 0 %}
+                <div title="Оценка" style="color:#00ff00;">
+                    <strong>
+                        +{{article.mark}}
+                    </strong>
+                </div>
+                {% elif article.mark == 0 %}
+                <div title="Оценка" style="color:white;">
+                    <strong>
+                        {{article.mark}}
+                    </strong>
+                </div>
+                {% else %}
+                <div title="Оценка" style="color: red;">
+                    <strong>
+                                        {{article.mark}}
+                                    </strong>
+                                </div>
+                {% endif %}
+        </div>
         <div class="make_mark">
-            <button name="mark" value="-1">-1</button>
-            <button name="mark" value="1">+1</button>
+            <button class="btn btn-outline-danger" name="mark" value="-1">-1</button>
+            <button class="btn btn-outline-success" name="mark" value="1">+1</button>
+        </div>
         </div>
         </div>
     <div class="comments">
@@ -66,19 +81,41 @@
             </textarea>
             <button class="btn btn-primary" name="comment" value="1">Продолжить</button>
             {% else %}
-                <p>Чтобы создать статью, необходимо зарегестрироваться</p>
+            <div style="color:white;font-size:50px">
+                Чтобы создать статью, необходимо зарегестрироваться
+            </div>
             {% endif %}
         </div>
         <h1>Комментарии</h1>
         <div class="all_comments">
             {% for comment in all_comments %}
+            <div class="comment" style="box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330">
             <div class="author">{{comment.username}}</div>
             <div class="text">{{comment.text|safe}}</div>
-            <div class="mark">{{comment.mark}}</div>
-            {% endfor %}
-        </div>
-    </div>
+            {% if article.mark > 0 %}
+                <div title="Оценка" style="color:#00ff00; float: right">
+                    <strong>
+                        +{{article.mark}}
+                    </strong>
+                </div>
+                {% elif article.mark == 0 %}
+                <div title="Оценка" style="color:white; float: right">
+                    <strong>
+                        {{article.mark}}
+                    </strong>
+                </div>
+                {% else %}
+                <div title="Оценка" style="color: red; float: right">
+                    <strong>
+                        {{article.mark}}
+                    </strong>
+                                </div>
             </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+    </div>
+
 
 </form>
 {% endblock %}

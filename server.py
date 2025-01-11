@@ -175,8 +175,7 @@ def deleteArticle(article):
 def create_article():
     form = CreatingArticleDataForm()
     data = request.form.get('input')
-    print(form.create.data, data, form.validate_on_submit())
-    if form.create.data and data != '' and form.validate_on_submit():
+    if form.create.data and data != '':
         print(23)
         data = data.replace('<img', '<img height="100%" width="100%"')
         addArticle(data, form)

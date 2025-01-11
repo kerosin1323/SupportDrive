@@ -19,9 +19,11 @@
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
                 {% endif %}
+                <div style="color:white">
                 {{ article.describe }}
+                </div>
                 <hr>
-                <div class="under-photo" style="display: flex; justify-content: space-between">
+                <div class="under-photo" style="display: flex; justify-content: space-between;color:white">
 
                     <button
                         class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
@@ -29,7 +31,7 @@
                     <div class="mark_and_readings" style='overflow: hidden;'>
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}
-                                <div title="Оценка" style="color: green; float: right">
+                                <div title="Оценка" style="color:#00ff00; float: right">
                                     <strong>
                                         +{{article.mark}}
                                     </strong>
@@ -48,7 +50,7 @@
                                 </div>
                             {% endif %}
                             <div class="readings" title="Кол-во просмотров" style="color:white" >
-                                {{ article.readings }}
+                                👁{{ article.readings }}
                             </div>
                     </div>
                         </div>
