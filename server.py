@@ -172,51 +172,38 @@ def deleteArticle(article):
 
 
 @app.route('/create_article', methods=['GET', 'POST'])
-def write_article():
+def create_article():
+    form = CreatingArticleDataForm()
     data = request.form.get('input')
-    save = request.form.get('next')
-    if save and data != '':
+    print(form.create.data, data, form.validate_on_submit())
+    if form.create.data and data != '' and form.validate_on_submit():
+        print(23)
         data = data.replace('<img', '<img height="100%" width="100%"')
-        id_article = addTextToArticle(data)
-        return redirect(f'/create_article/data/{id_article}')
+        addArticle(data, form)
+        return redirect('/')
     elif data == '':
         return 'Текст не должен быть пустым'
-    return render_template('write_article.html', current_user=current_user)
+    return render_template('write_article.html', current_user=current_user, form=form)
 
 
-def addTextToArticle(text):
+def addArticle(text, form):
     article = articles.Articles()
     article.text = text
     article.user_id = current_user.id
     article.created_date = str(datetime.datetime.now())
     db_sess = db_session.create_session()
-    db_sess.add(article)
-    db_sess.commit()
-    return article.id
-
-
-@app.route('/create_article/data/<id_article>', methods=['GET', 'POST'])
-def create_article_data(id_article):
-    form = CreatingArticleDataForm()
-    if form.validate_on_submit():
-        addDataArticle(form, id_article)
-        return redirect('/')
-    return render_template('add_data_article.html', form=form)
-
-
-def addDataArticle(data, id_article):
-    db_sess = db_session.create_session()
-    article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
-    file = data.photo.data
+    file = form.photo.data
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         article.photo = filename
-    article.name = data.name.data
-    article.describe = data.describe.data
-    article.category = data.category.data
-    article.key_words = data.key_words.data
+    article.name = form.name.data
+    article.describe = form.describe.data
+    article.category = form.category.data
+    article.key_words = form.key_words.data
+    db_sess.add(article)
     db_sess.commit()
+
 
 
 @app.route('/change_article/<article_id>', methods=['GET', 'POST'])
