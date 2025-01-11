@@ -19,9 +19,11 @@
         <div class="header">
             <h1>{{ article.name }}</h1>
         </div>
-            <div class="image">
+            {% if article.photo %}
+                <div class="image">
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
+                {% endif %}
         <div class="second_level">
             <div class="readings">
                 {{ article.readings }}
@@ -41,6 +43,43 @@
             <button name="mark" value="1">+1</button>
         </div>
         </div>
+    <div class="comments">
+        <div class="make_comment">
+            <h1>Создать комментарий</h1>
+            {% if current_user.is_authenticated %}
+            <script src="https://cdn.tiny.cloud/1/yz21sbvfhoqwvo3hl2p58u312quu2ubwy1n6vp9mtxaf2ctu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+            <script>
+              tinymce.init({
+                selector: 'textarea',
+
+                toolbar: 'undo redo | blocks .fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                tinycomments_mode: 'embedded',
+                tinycomments_author: 'Author name',
+                mergetags_list: [
+                  { value: 'First.Name', title: 'First Name' },
+                  { value: 'Email', title: 'Email' },
+                ],
+                ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+              });
+            </script>
+            <textarea name="input">
+            </textarea>
+            <button class="btn btn-primary" name="comment" value="1">Продолжить</button>
+            {% else %}
+                <p>Чтобы создать статью, необходимо зарегестрироваться</p>
+            {% endif %}
+        </div>
+        <h1>Комментарии</h1>
+        <div class="all_comments">
+            {% for comment in all_comments %}
+            <div class="author">{{comment.username}}</div>
+            <div class="text">{{comment.text|safe}}</div>
+            <div class="mark">{{comment.mark}}</div>
+            {% endfor %}
+        </div>
     </div>
+            </div>
+
 </form>
 {% endblock %}
+

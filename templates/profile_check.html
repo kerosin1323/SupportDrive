@@ -1,18 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate>
-    <div class="profile" style="color:white; align-items: center; front-size:20px">
-        <div style="margin-top:10px">
-            <p>{{ name }}</p>
+<form action="" method="post" novalidate enctype=multipart/form-data>
+    <div class="profile" style="color:white; text-align: center; align-items: center;">
+        {% if photo %}
+        <div class="image">
+            <img src="/static/images/{{ photo }}" alt="photo" height="100%" width="100%">
         </div>
+        {% else %}
+        <form action="" method=post enctype=multipart/form-data>
+            {{ form.photo(class='form-control') }}
+             <input type=submit value=Upload name="load_photo">
+        </form>
+        {% endif %}
+        <p>Имя: {{ name }}</p>
         <p>Оценка: {{ mark }}</p>
         <p>Подписчики: {{ subscribers }}</p>
         <p>Количество статей: {{ amount_articles }}</p>
             <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
-        <div style="margin-top:10px">
-            <p>{{ form.created_articles }}</p>
-        </div>
+        <p>{{ form.created_articles }}</p>
         {% if current_user.is_admin and current_user.id != user_id %}
             <p>{{ form.exit(class="btn btn-outline-primary") }}</p>
         {% elif current_user.id == user_id  %}

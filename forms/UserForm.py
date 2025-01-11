@@ -20,4 +20,5 @@ class RegisterForm(FlaskForm):
 
 class ProfileView(FlaskForm):
     created_articles = SubmitField('Созданные статьи')
-    exit = SubmitField('Выйти из аккаунта')
+    exit = SubmitField('Выйти')
+    photo = FileField('Добавить фото')

@@ -2,6 +2,8 @@
 
 {% block content %}
 <form action="" method="post" novalidate>
+{% if current_user.is_authenticated %}
+
 
 <!-- Place the first <script> tag in your HTML's <head> -->
 <script src="https://cdn.tiny.cloud/1/yz21sbvfhoqwvo3hl2p58u312quu2ubwy1n6vp9mtxaf2ctu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
@@ -9,7 +11,7 @@
 <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
 <script>
   tinymce.init({
-    selector: 'textarea',
+    selector: 'textarea#input',
     plugins: [
       'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
       'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown','importword', 'exportword', 'exportpdf'
@@ -24,8 +26,56 @@
     ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
   });
 </script>
-<textarea name="input">
+<textarea name="input" id="input">
 </textarea>
-<button class="btn btn-primary" name="next" value="1">Продолжить</button>
+    <div class="write-article-form">
+        <h1>Настройки публикации</h1>
+        <p>
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.describe.label }}
+            {{ form.describe(class="form-control") }}
+            {% for error in form.describe.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.category.label }}
+            {{ form.category(class="form-control") }}
+            {% for error in form.category.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.key_words.label }}
+            {{ form.key_words(class='form-control')}}
+            {% for error in form.key_words.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.photo }}
+        </p>
+        <p>
+            {{ form.create(type='submit', class="btn btn-primary") }}
+        </p>
+    </div>
+{% else %}
+    <p>Чтобы создать статью, необходимо зарегестрироваться</p>
+{% endif %}
+
 </form>
 {% endblock content %}

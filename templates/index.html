@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<form action="" method="post" novalidate  style="overflow: hidden;">
-<div class="display:flex;justify-content:spase-between;">
-    <div class="container" style="float: left;flex:1; width: 200%; margin-left: 100px">
+<form action="" method="post" novalidate  style="overflow: hidden">
+    <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
         {% for article in articles %}
             <div class="article">
                 <div class="creator">
@@ -16,22 +14,22 @@
                 <div class="name_article" style="color:white">
                     <h2>{{article.name}}</h2>
                 </div>
+                {% if article.photo %}
                 <div class="image">
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
-                <div style="color:white">
+                {% endif %}
                 {{ article.describe }}
-                </div>
                 <hr>
-                <div class="under-photo" style="display: flex; justify-content: space-between;">
+                <div class="under-photo" style="display: flex; justify-content: space-between">
 
                     <button
-                        class="btn btn-outline-primary" style="margin-bottom:10px" name="id" value="{{ article.id }}" >Читать
+                        class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
                     <div class="mark_and_readings" style='overflow: hidden;'>
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}
-                                <div title="Оценка" style="color:#00ff00; float: right">
+                                <div title="Оценка" style="color: green; float: right">
                                     <strong>
                                         +{{article.mark}}
                                     </strong>
@@ -43,14 +41,14 @@
                                     </strong>
                                 </div>
                             {% else %}
-                                <div title="Оценка" style="color:#ff0000; float: right">
+                                <div title="Оценка" style="color: red; float: right">
                                     <strong>
                                         {{article.mark}}
                                     </strong>
                                 </div>
                             {% endif %}
                             <div class="readings" title="Кол-во просмотров" style="color:white" >
-                                👁{{ article.readings }}
+                                {{ article.readings }}
                             </div>
                     </div>
                         </div>
@@ -59,7 +57,7 @@
             </div>
         {% endfor %}
     </div>
-    <div class="leaders" style="width: 170px;flex:1; float: right; margin-right: 100px">
+    <div class="leaders" style="width: 100px; border: 2px solid white; float: left; margin-left: 100px">
         {% if mark_leaders %}
         <div class="mark_leaders" style="color:white">
                 <b>Лидеры по рейтингу:</b>
@@ -91,7 +89,6 @@
         </div>
         {% endif %}
     </div>
-</div>
 </form>
 {% endblock %}
 
