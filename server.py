@@ -30,8 +30,18 @@ def getMostPopularArticle(category=None):
     if category is None:
         return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
         desc(articles.Articles.readings))
-    return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike(datetime.datetime.today() + '%')).order_by(
-        desc(articles.Articles.readings))
+    categories = {'sedans': 'Легковые', 'trucks': 'Грузовые', 'electrics': 'Электро', 'china': 'Китайские', 'russian': 'Российские', 'foreign': 'Иномарки'}
+    return db_sess.query(articles.Articles).filter(and_(
+                articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
+                articles.Articles.categories == categories[category])).order_by(
+                desc(articles.Articles.readings))
+
+
+@app.route('/all/<category>', methods=['GET', 'POST'])
+def all_category(category):
+    articles = getMostPopularArticle(category)
+    return render_template('all_articles.html', articles=articles, current_user=current_user)
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -137,18 +147,27 @@ def checkAndLoginUser(name, password):
 @app.route('/article/<article_id>/read', methods=['GET', 'POST'])
 def reading_article(article_id):
     db_sess = db_session.create_session()
+    make_comment = request.form.get('comment')
+    if make_comment:
+        text = request.form.get('input')
+        creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+        comment = comments.Comment(username=creator.name, user=current_user.id, text=text, article_id=article_id,
+                                   created_date=str(datetime.datetime.now()))
+        db_sess.add(comment)
+        db_sess.commit()
     article = db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
     user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
     all_comments = db_sess.query(comments.Comment).filter(comments.Comment.article_id == article_id).all()
     to_subscribe = request.form.get('to_subscribe')
     mark = request.form.get('mark')
-    make_comment = request.form.get('comment')
-    if make_comment:
-        text = request.form.get('input')
-        creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
-        comment = comments.Comment(username=creator.name, user=current_user.id, text=text, article_id=article_id, created_date=str(datetime.datetime.now()))
-        db_sess.add(comment)
-        db_sess.commit()
+    comment_make_mark = request.form.get('comment_mark')
+    if comment_make_mark:
+        comment_id = comment_make_mark.split(',')[0]
+        comment = db_sess.query(comments.Comment).filter(comments.Comment.id == comment_id).first()
+        if f'{current_user.id}' not in session or str(comment_id) not in session[f'{current_user.id}'] or 1 >= int(session[f'{current_user.id}'][str(comment_id)]) + int(mark) >= -1:
+            comment.mark += int(mark)
+            db_sess.commit()
+            session[f'{current_user.id}'] = {f'{comment_id}': comment.mark}
     if mark:
         if f'{current_user.id}' not in session or str(article_id) not in session[f'{current_user.id}'] or 1 >= int(session[f'{current_user.id}'][str(article_id)]) + int(mark) >= -1:
             article.mark += int(mark)
@@ -175,8 +194,7 @@ def deleteArticle(article):
 def create_article():
     form = CreatingArticleDataForm()
     data = request.form.get('input')
-    if form.create.data and data != '':
-        print(23)
+    if form.create.data and data != '' and form.validate_on_submit():
         data = data.replace('<img', '<img height="100%" width="100%"')
         addArticle(data, form)
         return redirect('/')
@@ -198,7 +216,7 @@ def addArticle(text, form):
         article.photo = filename
     article.name = form.name.data
     article.describe = form.describe.data
-    article.category = form.category.data
+    article.categories = form.category.data
     article.key_words = form.key_words.data
     db_sess.add(article)
     db_sess.commit()
@@ -290,7 +308,7 @@ def show_user_articles(user_id):
     if not user_articles:
         return 'Пользователь не создал ни одной статьи'
     return render_template('all_articles.html', articles=user_articles, current_user=current_user,
-                           name=current_user.name)
+                           title=f'Статьи пользователя{current_user.name}')
 
 
 def getUserArticles(user_id):
