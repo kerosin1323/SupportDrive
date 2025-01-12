@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate>
-    <h2 class="label-popular-test">{{ title }}</h2>
-    <div class="container">
+<form action="" method="post" novalidate  style="overflow: hidden">
+    <h1>{{ title }}</h1>
+    <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
         {% for article in articles %}
             <div class="article">
                 <div class="creator">
@@ -12,43 +12,49 @@
                 <div class="time">
                     <h3>{{passed_time}}</h3>
                 </div>
-                <div class="name_article">
+                <div class="name_article" style="color:white">
                     <h2>{{article.name}}</h2>
                 </div>
+                {% if article.photo %}
                 <div class="image">
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
+                {% endif %}
+                <div style="color:white">
                 {{ article.describe }}
+                </div>
                 <hr>
-                <div class="under-photo">
+                <div class="under-photo" style="display: flex; justify-content: space-between;color:white">
 
                     <button
-                        class="popular_articles" name="id" value="{{ article.id }}">Читать
+                        class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
-                    <div class="article_mark">
-                        {% if article.mark > 0 %}
-                            <div title="Оценка" style="color: green; font-size: 20px">
-                                <strong>
-                                    +{{article.mark}}
-                                </strong>
+                    <div class="mark_and_readings" style='overflow: hidden;'>
+                    <div class="article_mark" style="float: right">
+                            {% if article.mark > 0 %}
+                                <div title="Оценка" style="color:#00ff00; float: right">
+                                    <strong>
+                                        +{{article.mark}}
+                                    </strong>
+                                </div>
+                            {% elif article.mark == 0 %}
+                                <div title="Оценка" style="color:white; float: right">
+                                    <strong>
+                                        {{article.mark}}
+                                    </strong>
+                                </div>
+                            {% else %}
+                                <div title="Оценка" style="color: red; float: right">
+                                    <strong>
+                                        {{article.mark}}
+                                    </strong>
+                                </div>
+                            {% endif %}
+                            <div class="readings" title="Кол-во просмотров" style="color:white" >
+                                👁{{ article.readings }}
                             </div>
-                        {% elif article.mark == 0 %}
-                            <div title="Оценка" style="color: black">
-                                <strong>
-                                    {{article.mark}}
-                                </strong>
-                            </div>
-                        {% else %}
-                            <div title="Оценка" style="color: red">
-                                <strong>
-                                    {{article.mark}}
-                                </strong>
-                            </div>
-                        {% endif %}
-                        <div class="readings" title="Кол-во просмотров">
-                            {{ article.readings }}
-                        </div>
                     </div>
+                        </div>
                 </div>
 
             </div>
@@ -56,3 +62,16 @@
     </div>
 </form>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
