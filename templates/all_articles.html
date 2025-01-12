@@ -6,6 +6,10 @@
         <h1>{{ title }}</h1>
     </div>
     <div class="container" style="color:white;float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
+        {% if search %}
+    <input type='text' name="search" title="Поиск">
+    <input type=submit value='🔎' name="to_search">
+    {% endif %}
         {% for article in articles %}
             <div class="article">
                 <div class="creator">
