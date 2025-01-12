@@ -158,13 +158,14 @@ def checkAndLoginUser(name, password):
 def reading_article(article_id):
     db_sess = db_session.create_session()
     make_comment = request.form.get('comment')
-    if make_comment:
-        text = request.form.get('input')
+    text = request.form.get('input')
+    if make_comment == '1' and text != '':
         creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
         comment = comments.Comment(username=creator.name, user=current_user.id, text=text, article_id=article_id,
                                    created_date=str(datetime.datetime.now()))
         db_sess.add(comment)
         db_sess.commit()
+        return redirect(f'/article/{article_id}/read')
     article = db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
     user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
     all_comments = db_sess.query(comments.Comment).filter(comments.Comment.article_id == article_id).all()
