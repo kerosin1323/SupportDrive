@@ -5,15 +5,15 @@
     <p></p>
     <div class="container" style="color:white">
         <div class="read_article" style="box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;padding:10px">
-        <div class="first_level">
+        <div style="display:flex" class="first_level">
             <div class="time">
                 {{ time }}
             </div>
             <div class="image">
                 <img src="/static/images/{{ user.photo }}" alt="photo" height="50px" width="50px" style="margin-top:20px">
             </div>
-            <div style="margin-bottom:15px" class="creator">
-                <a class="creator_name" style="font-size:30px;text-decoration: none;color:white" href="/profile/{{article.user_id}}">{{user.name}}</a>
+            <div style="margin-bottom:15px;margin-left:15px;margin-right:15px" class="creator">
+                <a class="creator_name" style="font-size:30px;text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{user.name}}</a>
             </div>
             <div class="follow">
                 <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
@@ -50,9 +50,9 @@
                 {% else %}
                 <div title="Оценка" style="color: red;">
                     <strong>
-                                        {{article.mark}}
-                                    </strong>
-                                </div>
+                        {{article.mark}}
+                    </strong>
+                </div>
                 {% endif %}
         </div>
         <div class="make_mark">
@@ -99,7 +99,7 @@
                     <div title="Оценка" style="color:#00ff00; float: right">
                         <strong>+{{comment.mark}}</strong>
                     </div>
-                    {% elif article.mark == 0 %}
+                    {% elif comment.mark == 0 %}
                     <div title="Оценка" style="color:white; float: right">
                         <strong>{{comment.mark}}</strong>
                     </div>
@@ -107,16 +107,16 @@
                     <div title="Оценка" style="color: red; float: right">
                         <strong>{{comment.mark}}</strong>
                     </div>
-            </div>
             {% endif %}
-            <button name="comment_mark" value="{{ comment.id }},-1">-1</button>
-            <button name="comment_mark" value="{{ comment.id }},1">+1</button>
-            <button name="answer" value="{{comment.id}}">Ответить</button>
-            {% if answer == comment.id%}
-            <textarea name="input"></textarea>
-            {% endif %}
+                <button name="comment_mark" class="btn btn-outline-danger" value="{{ comment.id }},-1">-1</button>
+                <button name="comment_mark" class="btn btn-outline-success"  value="{{ comment.id }},1">+1</button>
+                {% if answer == comment.id%}
+                    <textarea name="input"></textarea>
+                {% endif %}
             </div>
+
             {% endfor %}
+        </div>
 
     </div>
 
