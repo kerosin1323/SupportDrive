@@ -6,7 +6,7 @@
 
 {% if current_user.is_authenticated %}
 
-
+<div style="width:50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);margin-top:230px">
 <!-- Place the first <script> tag in your HTML's <head> -->
 <script src="https://cdn.tiny.cloud/1/yz21sbvfhoqwvo3hl2p58u312quu2ubwy1n6vp9mtxaf2ctu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
@@ -30,7 +30,7 @@
 </script>
 <textarea name="input" id="input">
 </textarea>
-    <div class="write-article-form">
+    <div style="color:white" class="write-article-form">
         <h1>Настройки публикации</h1>
         <p>
             {{ form.name.label }}
@@ -78,6 +78,6 @@
 {% else %}
     <p>Чтобы создать статью, необходимо зарегестрироваться</p>
 {% endif %}
-
+</div>
 </form>
 {% endblock content %}
