@@ -63,7 +63,7 @@
     </div>
     <div class="leaders">
         {% if mark_leaders %}
-        <div class="mark_leaders" style="background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+        <div class="mark_leaders" style="transform: translateX(-105px); background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
                 <b>Лидеры по рейтингу:</b>
                 <p>1. {{ mark_leaders[0].name }}</p>
                 <p>2. {{ mark_leaders[1].name }}</p>
@@ -73,7 +73,7 @@
         </div>
         {% endif %}
         {% if readings_leaders %}
-        <div class="readings_leaders" style="color:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;"">
+        <div class="readings_leaders" style="transform: translateX(-105px); color:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;"">
             <b>Лидеры по просмотрам:</b>
             <p>1. {{ readings_leaders[0].name }}</p>
             <p>2. {{ readings_leaders[1].name }}</p>
@@ -83,7 +83,7 @@
         </div>
         {% endif %}
         {% if subscribers_leaders %}
-        <div class="subscribers_leaders" style="absolute:left ;discolor:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+        <div class="subscribers_leaders" style="transform: translateX(-105px) ;discolor:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
             <b>Лидеры по подписчикам:</b>
             <p>1. {{ subscribers_leaders[0].name }}</p>
             <p>2. {{ subscribers_leaders[1].name }}</p>
