@@ -30,7 +30,7 @@ def getMostPopularArticle(category=None):
     if category is None:
         return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
         desc(articles.Articles.readings))
-    categories = {'sedans': 'Легковые', 'trucks': 'Грузовые', 'electrics': 'Электро', 'china': 'Китайские', 'russian': 'Российские', 'foreign': 'Иномарки'}
+    categories = {'sedans': 'Легковые', 'trucks': 'Грузовые', 'electrics': 'Электро', 'china': 'Китайские', 'russia': 'Российские', 'foreign': 'Иномарки'}
     return db_sess.query(articles.Articles).filter(and_(
                 articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
                 articles.Articles.categories == categories[category])).order_by(
@@ -39,9 +39,15 @@ def getMostPopularArticle(category=None):
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
 def all_category(category):
-    articles = getMostPopularArticle(category)
-    return render_template('all_articles.html', articles=articles, current_user=current_user)
-
+    all_articles = getMostPopularArticle(category)
+    id_article = request.form.get('id')
+    db_sess = db_session.create_session()
+    if id_article:
+        article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
+        article.readings += 1
+        db_sess.commit()
+        return redirect(f'/article/{id_article}/read')
+    return render_template('all_articles.html', articles=all_articles, current_user=current_user)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -55,6 +61,10 @@ def welcome_page():
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
     popular_articles = getMostPopularArticle()
     id_article = request.form.get('id')
+    to_delete = request.form.get('delete')
+    if to_delete:
+        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
+        db_sess.commit()
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
         article.readings += 1
@@ -64,7 +74,7 @@ def welcome_page():
         return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=False,
                                readings_leaders=False, subscribers_leaders=False)
 
-    return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
+    return render_template('index.html', articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -241,33 +251,6 @@ def refactorArticle(article, form):
     db_sess.commit()
 
 
-@app.route('/profile', methods=['GET', 'POST'])
-def user_profile():
-    form = ProfileView()
-    db_sess = db_session.create_session()
-    user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
-    created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
-    subscribers = user.subscribers
-    amount_articles = len(created_articles)
-    add_photo = request.form.get('load_photo')
-    photo = form.photo.data
-    mark = 0
-    for article in created_articles:
-        mark += article.mark
-    if add_photo and photo:
-        filename = secure_filename(photo.filename)
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        user.photo = filename
-        db_sess.commit()
-    if form.created_articles.data:
-        return redirect(f'/created_articles/{user.id}')
-    if form.exit.data:
-        logout_user()
-        return redirect('/')
-    return render_template('profile_check.html', photo=user.photo, amount_articles=amount_articles, subscribers=subscribers, mark=mark, name=user.name, form=form, current_user=current_user,
-                           user_id=user.id)
-
-
 def getUser(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(users.User).filter(users.User.id == user_id).first()
@@ -295,7 +278,8 @@ def profile_user(user_id):
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', amount_articles=amount_articles, subscribers=subscribers, mark=mark, name=user.name, form=form, current_user=current_user, user_id=user_id)
+    return render_template('profile_check.html', amount_articles=amount_articles, subscribers=subscribers,
+                           mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
 
 
 @app.route('/created_articles/<user_id>', methods=['GET', 'POST'])

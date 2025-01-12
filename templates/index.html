@@ -5,9 +5,6 @@
     <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
         {% for article in articles %}
             <div class="article">
-                <div class="creator">
-                    <a class="creator_name" href="/profile/{{article.user_id}}">{{user}}</a>
-                </div>
                 <div class="time">
                     <h3>{{passed_time}}</h3>
                 </div>
@@ -28,6 +25,11 @@
                     <button
                         class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
+                    {% if current_user.id == article.user_id %}
+                    <button
+                        class="btn btn-outline-primary" name="delete" value="{{ article.id }}" >Удалить
+                    </button>
+                    {% endif %}
                     <div class="mark_and_readings" style='overflow: hidden;'>
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}

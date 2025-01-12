@@ -2,6 +2,7 @@
 
 {% block content %}
 <form action="" method="post" novalidate enctype=multipart/form-data>
+    {% if current_user.id == user_id %}
     <div class="profile" style="color:white; text-align: center; align-items: center;">
         {% if photo %}
         <div class="image">
@@ -17,13 +18,23 @@
         <p>Оценка: {{ mark }}</p>
         <p>Подписчики: {{ subscribers }}</p>
         <p>Количество статей: {{ amount_articles }}</p>
+        <p>{{ form.created_articles }}</p>
+        <p>{{ form.exit(class='btn btn-outline-primary') }}</p>
+    </div>
+    {% else %}
+    <div class="profile" style="color:white; text-align: center; align-items: center;">
+        {% if photo %}
+        <div class="image">
+            <img src="/static/images/{{ photo }}" alt="photo" height="50px" width="50px" style="margin-top:10px">
+        </div>
+        {% endif %}
+        <p>Имя: {{ name }}</p>
+        <p>Оценка: {{ mark }}</p>
+        <p>Подписчики: {{ subscribers }}</p>
+        <p>Количество статей: {{ amount_articles }}</p>
             <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
         <p>{{ form.created_articles }}</p>
-        {% if current_user.is_admin and current_user.id != user_id %}
-            <p>{{ form.exit(class="btn btn-outline-primary") }}</p>
-        {% elif current_user.id == user_id  %}
-            <p>{{ form.exit(class='btn btn-outline-primary') }}</p>
-        {% endif %}
     </div>
+    {% endif %}
 </form>
 {% endblock %}
