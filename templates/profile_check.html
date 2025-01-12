@@ -3,10 +3,10 @@
 {% block content %}
 <form action="" method="post" novalidate enctype=multipart/form-data>
     {% if current_user.id == user_id %}
-    <div class="profile" style="color:white; text-align: center; align-items: center;">
+    <div class="profile" style="color:white">
         {% if photo %}
         <div class="image">
-            <img src="/static/images/{{ photo }}" alt="photo" height="50px" width="50px" style="margin-top:10px">
+            <img src="/static/images/{{ photo }}" alt="photo" height="50px" width="50px" style="margin-top:20px">
         </div>
         {% else %}
         <form action="" method=post enctype=multipart/form-data>
@@ -14,7 +14,7 @@
              <input type=submit value=Upload name="load_photo">
         </form>
         {% endif %}
-        <p>Имя: {{ name }}</p>
+        <p>Никнейм: {{ name }}</p>
         <p>Оценка: {{ mark }}</p>
         <p>Подписчики: {{ subscribers }}</p>
         <p>Количество статей: {{ amount_articles }}</p>
