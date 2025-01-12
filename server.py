@@ -5,7 +5,7 @@ from flask import *
 from data import db_session, articles, users, comments
 from forms.ArticleForm import *
 from werkzeug.utils import secure_filename
-from sqlalchemy import desc, and_
+from sqlalchemy import desc, and_, or_
 import json
 from forms.UserForm import *
 
@@ -48,6 +48,25 @@ def all_category(category):
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     return render_template('all_articles.html', articles=all_articles, current_user=current_user)
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    to_search = request.form.get('to_search')
+    text = request.form.get('search')
+    db_sess = db_session.create_session()
+    id_article = request.form.get('id')
+    article = []
+    if to_search:
+        article = db_sess.query(articles.Articles).filter(or_(
+            articles.Articles.name.ilike('%' + text + '%'), articles.Articles.key_words.ilike('%' + text + '%'))).order_by(
+            desc(articles.Articles.readings))
+    if id_article:
+        article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
+        article.readings += 1
+        db_sess.commit()
+        return redirect(f'/article/{id_article}/read')
+    return render_template('all_articles.html', articles=article, current_user=current_user, search=True)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -95,16 +114,6 @@ def getSearchArticles():
     search_articles = request.args.get('search')
     return db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + search_articles + '%')).all()
 
-
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    search_articles = getSearchArticles()
-    if not search_articles:
-        return 'Тестов с таким названием нет'
-    if request.method == 'POST' and search_articles:
-        clickedOnArticle()
-    return render_template('all_search_articles.html', articles=search_articles, current_user=current_user,
-                           title=f'Тесты по названию {search_articles[0].name}')
 
 
 @app.route('/register', methods=['GET', 'POST'])
