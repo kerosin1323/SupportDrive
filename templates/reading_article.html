@@ -93,7 +93,7 @@
         <div style="padding-bottom:10px" class="all_comments">
             {% for comment in all_comments %}
             <div class="comment">
-                <div class="author">{{comment.username}}</div>
+                <a class="creator_name" style="text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{user.name}}</a>
                 <div class="text">{{comment.text|safe}}</div>
                 {% if comment.mark > 0 %}
                     <div title="Оценка" style="color:#00ff00; float: right">
