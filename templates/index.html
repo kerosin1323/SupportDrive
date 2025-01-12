@@ -26,11 +26,12 @@
                         class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
                     {% if current_user.id == article.user_id %}
-                    <button
-                        class="btn btn-outline-primary" name="delete" value="{{ article.id }}" >Удалить
-                    </button>
+                    <div style="margin-left:590px">
+                        <button
+                            class="btn btn-outline-danger" name="delete" value="{{ article.id }}" >Удалить
+                        </button>
+                    </div>
                     {% endif %}
-                    <div class="mark_and_readings" style='overflow: hidden;'>
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}
                                 <div title="Оценка" style="color:#00ff00; float: right">
@@ -51,11 +52,10 @@
                                     </strong>
                                 </div>
                             {% endif %}
-                            <div class="readings" title="Кол-во просмотров" style="color:white" >
+                            <div class="readings" title="Кол-во просмотров" style="color:white; float: right; margin-right: 10px">
                                 👁{{ article.readings }}
                             </div>
                     </div>
-                        </div>
                 </div>
 
             </div>
