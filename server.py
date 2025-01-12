@@ -171,22 +171,43 @@ def reading_article(article_id):
     to_subscribe = request.form.get('to_subscribe')
     mark = request.form.get('mark')
     comment_make_mark = request.form.get('comment_mark')
+    answer = request.form.get('answer')
     if comment_make_mark:
-        comment_id = comment_make_mark.split(',')[0]
+        comment_id, comment_mark = comment_make_mark.split(',')
         comment = db_sess.query(comments.Comment).filter(comments.Comment.id == comment_id).first()
-        if f'{current_user.id}' not in session or str(comment_id) not in session[f'{current_user.id}'] or 1 >= int(session[f'{current_user.id}'][str(comment_id)]) + int(mark) >= -1:
-            comment.mark += int(mark)
+        if f'{current_user.id}' not in session or 'comments' not in session[str(current_user.id)] or str(
+                comment_id) not in session[f'{current_user.id}']['comments']:
+            comment.mark += int(comment_mark)
             db_sess.commit()
-            session[f'{current_user.id}'] = {f'{comment_id}': comment.mark}
+            session[f'{current_user.id}'] = {'comments': {f'{comment_id}': comment_mark}}
+        elif 1 >= int(session[f'{current_user.id}']['comments'][str(comment_id)]) + int(comment_mark) >= -1:
+            comment.mark += int(comment_mark)
+            comment.mark -= int(session[f'{current_user.id}']['comments'][str(comment_id)])
+            db_sess.commit()
+            session[f'{current_user.id}'] = {'comments': {f'{comment_id}': comment_mark}}
+        elif int(session[f'{current_user.id}']['comments'][str(comment_id)]) + int(comment_mark) <= -1 or int(
+                session[f'{current_user.id}']['comments'][str(comment_id)]) + int(comment_mark) >= 1:
+            comment.mark -= int(comment_mark)
+            db_sess.commit()
+            session[f'{current_user.id}'] = {'comments': {f'{comment_id}': '0'}}
     if mark:
-        if f'{current_user.id}' not in session or str(article_id) not in session[f'{current_user.id}'] or 1 >= int(session[f'{current_user.id}'][str(article_id)]) + int(mark) >= -1:
+        if f'{current_user.id}' not in session or 'articles' not in session[str(current_user.id)] or str(article_id) not in session[f'{current_user.id}']['articles']:
             article.mark += int(mark)
             db_sess.commit()
-            session[f'{current_user.id}'] = {f'{article_id}': article.mark}
+            session[f'{current_user.id}'] = {'articles': {f'{article_id}': mark}}
+        elif 1 >= int(session[f'{current_user.id}']['articles'][str(article_id)]) + int(mark) >= -1:
+            article.mark += int(mark)
+            article.mark -= int(session[f'{current_user.id}']['articles'][str(article_id)])
+            db_sess.commit()
+            session[f'{current_user.id}'] = {'articles': {f'{article_id}': mark}}
+        elif int(session[f'{current_user.id}']['articles'][str(article_id)]) + int(mark) <= -1 or int(session[f'{current_user.id}']['articles'][str(article_id)]) + int(mark) >= 1:
+            article.mark -= int(mark)
+            db_sess.commit()
+            session[f'{current_user.id}'] = {'articles': {f'{article_id}': '0'}}
     if to_subscribe:
         user.subscribers += 1
         db_sess.commit()
-    return render_template('reading_article.html', time_now = datetime.datetime.now(), article=article, current_user=current_user, user=user, all_comments=all_comments)
+    return render_template('reading_article.html', answer=answer, time_now = datetime.datetime.now(), article=article, current_user=current_user, user=user, all_comments=all_comments)
 
 
 def getCreatorArticle(article):
@@ -260,13 +281,19 @@ def getUser(user_id):
 @app.route('/profile/<user_id>', methods=['GET', 'POST'])
 def profile_user(user_id):
     form = ProfileView()
-    user = getUser(user_id)
     db_sess = db_session.create_session()
+    user = db_sess.query(users.User).filter(users.User.id == user_id).first()
     created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
     subscribers = user.subscribers
     amount_articles = len(created_articles)
     mark = 0
     to_subscribe = request.form.get('to_subscribe')
+    photo = form.photo.data
+    if photo:
+        filename = secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        user.photo = filename
+        db_sess.commit()
     if to_subscribe:
         user = db_sess.query(users.User).filter(users.User.id == user_id).first()
         user.subscribers += 1
@@ -278,7 +305,7 @@ def profile_user(user_id):
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', amount_articles=amount_articles, subscribers=subscribers,
+    return render_template('profile_check.html', photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
                            mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
 
 
