@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post" novalidate enctype=multipart/form-data>
+    {% if current_user.id == user_id %}
+    <div style="float:right">
+        <div class="profile" style="color:white">
+            Описание: {{form.description}}
+            </div>
+        </div>
+        <div class="profile" style="color:white">
+            Контакт: {{form.contacts}}
+            </div>
+        </div>
+    </div>
+        {% endif %}
+</form>
+{% endblock %}
