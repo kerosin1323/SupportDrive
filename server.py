@@ -327,10 +327,11 @@ def descript_user(user_id):
     form = DescriptionProfile()
     db_sess = db_session.create_session()
     user = db_sess.query(users.User).filter(users.User.id == user_id).first()
+    user.name = form.name.data
+    user.photo = form.photo.data
     user.description = form.description.data
     user.contacts = form.contacts.data
     db_sess.commit()
-
     if form.create.data:
         return redirect(f'/profile/{user_id}')
     return render_template('profile_data.html', form=form)
