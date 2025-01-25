@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post" novalidate enctype=multipart/form-data>
+    <div style="color:white" class="change">
+            <div style="margin-top:10px">Фото: </div>
+            <div> {{form.photo}} </div>
+            <div style="margin-top:10px">Имя: </div>
+            <div> {{form.name}}</div>
+            <div style="margin-top:10px">Контакт: </div>
+            <div> {{form.contacts}}</div>
+            <div style="margin-top:10px">Описание: </div>
+            <div> {{form.description}}</div>
+    </div>
+</form>
+{% endblock %}

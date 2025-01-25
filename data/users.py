@@ -10,14 +10,17 @@ class User(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    name = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     login = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     reading = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    contacts = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     subscribers = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     articles = orm.relationship("Articles", back_populates='user')
     photo = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

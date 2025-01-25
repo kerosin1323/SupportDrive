@@ -1,3 +1,4 @@
+
 import datetime
 import os
 from flask_login import *
@@ -297,6 +298,7 @@ def profile_user(user_id):
     db_sess = db_session.create_session()
     user = db_sess.query(users.User).filter(users.User.id == user_id).first()
     created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
+    add_data = form.add_data.data
     subscribers = user.subscribers
     amount_articles = len(created_articles)
     mark = 0
@@ -307,6 +309,8 @@ def profile_user(user_id):
         photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         user.photo = filename
         db_sess.commit()
+    if add_data:
+        return redirect(f'/profile_data/{user_id}')
     if to_subscribe:
         user = db_sess.query(users.User).filter(users.User.id == user_id).first()
         user.subscribers += 1
@@ -321,6 +325,19 @@ def profile_user(user_id):
     return render_template('profile_check.html', photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
                            mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
 
+@app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
+def descript_user(user_id):
+    form = DescriptionProfile()
+    db_sess = db_session.create_session()
+    user = db_sess.query(users.User).filter(users.User.id == user_id).first()
+    user.name = form.name.data
+    user.photo = form.photo.data
+    user.description = form.description.data
+    user.contacts = form.contacts.data
+    db_sess.commit()
+    if form.create.data:
+        return redirect(f'/profile/{user_id}')
+    return render_template('profile_data.html', form=form)
 
 @app.route('/created_articles/<user_id>', methods=['GET', 'POST'])
 def show_user_articles(user_id):

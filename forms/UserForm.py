@@ -21,4 +21,13 @@ class RegisterForm(FlaskForm):
 class ProfileView(FlaskForm):
     created_articles = SubmitField('Созданные статьи')
     exit = SubmitField('Выйти')
+    add_data = SubmitField('Изменить')
     photo = FileField('Добавить фото')
+
+
+class DescriptionProfile(FlaskForm):
+    description = StringField('Описание')
+    contacts = StringField('Контакты')
+    create = SubmitField('Создать')
+    photo = FileField('Изменить фото')
+    name = StringField('Изменить имя')
