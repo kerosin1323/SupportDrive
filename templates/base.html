@@ -103,6 +103,7 @@
 </head>
 <body style="background-color: #343F52;">
 <header>
+    <div class="navb" style="position: fixed; width: 100%; z-index: 1000; top: 0;">
     <nav class="navbar navbar-light bg-dark">
         <a class="navbar-brand" href="/">
             <img src="/static/logo/logo.png" height="40px" width="40px">
@@ -121,9 +122,10 @@
             <a class="btn btn-primary" href="/login">Войти</a>
         {% endif %}
     </nav>
+        </div>
 </header>
 <!-- Begin page content -->
-<main role="main">
+<main role="main" style="padding-top: 5%">
     {% block content %}
     {% endblock %}
 </main>
