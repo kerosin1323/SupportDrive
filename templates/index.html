@@ -2,6 +2,45 @@
 
 {% block content %}
 <form action="" method="post" novalidate  style="overflow: hidden">
+    <div class="top_theme_articles"  style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
+        <h3>Главные статьи</h3>
+        {% if top_sedan %}
+        <div class="sedans">
+            <h5>Седаны</h5>
+            <a href="/article/{{top_sedan.id}}/read">{{ top_sedan[0].name }}</a>
+        </div>
+        {% endif %}
+        {% if top_truck %}
+        <div class="trucks">
+            <h5>Грузовики</h5>
+            <a href="/article/{{top_truck.id}}/read">{{ top_truck[0].name }}</a>
+        </div>
+        {% endif %}
+        {% if top_electric %}
+        <div class="electrics">
+            <h5>Электро</h5>
+            <a href="/article/{{top_electric.id}}/read">{{ top_electric[0].name }}</a>
+        </div>
+        {% endif %}
+        {% if top_russia %}
+        <div class="russia">
+            <h5>Российские</h5>
+            <a href="/article/{{top_russia.id}}/read">{{ top_russia[0].name }}</a>
+        </div>
+        {% endif %}
+        {% if top_foreign %}
+        <div class="foreign">
+            <h5>Иностранные</h5>
+            <a href="/article/{{top_foreign.id}}/read">{{ top_foreign[0].name }}</a>
+        </div>
+        {% endif %}
+        {% if top_china %}
+        <div class="china">
+            <h5>Китайские</h5>
+            <a href="/article/{{top_china.id}}/read">{{ top_china[0].name }}</a>
+        </div>
+        {% endif %}
+    </div>
     <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
         {% for article in articles %}
             <div class="article">

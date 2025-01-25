@@ -30,11 +30,11 @@ def getMostPopularArticle(category=None):
     if category is None:
         return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
         desc(articles.Articles.readings))
-    categories = {'sedans': 'Легковые', 'trucks': 'Грузовые', 'electrics': 'Электро', 'china': 'Китайские', 'russia': 'Российские', 'foreign': 'Иномарки'}
+    categories = {'news': 'Новости', 'sedans': 'Легковые', 'trucks': 'Грузовые', 'electrics': 'Электро', 'china': 'Китайские', 'russia': 'Российские', 'foreign': 'Иномарки'}
     return db_sess.query(articles.Articles).filter(and_(
                 articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
                 articles.Articles.categories == categories[category])).order_by(
-                desc(articles.Articles.readings))
+                desc(articles.Articles.readings)).all()
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -73,9 +73,14 @@ def search():
 def welcome_page():
     db_sess = db_session.create_session()
     db_sess.query(articles.Articles).filter(articles.Articles.text == None).delete()
-    db_sess.query(articles.Articles).filter(articles.Articles.name == None).delete()
     db_sess.commit()
     mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
+    top_articles_sedans = getMostPopularArticle('sedans')
+    top_articles_trucks = getMostPopularArticle('trucks')
+    top_articles_russia = getMostPopularArticle('russia')
+    top_articles_china = getMostPopularArticle('china')
+    top_articles_foreign = getMostPopularArticle('foreign')
+    top_articles_electrics = getMostPopularArticle('electrics')
     reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
     popular_articles = getMostPopularArticle()
@@ -91,8 +96,7 @@ def welcome_page():
         return redirect(f'/article/{id_article}/read')
     elif len(db_sess.query(users.User).all()) < 5:
         return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=False,
-                               readings_leaders=False, subscribers_leaders=False)
-
+                               readings_leaders=False, subscribers_leaders=False, top_sedan=top_articles_sedans, top_truck=top_articles_trucks, top_foreign=top_articles_foreign, top_china=top_articles_china, top_russia=top_articles_russia, top_elecric=top_articles_electrics)
     return render_template('index.html', articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
@@ -113,7 +117,6 @@ def getSearchArticles():
     db_sess = db_session.create_session()
     search_articles = request.args.get('search')
     return db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + search_articles + '%')).all()
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
