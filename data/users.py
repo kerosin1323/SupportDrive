@@ -19,7 +19,7 @@ class User(SqlAlchemyBase, UserMixin):
     subscribers = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     articles = orm.relationship("Articles", back_populates='user')
-    photo = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    photo = sqlalchemy.Column(sqlalchemy.String, default='default_logo.jpg')
 
 
     def set_password(self, password):

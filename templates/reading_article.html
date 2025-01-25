@@ -62,38 +62,32 @@
         </div>
         </div>
     <div class="comments">
+        <h1>Комментарии ({{ amount_comments }})</h1>
         <div class="make_comment">
-            <h1>Создать комментарий</h1>
             {% if current_user.is_authenticated %}
-            <script src="https://cdn.tiny.cloud/1/yz21sbvfhoqwvo3hl2p58u312quu2ubwy1n6vp9mtxaf2ctu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-            <script>
-              tinymce.init({
-                selector: 'textarea',
-
-                toolbar: 'undo redo | blocks .fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-                tinycomments_mode: 'embedded',
-                tinycomments_author: 'Author name',
-                mergetags_list: [
-                  { value: 'First.Name', title: 'First Name' },
-                  { value: 'Email', title: 'Email' },
-                ],
-                ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
-              });
-            </script>
-            <textarea name="input">
-            </textarea>
-            <button style="margin-top:10px" class="btn btn-primary" name="comment" value="1">Продолжить</button>
+            <div class="comment_form" style="width: 80%">
+                {{ comment_form.text(class="form-control") }}<br>
+                {% for error in comment_form.text.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <button style="margin-top:10px" class="btn btn-primary" name="comment" value="1">Создать</button>
             {% else %}
             <div style="color:white;font-size:50px">
                 Чтобы создать статью, необходимо зарегестрироваться
             </div>
             {% endif %}
         </div>
-        <h1>Комментарии</h1>
         <div style="padding-bottom:10px" class="all_comments">
             {% for comment in all_comments %}
+            {% if not comment.answer_on %}
             <div class="comment">
-                <a class="creator_name" style="text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{user.name}}</a>
+                <div class="image">
+                    <img src="/static/images/{{creators_comments[comment.id|string][1]}}" height="30px" width="30px" style="margin-top:20px">
+                </div>
+                <a class="creator_name" style="text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{ creators_comments[comment.id|string][0] }}</a>
                 <div class="text">{{comment.text|safe}}</div>
                 {% if comment.mark > 0 %}
                     <div title="Оценка" style="color:#00ff00; float: right">
@@ -110,11 +104,40 @@
             {% endif %}
                 <button name="comment_mark" class="btn btn-outline-danger" value="{{ comment.id }},-1">-1</button>
                 <button name="comment_mark" class="btn btn-outline-success"  value="{{ comment.id }},1">+1</button>
-                {% if answer == comment.id%}
-                    <textarea name="input"></textarea>
+                {% if to_answer == comment.id|string %}
+                    <textarea name="answer_input" style="width: 100%; margin-top: 10px"></textarea>
+                    <button name="make_answer" class="btn btn-outline-primary" value="{{ comment.id }}">Ответить</button>
+                {% else %}
+                <button name="to_answer" class="btn btn-outline-primary" value="{{ comment.id }}">Ответить</button>
                 {% endif %}
-            </div>
+                {% for answer in answers_comments[comment.id|string] %}
+                    <div class="answer">
+                    <div class="image">
+                        <img src="/static/images/{{creators_comments[answer.id|string][1]}}" height="30px" width="30px" style="margin-top:20px">
+                    </div>
+                    <a class="creator_name" style="text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{creators_comments[answer.id|string][0]}}</a>
+                    <div class="text">{{answer.text|safe}}</div>
+                    {% if answer.mark > 0 %}
+                        <div title="Оценка" style="color:#00ff00; float: right">
+                            <strong>+{{answer.mark}}</strong>
+                        </div>
+                        {% elif answer.mark == 0 %}
+                        <div title="Оценка" style="color:white; float: right">
+                            <strong>{{answer.mark}}</strong>
+                        </div>
+                        {% else %}
+                        <div title="Оценка" style="color: red; float: right">
+                            <strong>{{answer.mark}}</strong>
+                        </div>
+                {% endif %}
+                    <button name="comment_mark" class="btn btn-outline-danger" value="{{ answer.id }},-1">-1</button>
+                    <button name="comment_mark" class="btn btn-outline-success"  value="{{ answer.id }},1">+1</button>
+                        <br>
+                        </div>
+                {% endfor %}
 
+            </div>
+            {% endif %}
             {% endfor %}
         </div>
 

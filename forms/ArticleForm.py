@@ -12,3 +12,7 @@ class CreatingArticleDataForm(FlaskForm):
     back = SubmitField('Назад')
     describe = TextAreaField('Описание')
     create = SubmitField('Создать')
+
+
+class CommentsArticle(FlaskForm):
+    text = TextAreaField()

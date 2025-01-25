@@ -84,7 +84,14 @@ def welcome_page():
     top_articles_electrics = getMostPopularArticle('electrics')
     reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
+    amount_comments_articles = {}
     popular_articles = getMostPopularArticle()
+    creators = {}
+    for article in popular_articles:
+        creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+        creators[str(article.id)] = (creator.name, creator.photo)
+        print(creators)
+        amount_comments_articles[str(article.id)] = len(db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     id_article = request.form.get('id')
     to_delete = request.form.get('delete')
     if to_delete:
@@ -96,9 +103,9 @@ def welcome_page():
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     elif len(db_sess.query(users.User).all()) < 5:
-        return render_template('index.html', articles=popular_articles, users=users.User(), mark_leaders=False,
+        return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators, mark_leaders=False, amount_comments_articles=amount_comments_articles,
                                readings_leaders=False, subscribers_leaders=False, top_sedan=top_articles_sedans, top_truck=top_articles_trucks, top_foreign=top_articles_foreign, top_china=top_articles_china, top_russia=top_articles_russia, top_elecric=top_articles_electrics)
-    return render_template('index.html', articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
+    return render_template('index.html', creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -169,9 +176,21 @@ def checkAndLoginUser(name, password):
 
 @app.route('/article/<article_id>/read', methods=['GET', 'POST'])
 def reading_article(article_id):
+    comment_form = CommentsArticle()
     db_sess = db_session.create_session()
     make_comment = request.form.get('comment')
-    text = request.form.get('input')
+    text = comment_form.text.data
+    to_answer = request.form.get('to_answer')
+    print(to_answer)
+    make_answer = request.form.get('make_answer')
+    answer_text = request.form.get('answer_input')
+    if make_answer and answer_text != '':
+        creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+        comment = comments.Comment(username=creator.name, user=current_user.id, text=answer_text, article_id=article_id,
+                                   created_date=str(datetime.datetime.now()), answer_on=make_answer)
+        db_sess.add(comment)
+        db_sess.commit()
+        return redirect(f'/article/{article_id}/read')
     if make_comment == '1' and text != '':
         creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
         comment = comments.Comment(username=creator.name, user=current_user.id, text=text, article_id=article_id,
@@ -182,6 +201,12 @@ def reading_article(article_id):
     article = db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
     user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
     all_comments = db_sess.query(comments.Comment).filter(comments.Comment.article_id == article_id).all()
+    answers_comments = {}
+    creators_comments = {}
+    for comment in all_comments:
+        answers_comments[str(comment.id)] = db_sess.query(comments.Comment).filter(comments.Comment.answer_on == comment.id).all()
+        creator = db_sess.query(users.User).filter(users.User.id == comment.user).first()
+        creators_comments[str(comment.id)] = (creator.name, creator.photo)
     to_subscribe = request.form.get('to_subscribe')
     mark = request.form.get('mark')
     comment_make_mark = request.form.get('comment_mark')
@@ -221,7 +246,7 @@ def reading_article(article_id):
     if to_subscribe:
         user.subscribers += 1
         db_sess.commit()
-    return render_template('reading_article.html', answer=answer, time_now = datetime.datetime.now(), article=article, current_user=current_user, user=user, all_comments=all_comments)
+    return render_template('reading_article.html', creators_comments=creators_comments, answers_comments=answers_comments, to_answer=to_answer, comment_form=comment_form, amount_comments=len(all_comments), answer=answer, time_now = datetime.datetime.now(), article=article, current_user=current_user, user=user, all_comments=all_comments)
 
 
 def getCreatorArticle(article):
