@@ -3,10 +3,15 @@
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <div class="register-form" style="color:white; width: 50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
-        <h1>Создание аккаунта</h1>
         <p>
+        <div style="display: flex; justify-content: space-between;color:white">
+            <div class="register-submit" style="margin-left:100px">
+                <p>{{ form.to_login(style='background-color: #293245; border: none; font-size: 30px; color:white;') }}</p>
+            </div>
+            <div style="font-size:30px;margin-right:100px; text-decoration: underline;">Регистрация</div>
+        </div>
             {{ form.login.label }}
-            {{ form.login(class="form-control", style=' background-color: #293245; ') }}
+            {{ form.login(class="form-control", style=' background-color: #343F52; color:white ') }}
             {% for error in form.login.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -15,7 +20,7 @@
         </p>
         <p>
             {{ form.username.label }}
-            {{ form.username(class="form-control") }}
+            {{ form.username(class="form-control", style=' background-color: #343F52;color:white ') }}
             {% for error in form.username.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -24,16 +29,15 @@
         </p>
         <p>
             {{ form.password.label }}
-            {{ form.password(class="form-control", type="password") }}
+            {{ form.password(class="form-control", type="password", style=' background-color: #343F52;color:white ') }}
             {% for error in form.password.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
             {% endfor %}
         </p>
-        <div class="register-submit">
+        <div class="register-submit" style="margin-top:30px">
             <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-            <p>{{ form.to_login(class="btn btn-secondary") }}</p>
         </div>
     </div>
     {{message}}

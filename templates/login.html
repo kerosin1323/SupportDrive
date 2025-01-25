@@ -3,11 +3,17 @@
 {% block content %}
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <div class="login-form" style="color:white;width: 50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
-            <h1>Вход в аккаунт</h1>
+        <div class="register-form" style="color:white; width: 50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+        <p>
+        <div style="display: flex; justify-content: space-between;color:white">
+            <div style="font-size:30px;margin-left:100px; text-decoration: underline;">Вход</div>
+            <div class="register-submit" style="margin-right:100px">
+                <p>{{ form.register(style='background-color: #293245; border: none; font-size: 30px; color:white;') }}</p>
+            </div>
+        </div>
             <div class="login-login">
                 {{ form.username.label }}<br>
-                {{ form.username(class="form-control", type="username") }}<br>
+                {{ form.username(class="form-control", type="username", style=' background-color: #343F52;color:white ') }}<br>
                 {% for error in form.username.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}
@@ -16,7 +22,7 @@
             </div>
             <div class="password-login">
                 {{ form.password.label }}<br>
-                {{ form.password(class="form-control", type="password") }}<br>
+                {{ form.password(class="form-control", type="password", style=' background-color: #343F52;color:white ') }}<br>
                 {% for error in form.password.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}
@@ -25,7 +31,6 @@
             </div>
             <div class="submit-login">
                 <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-                <p>{{ form.register(class="btn btn-secondary") }}</p>
             </div>
             {{ message }}
         </div>

@@ -7,8 +7,14 @@
     </div>
     <div class="container" style="color:white;float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
         {% if search %}
-    <input type='text' name="search" title="Поиск">
-    <input type=submit value='🔎' name="to_search">
+   <div class="text-field" style="color:white;background-color:#293245;width: 80%;margin-top:80px">
+              <div class="text-field__icon">
+                <input style="color:white;background-color:#293245;" class="text-field__input" type="search" name="search" id="search" >
+                <span class="text-field__aicon-2">
+                  <input style='background-color: #293245; border: none; color:white; font-size: 22px' type="submit" value="⌕" name="to_search">
+                </span>
+              </div>
+            </div>
     {% endif %}
         {% for article in articles %}
             <div class="article">
