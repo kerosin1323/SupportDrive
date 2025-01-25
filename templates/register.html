@@ -1,30 +1,36 @@
 {% extends "base.html" %}
-
 {% block content %}
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
-    <div class="register-form" style="color:white; width:50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
-         <div style="max-width: 500px; margin-left: auto; margin-right: auto; padding: 15px; background-color: #343F52;">
-             <div class="text-field text-field_floating-3">
-                 {{ form.username(class="text-field__input", placeholder="name"}}
-                 {{ form.username.label(class="text-field__label", for="name") }}
-                {% for error in form.username.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-            </div>
-             <div class="text-field text-field_floating-3">
-                {{ form.password(class="text-field__input", placeholder="password", type="password")}}
-                 {{ form.password.label(class="text-field__label", for="password") }}
-                {% for error in form.password.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-            </div>
-
-
+    <div class="register-form" style="color:white; width: 50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+        <h1>Создание аккаунта</h1>
+        <p>
+            {{ form.login.label }}
+            {{ form.login(class="form-control", style=' background-color: #293245; ') }}
+            {% for error in form.login.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.username.label }}
+            {{ form.username(class="form-control") }}
+            {% for error in form.username.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}
+            {{ form.password(class="form-control", type="password") }}
+            {% for error in form.password.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
         <div class="register-submit">
             <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
             <p>{{ form.to_login(class="btn btn-secondary") }}</p>
