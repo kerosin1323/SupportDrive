@@ -15,9 +15,15 @@
             <div style="margin-bottom:15px;margin-left:15px;margin-right:15px" class="creator">
                 <a class="creator_name" style="font-size:30px;text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{user.name}}</a>
             </div>
+            {% if is_subscribed %}
+            <div class="follow">
+                <button name="to_subscribe" class="btn btn-secondary" value="1">Отписаться</button>
+            </div>
+            {% else %}
             <div class="follow">
                 <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
             </div>
+            {% endif %}
         </div>
         <div class="header">
             <h1>{{ article.name }}</h1>

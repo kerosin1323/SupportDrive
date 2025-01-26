@@ -13,6 +13,8 @@ class User(SqlAlchemyBase, UserMixin):
     name = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     login = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    marked_articles = sqlalchemy.Column(sqlalchemy.String)
+    subscribed = sqlalchemy.Column(sqlalchemy.String)
     reading = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     description = sqlalchemy.Column(sqlalchemy.String, default='')
     contacts = sqlalchemy.Column(sqlalchemy.String, default='')

@@ -50,7 +50,15 @@
                 {% endif %}
                 <p>{{ form.follow(class='btn btn-outline-primary') }}</p>
 
-            <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
+            {% if is_subscribed %}
+            <div class="follow">
+                <button name="to_subscribe" class="btn btn-secondary" value="1">Отписаться</button>
+            </div>
+            {% else %}
+            <div class="follow">
+                <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
+            </div>
+            {% endif %}
         <p>{{ form.created_articles(class='btn btn-info') }}</p>
     </div>
     {% endif %}

@@ -184,15 +184,13 @@ def reading_article(article_id):
     make_answer = request.form.get('make_answer')
     answer_text = request.form.get('answer_input')
     if make_answer and answer_text != '':
-        creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
-        comment = comments.Comment(username=creator.name, user=current_user.id, text=answer_text, article_id=article_id,
+        comment = comments.Comment(user=current_user.id, text=answer_text, article_id=article_id,
                                    created_date=str(datetime.datetime.now()), answer_on=make_answer)
         db_sess.add(comment)
         db_sess.commit()
         return redirect(f'/article/{article_id}/read')
     if make_comment == '1' and text != '':
-        creator = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
-        comment = comments.Comment(username=creator.name, user=current_user.id, text=text, article_id=article_id,
+        comment = comments.Comment(user=current_user.id, text=text, article_id=article_id,
                                    created_date=str(datetime.datetime.now()))
         db_sess.add(comment)
         db_sess.commit()
@@ -228,24 +226,49 @@ def reading_article(article_id):
             comment.mark -= int(comment_mark)
             db_sess.commit()
             session[f'{current_user.id}'] = {'comments': {f'{comment_id}': '0'}}
+    this_user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
     if mark:
-        if f'{current_user.id}' not in session or 'articles' not in session[str(current_user.id)] or str(article_id) not in session[f'{current_user.id}']['articles']:
+        if this_user.marked_articles:
+            prev_mark = json.loads(this_user.marked_articles)
+        else:
+            prev_mark = {}
+        if not prev_mark:
             article.mark += int(mark)
-            db_sess.commit()
-            session[f'{current_user.id}'] = {'articles': {f'{article_id}': mark}}
-        elif 1 >= int(session[f'{current_user.id}']['articles'][str(article_id)]) + int(mark) >= -1:
+            prev_mark[str(article_id)] = str(mark)
+        elif 1 >= int(prev_mark[str(article_id)]) + int(mark) >= -1:
             article.mark += int(mark)
-            article.mark -= int(session[f'{current_user.id}']['articles'][str(article_id)])
-            db_sess.commit()
-            session[f'{current_user.id}'] = {'articles': {f'{article_id}': mark}}
-        elif int(session[f'{current_user.id}']['articles'][str(article_id)]) + int(mark) <= -1 or int(session[f'{current_user.id}']['articles'][str(article_id)]) + int(mark) >= 1:
+            article.mark -= int(prev_mark[str(article_id)])
+            prev_mark[str(article_id)] = str(mark)
+        elif int(prev_mark[str(article_id)]) + int(mark) <= -1 or int(prev_mark[str(article_id)]) + int(mark) >= 1:
             article.mark -= int(mark)
-            db_sess.commit()
-            session[f'{current_user.id}'] = {'articles': {f'{article_id}': '0'}}
-    if to_subscribe:
-        user.subscribers += 1
+            prev_mark[str(article_id)] = '0'
+        this_user.marked_articles = json.dumps(prev_mark)
         db_sess.commit()
-    return render_template('reading_article.html', creators_comments=creators_comments, answers_comments=answers_comments, to_answer=to_answer, comment_form=comment_form, amount_comments=len(all_comments), answer=answer, time_now = datetime.datetime.now(), article=article, current_user=current_user, user=user, all_comments=all_comments)
+    if to_subscribe:
+        if this_user.subscribed:
+            prev_subs = json.loads(this_user.subscribed)
+        else:
+            prev_subs = {}
+        if (not prev_subs) or (prev_subs[str(user.id)] == '0'):
+            user.subscribers += 1
+            prev_subs[str(user.id)] = '1'
+        elif prev_subs[str(user.id)] == '1':
+            user.subscribers -= 1
+            prev_subs[str(user.id)] = '0'
+        this_user.subscribed = json.dumps(prev_subs)
+        db_sess.commit()
+    if this_user.subscribed:
+        all_subs = [i for i, k in json.loads(this_user.subscribed).items() if k == '1']
+        if str(article_id) in all_subs:
+            is_subscribed = 1
+        else:
+            is_subscribed = 0
+    else:
+        is_subscribed = 0
+    return render_template('reading_article.html', is_subscribed=is_subscribed, creators_comments=creators_comments,
+                           answers_comments=answers_comments, to_answer=to_answer, comment_form=comment_form,
+                           amount_comments=len(all_comments), answer=answer, time_now=datetime.datetime.now(),
+                           article=article, current_user=current_user, user=user, all_comments=all_comments)
 
 
 def getCreatorArticle(article):
@@ -323,12 +346,26 @@ def profile_user(user_id):
     user = db_sess.query(users.User).filter(users.User.id == user_id).first()
     created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
     add_data = form.add_data.data
-    subscribers = user.subscribers
     contacts = user.contacts
     description = user.description
     amount_articles = len(created_articles)
     mark = 0
     to_subscribe = request.form.get('to_subscribe')
+    this_user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
+    if to_subscribe:
+        if this_user.subscribed:
+            prev_subs = json.loads(this_user.subscribed)
+        else:
+            prev_subs = {}
+        if (not prev_subs) or (prev_subs[str(user_id)] == '0'):
+            user.subscribers += 1
+            prev_subs[str(user_id)] = '1'
+        elif prev_subs[str(user_id)] == '1':
+            user.subscribers -= 1
+            prev_subs[str(user_id)] = '0'
+        this_user.subscribed = json.dumps(prev_subs)
+        db_sess.commit()
+    subscribers = user.subscribers
     if form.follow.data:
         user_articles = []
         for article,mark in session[str(current_user.id)]['articles'].items():
@@ -346,10 +383,6 @@ def profile_user(user_id):
                                mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
     if add_data:
         return redirect(f'/profile_data/{user_id}')
-    if to_subscribe:
-        user = db_sess.query(users.User).filter(users.User.id == user_id).first()
-        user.subscribers += 1
-        db_sess.commit()
     id_article = request.form.get('id')
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
@@ -369,11 +402,18 @@ def profile_user(user_id):
         return render_template('profile_check.html', contacts=contacts, description=description, user_articles=user_articles, photo=user.photo, amount_articles=amount_articles,
                                subscribers=subscribers, amount_comments_articles=amount_comments_articles,
                                mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
-
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
+    if this_user.subscribed:
+        all_subs = [i for i, k in json.loads(this_user.subscribed).items() if k == '1']
+        if str(user_id) in all_subs:
+            is_subscribed = 1
+        else:
+            is_subscribed = 0
+    else:
+        is_subscribed = 0
+    return render_template('profile_check.html', is_subscribed=is_subscribed, contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
                            mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
 
 @app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
