@@ -181,7 +181,6 @@ def reading_article(article_id):
     make_comment = request.form.get('comment')
     text = comment_form.text.data
     to_answer = request.form.get('to_answer')
-    print(to_answer)
     make_answer = request.form.get('make_answer')
     answer_text = request.form.get('answer_input')
     if make_answer and answer_text != '':
@@ -325,42 +324,73 @@ def profile_user(user_id):
     created_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user.id).all()
     add_data = form.add_data.data
     subscribers = user.subscribers
+    contacts = user.contacts
+    description = user.description
     amount_articles = len(created_articles)
     mark = 0
     to_subscribe = request.form.get('to_subscribe')
-    photo = form.photo.data
-    if photo:
-        filename = secure_filename(photo.filename)
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        user.photo = filename
-        db_sess.commit()
+    if form.follow.data:
+        user_articles = []
+        for article,mark in session[str(current_user.id)]['articles'].items():
+            if mark=='1':
+                user_articles.append(db_sess.query(articles.Articles).filter(articles.Articles.id==int(article)).first())
+        amount_comments_articles = {}
+        for article in user_articles:
+            amount_comments_articles[str(article.id)] = len(
+                db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
+        if not user_articles:
+            return 'Пользователь не создал ни одной статьи'
+        return render_template('profile_check.html', contacts=contacts, description=description, user_articles=user_articles, photo=user.photo,
+                               amount_articles=amount_articles,amount_comments_articles=amount_comments_articles,
+                               subscribers=subscribers,
+                               mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
     if add_data:
         return redirect(f'/profile_data/{user_id}')
     if to_subscribe:
         user = db_sess.query(users.User).filter(users.User.id == user_id).first()
         user.subscribers += 1
         db_sess.commit()
+    id_article = request.form.get('id')
+    if id_article:
+        article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
+        article.readings += 1
+        db_sess.commit()
+        return redirect(f'/article/{id_article}/read')
     for article in created_articles:
         mark += article.mark
     if form.created_articles.data:
-        return redirect(f'/created_articles/{user.id}')
+        user_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user_id).all()
+        if not user_articles:
+            return 'Пользователь не создал ни одной статьи'
+        amount_comments_articles = {}
+        for article in user_articles:
+            amount_comments_articles[str(article.id)] = len(
+                db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
+        return render_template('profile_check.html', contacts=contacts, description=description, user_articles=user_articles, photo=user.photo, amount_articles=amount_articles,
+                               subscribers=subscribers, amount_comments_articles=amount_comments_articles,
+                               mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
+
     if form.exit.data:
         logout_user()
         return redirect('/')
-    return render_template('profile_check.html', photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
+    return render_template('profile_check.html', contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
                            mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
 
 @app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
 def descript_user(user_id):
     form = DescriptionProfile()
     db_sess = db_session.create_session()
-    user = db_sess.query(users.User).filter(users.User.id == user_id).first()
-    user.name = form.name.data
-    user.photo = form.photo.data
-    user.description = form.description.data
-    user.contacts = form.contacts.data
-    db_sess.commit()
     if form.create.data:
+        user = db_sess.query(users.User).filter(users.User.id == user_id).first()
+        user.name = form.name.data
+        photo = form.photo.data
+        if photo:
+           filename = secure_filename(photo.filename)
+           photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+           user.photo = filename
+        user.description = form.description.data
+        user.contacts = form.contacts.data
+        db_sess.commit()
         return redirect(f'/profile/{user_id}')
     return render_template('profile_data.html', form=form)
 

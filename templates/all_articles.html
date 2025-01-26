@@ -18,11 +18,16 @@
     {% endif %}
         {% for article in articles %}
             <div class="article">
-                <div class="creator">
-                    <a class="creator_name" href="/profile/{{article.user_id}}">{{user}}</a>
-                </div>
-                <div class="time">
-                    <h3>{{passed_time}}</h3>
+                <div style="display:flex" class="first_level">
+                    <div class="image">
+                        <img src="/static/images/{{ creators[article.user_id|string][1] }}" alt="photo" height="50px" width="50px" style="margin-top:20px">
+                    </div>
+                    <div style="margin-bottom:15px;margin-left:15px;margin-right:15px" class="creator">
+                        <a class="creator_name" style="font-size:15px;text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{creators[article.user_id|string][0]}}</a>
+                    </div>
+                    <div class="time">
+                        <h3>{{passed_time}}</h3>
+                    </div>
                 </div>
                 <div class="name_article" style="color:white">
                     <h2>{{article.name}}</h2>
@@ -41,7 +46,13 @@
                     <button
                         class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
-                    <div class="mark_and_readings" style='overflow: hidden;'>
+                    {% if current_user.id == article.user_id %}
+                    <div style="margin-left:590px">
+                        <button
+                            class="btn btn-outline-danger" name="delete" value="{{ article.id }}" >Удалить
+                        </button>
+                    </div>
+                    {% endif %}
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}
                                 <div title="Оценка" style="color:#00ff00; float: right">
@@ -62,11 +73,13 @@
                                     </strong>
                                 </div>
                             {% endif %}
-                            <div class="readings" title="Кол-во просмотров" style="color:white" >
+                            <div class="readings" title="Кол-во просмотров" style="color:white; float: right; margin-right: 10px">
                                 👁{{ article.readings }}
                             </div>
+                            <div class="amount_comments" title="Кол-во комментариев" style="color:white; float: right; margin-right: 10px">
+                                {{ amount_comments_articles[article.id|string] }}
+                            </div>
                     </div>
-                        </div>
                 </div>
 
             </div>

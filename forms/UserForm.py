@@ -22,12 +22,13 @@ class ProfileView(FlaskForm):
     created_articles = SubmitField('Созданные статьи')
     exit = SubmitField('Выйти')
     add_data = SubmitField('Изменить')
-    photo = FileField('Добавить фото')
+    follow = SubmitField('Избранные')
+    subscribe = SubmitField('Подписки')
 
 
 class DescriptionProfile(FlaskForm):
     description = StringField('Описание')
     contacts = StringField('Контакты')
-    create = SubmitField('Создать')
+    create = SubmitField('Изменить')
     photo = FileField('Изменить фото')
     name = StringField('Изменить имя')

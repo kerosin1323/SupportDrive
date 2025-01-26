@@ -5,27 +5,28 @@
     {% if current_user.id == user_id %}
     <div style="float:right">
         <div class="profile" style="color:white">
-            {% if photo %}
             <div class="image">
-                <img src="/static/images/{{ photo }}" alt="photo" height="150px" width="150px" style="margin-top:20px">
+                <img src="/static/images/{{ current_user.photo }}" alt="photo" height="150px" width="150px" style="margin-top:20px">
             </div>
-            {% else %}
-            <form action="" method=post enctype=multipart/form-data>
-                {{ form.photo(class='form-control') }}
-                 <input type=submit value=Upload name="load_photo">
-            </form>
-            {% endif %}
             <div>
                 <div style="font-weight:600">
                     <p> {{ name }}</p>
                 </div>
                 <p>Оценка: {{ mark }}</p>
                 <p>Подписчики: {{ subscribers }}</p>
+                {% if contacts %}
+                <p>Контакты: {{ contacts }}</p>
+                {% endif %}
+                {% if description %}
+                <p>Описание: {{ description }}</p>
+                {% endif %}
+                <p>{{ form.follow(class='btn btn-outline-primary') }}</p>
                 <p>{{ form.add_data(class='btn btn-outline-primary') }}</p>
                 <div style="margin-top:10px">
                     <p>{{ form.created_articles(class='btn btn-info') }}</p>
                 </div>
                 <p>{{ form.exit(class='btn btn-outline-primary') }}</p>
+
             </div>
         </div>
     </div>
@@ -41,10 +42,87 @@
         </div>
         <p>Оценка: {{ mark }}</p>
         <p>Подписчики: {{ subscribers }}</p>
-        <p>Количество статей: {{ amount_articles }}</p>
+        {% if contacts %}
+                <p>Контакты: {{ contacts }}</p>
+                {% endif %}
+                {% if description %}
+                <p>Описание: {{ description }}</p>
+                {% endif %}
+                <p>{{ form.follow(class='btn btn-outline-primary') }}</p>
+
             <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
         <p>{{ form.created_articles(class='btn btn-info') }}</p>
     </div>
     {% endif %}
+     <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
+        {% for article in user_articles %}
+            <div class="article">
+                <div style="display:flex" class="first_level">
+                    <div class="image">
+                        <img src="/static/images/{{ current_user.photo }}" alt="photo" height="50px" width="50px" style="margin-top:20px">
+                    </div>
+                    <div style="margin-bottom:15px;margin-left:15px;margin-right:15px" class="creator">
+                        <a class="creator_name" style="font-size:15px;text-decoration: none;color:white" href="/profile/{{article.user_id}}"> {{ current_user.name }}</a>
+                    </div>
+                    <div class="time">
+                        <h3>{{passed_time}}</h3>
+                    </div>
+                </div>
+                <div class="name_article" style="color:white">
+                    <h2>{{article.name}}</h2>
+                </div>
+                {% if article.photo %}
+                <div class="image">
+                    <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
+                </div>
+                {% endif %}
+                <div style="color:white">
+                {{ article.describe }}
+                </div>
+                <hr>
+                <div class="under-photo" style="display: flex; justify-content: space-between;color:white">
+
+                    <button
+                        class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
+                    </button>
+                    {% if current_user.id == article.user_id %}
+                    <div style="margin-left:590px">
+                        <button
+                            class="btn btn-outline-danger" name="delete" value="{{ article.id }}" >Удалить
+                        </button>
+                    </div>
+                    {% endif %}
+                    <div class="article_mark" style="float: right">
+                            {% if article.mark > 0 %}
+                                <div title="Оценка" style="color:#00ff00; float: right">
+                                    <strong>
+                                        +{{article.mark}}
+                                    </strong>
+                                </div>
+                            {% elif article.mark == 0 %}
+                                <div title="Оценка" style="color:white; float: right">
+                                    <strong>
+                                        {{article.mark}}
+                                    </strong>
+                                </div>
+                            {% else %}
+                                <div title="Оценка" style="color: red; float: right">
+                                    <strong>
+                                        {{article.mark}}
+                                    </strong>
+                                </div>
+                            {% endif %}
+                            <div class="readings" title="Кол-во просмотров" style="color:white; float: right; margin-right: 10px">
+                                👁{{ article.readings }}
+                            </div>
+                            <div class="amount_comments" title="Кол-во комментариев" style="color:white; float: right; margin-right: 10px">
+                                {{ amount_comments_articles[article.id|string] }}
+                            </div>
+                    </div>
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
 </form>
 {% endblock %}
