@@ -351,6 +351,10 @@ def profile_user(user_id):
     amount_articles = len(created_articles)
     mark = 0
     to_subscribe = request.form.get('to_subscribe')
+    all_id_subscriptions = [i for i, k in json.loads(user.subscribed).items() if k == '1']
+    all_subscriptions = []
+    for i in all_id_subscriptions:
+        all_subscriptions.append(db_sess.query(users.User).filter(users.User.id == int(i)).first())
     this_user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
     if to_subscribe:
         if this_user.subscribed:
@@ -379,7 +383,7 @@ def profile_user(user_id):
             return 'Пользователь не создал ни одной статьи'
         return render_template('profile_check.html', contacts=contacts, description=description, user_articles=user_articles, photo=user.photo,
                                amount_articles=amount_articles,amount_comments_articles=amount_comments_articles,
-                               subscribers=subscribers,
+                               subscribers=subscribers, all_subscriptions=all_subscriptions,
                                mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
     if add_data:
         return redirect(f'/profile_data/{user_id}')
