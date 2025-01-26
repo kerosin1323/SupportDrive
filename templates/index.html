@@ -3,24 +3,6 @@
 {% block content %}
 <form action="" method="post" novalidate  style="overflow: hidden">
     <div class="top_theme_articles"  style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
-        {% if top_sedan %}
-        <div class="sedans">
-            <h5>Седаны</h5>
-            <a href="/article/{{top_sedan.id}}/read">{{ top_sedan[0].name }}</a>
-        </div>
-        {% endif %}
-        {% if top_truck %}
-        <div class="trucks">
-            <h5>Грузовики</h5>
-            <a href="/article/{{top_truck.id}}/read">{{ top_truck[0].name }}</a>
-        </div>
-        {% endif %}
-        {% if top_electric %}
-        <div class="electrics">
-            <h5>Электро</h5>
-            <a href="/article/{{top_electric.id}}/read">{{ top_electric[0].name }}</a>
-        </div>
-        {% endif %}
         {% if top_russia %}
         <div class="russia">
             <h5>Российские</h5>
@@ -41,6 +23,14 @@
         {% endif %}
     </div>
     <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
+        <div class="filter_typs">
+            <label for="filter_type">Фильтр</label>
+              <select id="filter_type" name="filter_type" onchange="form.submit()">
+                <option value="time">По времени</option>
+                <option value="readings">По просмотрам</option>
+                <option value="marks">По оценкам</option>
+              </select>
+        </div>
         {% for article in articles %}
             <div class="article">
                 <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
