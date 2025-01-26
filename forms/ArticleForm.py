@@ -18,12 +18,11 @@ class CommentsArticle(FlaskForm):
     text = TextAreaField()
 
 
-
 class Filter(FlaskForm):
-    types = ['По времени', 'По просмотрам', 'По оценке']
-    times = ['День', 'Месяц', 'Год']
-    type = SelectField('Фильтр')
-    time = SelectField('За последний')
+    types = ['по времени', 'по просмотрам', 'по оценке']
+    times = ['День', 'Месяц', 'Год', 'Все время']
+    type = SelectField('Фильтр', choices=types)
+    time = SelectField('За', choices=times)
 
 
 

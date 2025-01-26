@@ -75,13 +75,12 @@ def welcome_page():
     db_sess = db_session.create_session()
     db_sess.query(articles.Articles).filter(articles.Articles.text == None).delete()
     db_sess.commit()
+    filter_type = request.form.get('filter_type')
+    print(filter_type)
     mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
-    top_articles_sedans = getMostPopularArticle('sedans')
-    top_articles_trucks = getMostPopularArticle('trucks')
     top_articles_russia = getMostPopularArticle('russia')
     top_articles_china = getMostPopularArticle('china')
     top_articles_foreign = getMostPopularArticle('foreign')
-    top_articles_electrics = getMostPopularArticle('electrics')
     reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
     amount_comments_articles = {}
@@ -104,7 +103,7 @@ def welcome_page():
         return redirect(f'/article/{id_article}/read')
     elif len(db_sess.query(users.User).all()) < 5:
         return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators, mark_leaders=False, amount_comments_articles=amount_comments_articles,
-                               readings_leaders=False, subscribers_leaders=False, top_sedan=top_articles_sedans, top_truck=top_articles_trucks, top_foreign=top_articles_foreign, top_china=top_articles_china, top_russia=top_articles_russia, top_elecric=top_articles_electrics)
+                               readings_leaders=False, subscribers_leaders=False, top_foreign=top_articles_foreign, top_china=top_articles_china, top_russia=top_articles_russia)
     return render_template('index.html', creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
