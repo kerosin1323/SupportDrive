@@ -256,7 +256,9 @@
         <a class="navbar-brand" href="/create_article" style="font-size: 16px; color:white;">Создать💡</a>
         <a class="navbar-brand" href="/search" style="font-size: 16px; color:white;">🔎</a>
         {% if current_user.is_authenticated %}
-            <a class="btn btn-secondary" href="/profile/{{ current_user.id }}">{{ current_user.name }}</a>
+            <a href="/profile/{{ current_user.id }}">
+                <img src="/static/images/{{current_user.photo}}" alt="photo" height="50px" width="50px" style="border-radius: 50%">
+            </a>
         {% else %}
             <a class="btn btn-primary" href="/login">Войти</a>
         {% endif %}
