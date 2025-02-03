@@ -6,7 +6,7 @@
 
 {% if current_user.is_authenticated %}
 
-<div style="width:50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);margin-top:200px;color:white">
+<div style="width:50%;position:absolute;top:55%;left:50%;transform:translate(-50%, -50%);color:white">
         <h1>Настройки публикации</h1>
         <p>
             {{ form.name(class="form-control", style='background-color: #293245; color:white; placeholder-color: white;', placeholder='Название...') }}
@@ -23,21 +23,11 @@
 <script>
   tinymce.init({
     selector: 'textarea#input',
-    plugins: [
-      'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
-      'checklist', 'mediaembed', 'casechange', 'export', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown','importword', 'exportword', 'exportpdf'
-    ],
-    toolbar: 'undo redo | blocks .fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-    tinycomments_mode: 'embedded',
-    tinycomments_author: 'Author name',
-    mergetags_list: [
-      { value: 'First.Name', title: 'First Name' },
-      { value: 'Email', title: 'Email' },
-    ],
-    ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
   });
 </script>
-<textarea name="input" id="input">
+<textarea name="input" id="input" style="background-color: #293245">
 </textarea>
     <div style="color:white" class="write-article-form">
         <p>
@@ -50,17 +40,8 @@
         </p>
         <p>
             {{ form.category.label }}
-            {{ form.category(class="form-control") }}
+            {{ form.category(class="form-control",style='background-color: #293245; color:white; margin-top:20px;') }}
             {% for error in form.category.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.key_words.label }}
-            {{ form.key_words(class='form-control')}}
-            {% for error in form.key_words.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>

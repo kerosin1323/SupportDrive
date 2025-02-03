@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
-app.config['UPLOAD_FOLDER'] = '.\static\images'
+app.config['UPLOAD_FOLDER'] = './static/images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -31,7 +31,13 @@ def getMostPopularArticle(category=None):
     if category is None:
         return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
         desc(articles.Articles.readings))
-    categories = {'news': 'Новости', 'sedans': 'Легковые', 'trucks': 'Грузовые', 'electrics': 'Электро', 'china': 'Китайские', 'russia': 'Российские', 'foreign': 'Иномарки'}
+    if category == 'subscribed':
+        all_subs = [int(i) for i, k in json.loads(current_user.subscribed).items() if k == '1']
+        return db_sess.query(articles.Articles).filter(and_(
+                articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
+                articles.Articles.user_id.in_(all_subs))).order_by(
+                desc(articles.Articles.readings)).all()
+    categories = {'china': 'Китай', 'russia': 'Россия', 'foreign': 'Иномарка'}
     return db_sess.query(articles.Articles).filter(and_(
                 articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
                 articles.Articles.categories == categories[category])).order_by(
@@ -41,14 +47,25 @@ def getMostPopularArticle(category=None):
 @app.route('/all/<category>', methods=['GET', 'POST'])
 def all_category(category):
     all_articles = getMostPopularArticle(category)
-    id_article = request.form.get('id')
     db_sess = db_session.create_session()
+    creators = {}
+    amount_comments_articles = {}
+    to_delete = request.form.get('delete')
+    if to_delete:
+        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
+        db_sess.commit()
+    for article in all_articles:
+        creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+        creators[str(article.id)] = (creator.name, creator.photo)
+        amount_comments_articles[str(article.id)] = len(
+            db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
+    id_article = request.form.get('id')
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
         article.readings += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
-    return render_template('all_articles.html', articles=all_articles, current_user=current_user)
+    return render_template('all_articles.html', amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -57,17 +74,28 @@ def search():
     text = request.form.get('search')
     db_sess = db_session.create_session()
     id_article = request.form.get('id')
-    article = []
+    all_articles = []
+    creators = {}
+    amount_comments_articles = {}
+    to_delete = request.form.get('delete')
+    if to_delete:
+        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
+        db_sess.commit()
     if to_search:
-        article = db_sess.query(articles.Articles).filter(or_(
+        all_articles = db_sess.query(articles.Articles).filter(or_(
             articles.Articles.name.ilike('%' + text + '%'), articles.Articles.key_words.ilike('%' + text + '%'))).order_by(
-            desc(articles.Articles.readings))
+            desc(articles.Articles.readings)).all()
+        for article in all_articles:
+            creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+            creators[str(article.id)] = (creator.name, creator.photo)
+            amount_comments_articles[str(article.id)] = len(
+                db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
         article.readings += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
-    return render_template('all_articles.html', articles=article, current_user=current_user, search=True)
+    return render_template('all_articles.html', amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user, search=True)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -75,8 +103,6 @@ def welcome_page():
     db_sess = db_session.create_session()
     db_sess.query(articles.Articles).filter(articles.Articles.text == None).delete()
     db_sess.commit()
-    filter_type = request.form.get('filter_type')
-    print(filter_type)
     mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
     top_articles_russia = getMostPopularArticle('russia')
     top_articles_china = getMostPopularArticle('china')
@@ -89,7 +115,6 @@ def welcome_page():
     for article in popular_articles:
         creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
         creators[str(article.id)] = (creator.name, creator.photo)
-        print(creators)
         amount_comments_articles[str(article.id)] = len(db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     id_article = request.form.get('id')
     to_delete = request.form.get('delete')
@@ -308,7 +333,6 @@ def addArticle(text, form):
     article.name = form.name.data
     article.describe = form.describe.data
     article.categories = form.category.data
-    article.key_words = form.key_words.data
     db_sess.add(article)
     db_sess.commit()
 
@@ -350,10 +374,11 @@ def profile_user(user_id):
     amount_articles = len(created_articles)
     mark = 0
     to_subscribe = request.form.get('to_subscribe')
-    all_id_subscriptions = [i for i, k in json.loads(user.subscribed).items() if k == '1']
-    all_subscriptions = []
-    for i in all_id_subscriptions:
-        all_subscriptions.append(db_sess.query(users.User).filter(users.User.id == int(i)).first())
+    if user.subscribed:
+        all_id_subscriptions = [i for i, k in json.loads(user.subscribed).items() if k == '1']
+        all_subscriptions = []
+        for i in all_id_subscriptions:
+            all_subscriptions.append(db_sess.query(users.User).filter(users.User.id == int(i)).first())
     this_user = db_sess.query(users.User).filter(users.User.id == current_user.id).first()
     if to_subscribe:
         if this_user.subscribed:

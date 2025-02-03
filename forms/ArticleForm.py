@@ -4,10 +4,9 @@ from wtforms.validators import DataRequired
 
 
 class CreatingArticleDataForm(FlaskForm):
-    building = ['Легковые', 'Грузовые', 'Электро']
+    countries = ['Иномарка', 'Россия', 'Китай']
     name = StringField('Название', validators=[DataRequired()])
-    category = SelectField('Строение', choices=building)
-    key_words = StringField('Ключевые слова', validators=[DataRequired()])
+    category = SelectField('Страна производителя', choices=countries)
     photo = FileField('Добавить обложку')
     back = SubmitField('Назад')
     describe = TextAreaField('Описание')
@@ -23,7 +22,3 @@ class Filter(FlaskForm):
     times = ['День', 'Месяц', 'Год', 'Все время']
     type = SelectField('Фильтр', choices=types)
     time = SelectField('За', choices=times)
-
-
-
-

@@ -11,7 +11,6 @@ class Articles(SqlAlchemyBase):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String)
-    key_words = sqlalchemy.Column(sqlalchemy.String)
     categories = sqlalchemy.Column(sqlalchemy.String)
     describe = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.String, default=datetime.datetime.now)
