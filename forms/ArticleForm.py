@@ -8,17 +8,9 @@ class CreatingArticleDataForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     category = SelectField('Страна производителя', choices=countries)
     photo = FileField('Добавить обложку')
-    back = SubmitField('Назад')
     describe = TextAreaField('Описание')
     create = SubmitField('Создать')
 
 
 class CommentsArticle(FlaskForm):
     text = TextAreaField()
-
-
-class Filter(FlaskForm):
-    types = ['по времени', 'по просмотрам', 'по оценке']
-    times = ['День', 'Месяц', 'Год', 'Все время']
-    type = SelectField('Фильтр', choices=types)
-    time = SelectField('За', choices=times)

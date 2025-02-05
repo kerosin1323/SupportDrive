@@ -32,11 +32,14 @@ def getMostPopularArticle(category=None):
         return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
         desc(articles.Articles.readings))
     if category == 'subscribed':
-        all_subs = [int(i) for i, k in json.loads(current_user.subscribed).items() if k == '1']
-        return db_sess.query(articles.Articles).filter(and_(
-                articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
-                articles.Articles.user_id.in_(all_subs))).order_by(
-                desc(articles.Articles.readings)).all()
+        if current_user.is_authenticated and current_user.subscribed:
+            all_subs = [int(i) for i, k in json.loads(current_user.subscribed).items() if k == '1']
+            return db_sess.query(articles.Articles).filter(and_(
+                    articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
+                    articles.Articles.user_id.in_(all_subs))).order_by(
+                    desc(articles.Articles.readings)).all()
+        else:
+            return []
     categories = {'china': 'Китай', 'russia': 'Россия', 'foreign': 'Иномарка'}
     return db_sess.query(articles.Articles).filter(and_(
                 articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
@@ -63,6 +66,8 @@ def all_category(category):
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
         article.readings += 1
+        user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+        user.reading += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     return render_template('all_articles.html', amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user)
@@ -82,17 +87,20 @@ def search():
         db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
         db_sess.commit()
     if to_search:
-        all_articles = db_sess.query(articles.Articles).filter(or_(
-            articles.Articles.name.ilike('%' + text + '%'), articles.Articles.key_words.ilike('%' + text + '%'))).order_by(
-            desc(articles.Articles.readings)).all()
+        all_articles = db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + text + '%')).order_by(desc(articles.Articles.readings)).all()
         for article in all_articles:
             creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
             creators[str(article.id)] = (creator.name, creator.photo)
             amount_comments_articles[str(article.id)] = len(
                 db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
+    if not text:
+        return render_template('all_articles.html', amount_comments_articles=amount_comments_articles,
+                               creators=creators, articles=[], current_user=current_user, search=True)
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
         article.readings += 1
+        user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+        user.reading += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     return render_template('all_articles.html', amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user, search=True)
@@ -104,9 +112,6 @@ def welcome_page():
     db_sess.query(articles.Articles).filter(articles.Articles.text == None).delete()
     db_sess.commit()
     mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
-    top_articles_russia = getMostPopularArticle('russia')
-    top_articles_china = getMostPopularArticle('china')
-    top_articles_foreign = getMostPopularArticle('foreign')
     reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
     amount_comments_articles = {}
@@ -124,11 +129,13 @@ def welcome_page():
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
         article.readings += 1
+        user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+        user.reading += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     elif len(db_sess.query(users.User).all()) < 5:
         return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators, mark_leaders=False, amount_comments_articles=amount_comments_articles,
-                               readings_leaders=False, subscribers_leaders=False, top_foreign=top_articles_foreign, top_china=top_articles_china, top_russia=top_articles_russia)
+                               readings_leaders=False, subscribers_leaders=False)
     return render_template('index.html', creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
@@ -258,17 +265,21 @@ def reading_article(article_id):
             prev_mark = {}
         if not prev_mark:
             article.mark += int(mark)
+            user.mark += int(mark)
             prev_mark[str(article_id)] = str(mark)
         elif 1 >= int(prev_mark[str(article_id)]) + int(mark) >= -1:
             article.mark += int(mark)
             article.mark -= int(prev_mark[str(article_id)])
+            user.mark += int(mark)
+            user.mark -= int(prev_mark[str(article_id)])
             prev_mark[str(article_id)] = str(mark)
         elif int(prev_mark[str(article_id)]) + int(mark) <= -1 or int(prev_mark[str(article_id)]) + int(mark) >= 1:
             article.mark -= int(mark)
+            user.mark -= int(mark)
             prev_mark[str(article_id)] = '0'
         this_user.marked_articles = json.dumps(prev_mark)
         db_sess.commit()
-    if to_subscribe:
+    if to_subscribe and article.user_id != current_user.id:
         if this_user.subscribed:
             prev_subs = json.loads(this_user.subscribed)
         else:
@@ -283,7 +294,7 @@ def reading_article(article_id):
         db_sess.commit()
     if this_user.subscribed:
         all_subs = [i for i, k in json.loads(this_user.subscribed).items() if k == '1']
-        if str(article_id) in all_subs:
+        if str(user.id) in all_subs:
             is_subscribed = 1
         else:
             is_subscribed = 0
@@ -314,8 +325,6 @@ def create_article():
         data = data.replace('<img', '<img height="100%" width="100%"')
         addArticle(data, form)
         return redirect('/')
-    elif data == '':
-        return 'Текст не должен быть пустым'
     return render_template('write_article.html', current_user=current_user, form=form)
 
 
@@ -394,11 +403,16 @@ def profile_user(user_id):
         this_user.subscribed = json.dumps(prev_subs)
         db_sess.commit()
     subscribers = user.subscribers
+    if form.subscribe.data:
+        all_users = []
+        all_subs = [i for i, k in json.loads(user.subscribed).items() if k == '1']
+        for sub in all_subs:
+            all_users.append(db_sess.query(users.User).filter(users.User.id == int(sub)).first())
     if form.follow.data:
         user_articles = []
-        for article,mark in session[str(current_user.id)]['articles'].items():
-            if mark=='1':
-                user_articles.append(db_sess.query(articles.Articles).filter(articles.Articles.id==int(article)).first())
+        all_followed = [i for i, k in json.loads(user.marked_articles).items() if k == '1']
+        for art in all_followed:
+            user_articles.append(db_sess.query(articles.Articles).filter(articles.Articles.id==int(art)).first())
         amount_comments_articles = {}
         for article in user_articles:
             amount_comments_articles[str(article.id)] = len(
@@ -407,7 +421,7 @@ def profile_user(user_id):
             return 'Пользователь не создал ни одной статьи'
         return render_template('profile_check.html', contacts=contacts, description=description, user_articles=user_articles, photo=user.photo,
                                amount_articles=amount_articles,amount_comments_articles=amount_comments_articles,
-                               subscribers=subscribers, all_subscriptions=all_subscriptions,
+                               subscribers=subscribers, all_subscriptions=all_subscriptions, all_users=all_users,
                                mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
     if add_data:
         return redirect(f'/profile_data/{user_id}')
@@ -415,6 +429,8 @@ def profile_user(user_id):
     if id_article:
         article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
         article.readings += 1
+        user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+        user.reading += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     for article in created_articles:
