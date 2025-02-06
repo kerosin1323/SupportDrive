@@ -6,7 +6,7 @@
 
 {% if current_user.is_authenticated %}
 
-<div style="width:50%;position:absolute;top:55%;left:50%;transform:translate(-50%, -50%);color:white">
+<div style="width:50%;position:absolute;top:55%;left:50%;transform:translate(-50%, -50%);color:white;margin-top:120px">
         <h1>Настройки публикации</h1>
         <p>
             {{ form.name(class="form-control", style='background-color: #293245; color:white; placeholder-color: white;', placeholder='Название...') }}
@@ -40,7 +40,7 @@
         </p>
         <p>
             {{ form.category.label }}
-            {{ form.category(class="form-control",style='background-color: #293245; color:white; margin-top:20px;') }}
+            {{ form.category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
             {% for error in form.category.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -55,7 +55,9 @@
         </p>
     </div>
 {% else %}
-    <p>Чтобы создать статью, необходимо зарегестрироваться</p>
+    <div style="color:white">
+        <p>Чтобы создать статью, необходимо зарегестрироваться</p>
+    </div>
 {% endif %}
 </div>
 </form>

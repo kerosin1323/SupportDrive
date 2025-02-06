@@ -1,17 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate enctype=multipart/form-data>
-    <div style="color:white" class="change">
-            <div style="margin-top:10px">Фото: </div>
-            <div> {{form.photo}} </div>
-            <div style="margin-top:10px">Имя: </div>
-            <div> {{form.name(value=current_user.name)}}</div>
-            <div style="margin-top:10px">Контакт: </div>
-            <div> {{form.contacts(value=current_user.contacts)}}</div>
-            <div style="margin-top:10px">Описание: </div>
-            <div> {{form.description(value=current_user.description)}}</div>
-        {{form.create()}}
-    </div>
-</form>
+<form action="" method="post" novalidate enctype='multipart/form-data'>
+        {{ form.hidden_tag() }}
+        <div class="register-form" style="color:white; width: 50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+            <div class="login-login" style="margin-top:20px">
+                {{ form.name.label }}<br>
+                {{ form.name(class="form-control", type="name", style=' background-color: #343F52;color:white ', value=current_user.name) }}<br>
+                {% for error in form.name.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="password-login">
+                {{ form.contacts.label }}<br>
+                {{ form.contacts(class="form-control", type="name", style=' background-color: #343F52;color:white', value=current_user.contacts) }}<br>
+                {% for error in form.contacts.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="login-login">
+                {{ form.description.label }}<br>
+                {{ form.description(class="form-control", type="name", style=' background-color: #343F52;color:white', value=current_user.description) }}<br>
+                {% for error in form.description.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="submit-login">
+                <p>{{ form.create(type="submit", class="btn btn-primary") }}</p>
+            </div>
+            <p>
+                {{ form.photo }}
+            </p>
+            {{ message }}
+        </div>
+    </form>
 {% endblock %}
