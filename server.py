@@ -58,7 +58,7 @@ def all_category(category):
         db_sess.commit()
     for article in all_articles:
         creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        creators[str(article.id)] = (creator.name, creator.photo)
+        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
         amount_comments_articles[str(article.id)] = len(
             db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     id_article = request.form.get('id')
@@ -89,7 +89,7 @@ def search():
         all_articles = db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + text + '%')).order_by(desc(articles.Articles.readings)).all()
         for article in all_articles:
             creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-            creators[str(article.id)] = (creator.name, creator.photo)
+            creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
             amount_comments_articles[str(article.id)] = len(
                 db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     if not text:
@@ -118,7 +118,7 @@ def welcome_page():
     creators = {}
     for article in popular_articles:
         creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        creators[str(article.id)] = (creator.name, creator.photo)
+        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
         amount_comments_articles[str(article.id)] = len(db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     id_article = request.form.get('id')
     to_delete = request.form.get('delete')
@@ -262,7 +262,7 @@ def reading_article(article_id):
             prev_mark = json.loads(this_user.marked_articles)
         else:
             prev_mark = {}
-        if (not prev_mark) or (not str(article_id) not in prev_mark.keys()):
+        if (not prev_mark) or (not str(article_id) in prev_mark.keys()):
             article.mark += int(mark)
             user.mark += int(mark)
             prev_mark[str(article_id)] = str(mark)
@@ -283,7 +283,7 @@ def reading_article(article_id):
             prev_subs = json.loads(this_user.subscribed)
         else:
             prev_subs = {}
-        if (not prev_subs) or (prev_subs[str(user.id)] == '0'):
+        if (not prev_subs) or (str(user.id) not in prev_subs) or (prev_subs[str(user.id)] == '0'):
             user.subscribers += 1
             prev_subs[str(user.id)] = '1'
         elif prev_subs[str(user.id)] == '1':
@@ -404,7 +404,7 @@ def profile_user(user_id):
     subscribers = user.subscribers
     all_users = []
     add_articles = []
-    if form.subscribe.data:
+    if form.subscribe.data and user.subscribed:
         all_subs = [i for i, k in json.loads(user.subscribed).items() if k == '1']
         for sub in all_subs:
             all_users.append(db_sess.query(users.User).filter(users.User.id == int(sub)).first())
@@ -442,7 +442,7 @@ def profile_user(user_id):
         db_sess.commit()
     for article in add_articles:
         creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        creators[str(article.id)] = (creator.name, creator.photo)
+        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
         amount_comments_articles[str(article.id)] = len(
             db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     if form.exit.data:
@@ -457,7 +457,7 @@ def profile_user(user_id):
     else:
         is_subscribed = 0
     return render_template('profile_check.html', add_articles=add_articles, creators=creators, amount_comments_articles=amount_comments_articles, is_subscribed=is_subscribed, contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
-                           mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
+                           mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id), all_users=all_users)
 
 @app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
 def descript_user(user_id):
