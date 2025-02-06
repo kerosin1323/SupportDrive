@@ -13,7 +13,8 @@
                 <img src="/static/images/{{ user.photo }}" alt="photo" height="50px" width="50px" style="margin-top:5px;margin-bottom:15px;border-radius: 50%">
             </div>
             <div style="margin-top:-15px;margin-left:15px;margin-right:15px" class="creator">
-                <div class="creator_name" style="background-color: gray; border-radius: 10px;padding-left:5px;padding-right:5px;margin-top:15px;margin-bottom:10px;font-size:20px;color:white" href="/profile/{{article.user_id}}"> {{user.name}}</div>
+                <div class="creator_name" style="background-color: gray; border-radius: 10px;padding-left:5px;padding-right:5px;margin-top:15px;font-size:20px;color:white" href="/profile/{{article.user_id}}"> {{user.name}}</div>
+                <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики</div>
             </div>
             {% if is_subscribed %}
             <div class="follow">
@@ -35,7 +36,7 @@
                     <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
                 </div>
                 {% endif %}
-        <div class="text">
+        <div class="text" style="word-break:break-word">
             {{ article.text|safe }}
         </div>
         <div class="second_level">
@@ -104,7 +105,7 @@
                     <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px"> {{ creators_comments[comment.id|string][0] }}</div>
                     {% endif %}
                 </a>
-                <div class="text" style="margin-top:10px;margin-bottom:10px">{{comment.text|safe}}</div>
+                <div class="text" style="margin-top:10px;margin-bottom:10px;word-break:break-word">{{comment.text|safe}}</div>
 
                 {% if comment.mark > 0 %}
                     <div title="Оценка" style="color:#00ff00; float: right">
@@ -139,7 +140,7 @@
                     <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px"> {{ creators_comments[answer.id|string][0] }}</div>
                     {% endif %}
                         </a>
-                            <div class="text" style="margin-top:10px;margin-bottom:10px">{{answer.text|safe}}</div>
+                            <div class="text" style="margin-top:10px;margin-bottom:10px;word-break:break-word">{{answer.text|safe}}</div>
 
                     {% if answer.mark > 0 %}
                         <div title="Оценка" style="color:#00ff00; float: right">

@@ -2,7 +2,7 @@
 
 {% block content %}
 <form action="" method="post" novalidate  style="overflow: hidden">
-    <div class="container" style="float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;margin-right:-100px">
+    <div class="container" style="float: left; width: 80%; margin-left: 100px; overflow-wrap: break-word;margin-right:-100px">
         {% for article in articles %}
             <div class="article">
                 <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
@@ -11,6 +11,7 @@
                     </div>
                     <div style="margin-top:5px;margin-left:15px;margin-right:15px" class="creator">
                         <div class="creator_name" style="font-size:20px;text-decoration: none;color:white"> {{creators[article.id|string][0]}}</div>
+                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики</div>
                     </div>
                     <div class="time">
                         <h3>{{passed_time}}</h3>
@@ -74,16 +75,16 @@
     </div>
     <div class="leaders" style="float:right; margin-right:-15%">
         {% if mark_leaders %}
-        <div class="mark_leaders" style="width: 60%; transform: translateX(-120px); background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+        <div class="mark_leaders" style="width: 60%; transform: translateX(-120px); background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:18px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
             <b>Лидеры по рейтингу:</b>
-            <div class="names" style="float: left">
+            <div class="names" style="float: left;margin-top:10px;color:#A8A8A8">
                 <p>1. {{ mark_leaders[0].name }}</p>
                 <p>2. {{ mark_leaders[1].name }}</p>
                 <p>3. {{ mark_leaders[2].name }}</p>
                 <p>4. {{ mark_leaders[3].name }}</p>
                 <p>5. {{ mark_leaders[4].name }}</p>
             </div>
-            <div class="result" style="float: right">
+            <div class="result" style="float: right;margin-top:10px;margin-right:10px;color:#A8A8A8">
                 <p>{{ mark_leaders[0].mark }}</p>
                 <p>{{ mark_leaders[1].mark }}</p>
                 <p>{{ mark_leaders[2].mark }}</p>
@@ -95,39 +96,42 @@
         {% if readings_leaders %}
         <div class="readings_leaders" style="width: 60%; transform: translateX(-120px);  color:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
             <b>Лидеры по просмотрам:</b>
-            <div class="names" style="float: left">
-                <p>1. {{ readings_leaders[0].name }}</p>
-                <p>2. {{ readings_leaders[1].name }}</p>
-                <p>3. {{ readings_leaders[2].name }}</p>
-                <p>4. {{ readings_leaders[3].name }}</p>
-                <p>5. {{ readings_leaders[4].name }}</p>
-            </div>
-            <div class="result" style="float: right">
-                <p>{{ readings_leaders[0].reading }}</p>
-                <p>{{ readings_leaders[1].reading }}</p>
-                <p>{{ readings_leaders[2].reading }}</p>
-                <p>{{ readings_leaders[3].reading }}</p>
-                <p>{{ readings_leaders[4].reading }}</p>
+            <div style="margin-top:10px;color:#A8A8A8">
+                <div class="names" style="float: left">
+                    <p>1. {{ readings_leaders[0].name }}</p>
+                    <p>2. {{ readings_leaders[1].name }}</p>
+                    <p>3. {{ readings_leaders[2].name }}</p>
+                    <p>4. {{ readings_leaders[3].name }}</p>
+                    <p>5. {{ readings_leaders[4].name }}</p>
+                </div>
+                <div class="result" style="float: right;margin-right:10px">
+                    <p>{{ readings_leaders[0].reading }}</p>
+                    <p>{{ readings_leaders[1].reading }}</p>
+                    <p>{{ readings_leaders[2].reading }}</p>
+                    <p>{{ readings_leaders[3].reading }}</p>
+                    <p>{{ readings_leaders[4].reading }}</p>
+                </div>
             </div>
         </div>
         {% endif %}
         {% if subscribers_leaders %}
         <div class="subscribers_leaders" style="width: 60%; transform: translateX(-120px); discolor:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
                             <b>Лидеры по подписчикам:</b>
-
-            <div class="names" style="float: left">
-                <p>1. {{ subscribers_leaders[0].name }}</p>
-                <p>2. {{ subscribers_leaders[1].name }}</p>
-                <p>3. {{ subscribers_leaders[2].name }}</p>
-                <p>4. {{ subscribers_leaders[3].name }}</p>
-                <p>5. {{ subscribers_leaders[4].name }}</p>
-             </div>
-            <div class="result" style="float: right">
-                <p>{{ subscribers_leaders[0].subscribers }}</p>
-                <p>{{ subscribers_leaders[1].subscribers }}</p>
-                <p>{{ subscribers_leaders[2].subscribers }}</p>
-                <p>{{ subscribers_leaders[3].subscribers }}</p>
-                <p>{{ subscribers_leaders[4].subscribers }}</p>
+            <div style="margin-top:10px;color:#A8A8A8">
+                <div class="names" style="float: left">
+                    <p>1. {{ subscribers_leaders[0].name }}</p>
+                    <p>2. {{ subscribers_leaders[1].name }}</p>
+                    <p>3. {{ subscribers_leaders[2].name }}</p>
+                    <p>4. {{ subscribers_leaders[3].name }}</p>
+                    <p>5. {{ subscribers_leaders[4].name }}</p>
+                 </div>
+                <div class="result" style="float: right;margin-right:10px">
+                    <p>{{ subscribers_leaders[0].subscribers }}</p>
+                    <p>{{ subscribers_leaders[1].subscribers }}</p>
+                    <p>{{ subscribers_leaders[2].subscribers }}</p>
+                    <p>{{ subscribers_leaders[3].subscribers }}</p>
+                    <p>{{ subscribers_leaders[4].subscribers }}</p>
+                </div>
             </div>
         </div>
         {% endif %}
