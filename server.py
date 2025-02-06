@@ -262,7 +262,7 @@ def reading_article(article_id):
             prev_mark = json.loads(this_user.marked_articles)
         else:
             prev_mark = {}
-        if not prev_mark:
+        if (not prev_mark) or (not str(article_id) not in prev_mark.keys()):
             article.mark += int(mark)
             user.mark += int(mark)
             prev_mark[str(article_id)] = str(mark)
@@ -403,25 +403,21 @@ def profile_user(user_id):
         db_sess.commit()
     subscribers = user.subscribers
     all_users = []
+    add_articles = []
     if form.subscribe.data:
         all_subs = [i for i, k in json.loads(user.subscribed).items() if k == '1']
         for sub in all_subs:
             all_users.append(db_sess.query(users.User).filter(users.User.id == int(sub)).first())
     if form.follow.data and user.marked_articles:
-        user_articles = []
         all_followed = [i for i, k in json.loads(user.marked_articles).items() if k == '1']
         for art in all_followed:
-            user_articles.append(db_sess.query(articles.Articles).filter(articles.Articles.id==int(art)).first())
+            add_articles.append(db_sess.query(articles.Articles).filter(articles.Articles.id==int(art)).first())
         amount_comments_articles = {}
-        for article in user_articles:
+        for article in add_articles:
             amount_comments_articles[str(article.id)] = len(
                 db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
-        if not user_articles:
+        if not add_articles:
             return 'Пользователь не создал ни одной статьи'
-        return render_template('profile_check.html', user_articles=user_articles, contacts=contacts, description=description, photo=user.photo,
-                               amount_articles=amount_articles,amount_comments_articles=amount_comments_articles,
-                               subscribers=subscribers, all_subscriptions=all_subscriptions, all_users=all_users,
-                               mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
     if add_data:
         return redirect(f'/profile_data/{user_id}')
     id_article = request.form.get('id')
@@ -435,16 +431,20 @@ def profile_user(user_id):
     for article in created_articles:
         mark += article.mark
     if form.created_articles.data:
-        user_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user_id).all()
-        if not user_articles:
+        add_articles = db_sess.query(articles.Articles).filter(articles.Articles.user_id == user_id).all()
+        if not add_articles:
             return 'Пользователь не создал ни одной статьи'
-        amount_comments_articles = {}
-        for article in user_articles:
-            amount_comments_articles[str(article.id)] = len(
-                db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
-        return render_template('profile_check.html', contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles,
-                               subscribers=subscribers, amount_comments_articles=amount_comments_articles,
-                               mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
+    creators = {}
+    amount_comments_articles = {}
+    to_delete = request.form.get('delete')
+    if to_delete:
+        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
+        db_sess.commit()
+    for article in add_articles:
+        creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
+        creators[str(article.id)] = (creator.name, creator.photo)
+        amount_comments_articles[str(article.id)] = len(
+            db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     if form.exit.data:
         logout_user()
         return redirect('/')
@@ -456,7 +456,7 @@ def profile_user(user_id):
             is_subscribed = 0
     else:
         is_subscribed = 0
-    return render_template('profile_check.html', is_subscribed=is_subscribed, contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
+    return render_template('profile_check.html', add_articles=add_articles, creators=creators, amount_comments_articles=amount_comments_articles, is_subscribed=is_subscribed, contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles, subscribers=subscribers,
                            mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
 
 @app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
