@@ -1,4 +1,3 @@
-
 import datetime
 import os
 from flask_login import *
@@ -403,12 +402,12 @@ def profile_user(user_id):
         this_user.subscribed = json.dumps(prev_subs)
         db_sess.commit()
     subscribers = user.subscribers
+    all_users = []
     if form.subscribe.data:
-        all_users = []
         all_subs = [i for i, k in json.loads(user.subscribed).items() if k == '1']
         for sub in all_subs:
             all_users.append(db_sess.query(users.User).filter(users.User.id == int(sub)).first())
-    if form.follow.data:
+    if form.follow.data and user.marked_articles:
         user_articles = []
         all_followed = [i for i, k in json.loads(user.marked_articles).items() if k == '1']
         for art in all_followed:
@@ -419,7 +418,7 @@ def profile_user(user_id):
                 db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
         if not user_articles:
             return 'Пользователь не создал ни одной статьи'
-        return render_template('profile_check.html', contacts=contacts, description=description, user_articles=user_articles, photo=user.photo,
+        return render_template('profile_check.html', user_articles=user_articles, contacts=contacts, description=description, photo=user.photo,
                                amount_articles=amount_articles,amount_comments_articles=amount_comments_articles,
                                subscribers=subscribers, all_subscriptions=all_subscriptions, all_users=all_users,
                                mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
@@ -443,7 +442,7 @@ def profile_user(user_id):
         for article in user_articles:
             amount_comments_articles[str(article.id)] = len(
                 db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
-        return render_template('profile_check.html', contacts=contacts, description=description, user_articles=user_articles, photo=user.photo, amount_articles=amount_articles,
+        return render_template('profile_check.html', contacts=contacts, description=description, photo=user.photo, amount_articles=amount_articles,
                                subscribers=subscribers, amount_comments_articles=amount_comments_articles,
                                mark=mark, name=user.name, form=form, current_user=current_user, user_id=int(user_id))
     if form.exit.data:

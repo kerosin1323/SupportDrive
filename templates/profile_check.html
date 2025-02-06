@@ -3,11 +3,12 @@
 {% block content %}
 <form action="" method="post" novalidate enctype=multipart/form-data>
     {% if current_user.id == user_id %}
-        <div class="profile" style="color:white; position: absolute;
-            top: 50%;
-            bottom: 50%;
+        <div class="profile" style="color:white; position: relative;
+            top: 80%;
             left: 50%;
-            transform: translate(-50%, -50%);height:85%">
+            transform: translate(-50%, -50%);
+            height:50%;
+            width: 50%">
             <div style="display:flex">
                 <div class="image">
                     <img src="/static/images/{{ current_user.photo }}" alt="photo" height="150px" width="150px" style="margin-top:20px;border-radius:50%">
@@ -44,12 +45,16 @@
                     <p>{{ form.exit(class='btn btn-outline-danger') }}</p>
                 </div>
             </div>
-                <p>{{ form.follow(class='btn btn-outline-primary') }}</p>
-                <div style="margin-top:10px">
+            <div style="display:flex;margin-top:15px">
+                <div style="float: left">
+                    {{ form.follow(class='btn btn-outline-primary') }}
+                </div>
+                <div style="width: 50%;">
                     <p>{{ form.created_articles(class='btn btn-info') }}</p>
                 </div>
-            <div style="margin-top:10px">
+            <div style="float: right">
                     <p>{{ form.subscribe(class='btn btn-info') }}</p>
+                </div>
                 </div>
         </div>
     {% else %}
