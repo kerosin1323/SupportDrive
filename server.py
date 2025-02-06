@@ -133,9 +133,9 @@ def welcome_page():
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     elif len(db_sess.query(users.User).all()) < 5:
-        return render_template('index2.html', articles=popular_articles, users=users.User(),creators=creators, mark_leaders=False, amount_comments_articles=amount_comments_articles,
+        return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators, mark_leaders=False, amount_comments_articles=amount_comments_articles,
                                readings_leaders=False, subscribers_leaders=False)
-    return render_template('index2.html', creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
+    return render_template('index.html', creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
