@@ -11,7 +11,7 @@ class Comment(SqlAlchemyBase, UserMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     user = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    created_date = sqlalchemy.Column(sqlalchemy.String)
+    created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     answer_on = sqlalchemy.Column(sqlalchemy.String)
     text = sqlalchemy.Column(sqlalchemy.String)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)

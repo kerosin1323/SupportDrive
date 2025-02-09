@@ -13,7 +13,7 @@ class Articles(SqlAlchemyBase):
     name = sqlalchemy.Column(sqlalchemy.String)
     categories = sqlalchemy.Column(sqlalchemy.String)
     describe = sqlalchemy.Column(sqlalchemy.String)
-    created_date = sqlalchemy.Column(sqlalchemy.String, default=datetime.datetime.now)
+    created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     text = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     photo = sqlalchemy.Column(sqlalchemy.String)

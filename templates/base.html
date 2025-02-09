@@ -249,9 +249,21 @@
         <a class="navbar-brand" href="/">
             <img src="/static/logo/logo.png" height="40px" width="40px">
         </a>
-        <a class="navbar-brand" href="/all/china" style="font-size: 16px; color:white;">Китайские</a>
-        <a class="navbar-brand" href="/all/russia" style="font-size: 16px; color:white;">Российские</a>
-        <a class="navbar-brand" href="/all/foreign" style="font-size: 16px; color:white;">Иномарки</a>
+        {% if link == 'china' %}
+        <a class="navbar-brand" href="/all/tops" style="font-size: 16px; color:white;background-color: green; border-radius: 20px;">Топы</a>
+        {% else %}
+        <a class="navbar-brand" href="/all/tops" style="font-size: 16px; color:white;">Топы</a>
+        {% endif %}
+        {% if link == 'russia' %}
+        <a class="navbar-brand" href="/all/comparisons" style="font-size: 16px; color:white;background-color: green; border-radius: 20px;">Сравнения</a>
+        {% else %}
+        <a class="navbar-brand" href="/all/comparisons" style="font-size: 16px; color:white;">Сравнения</a>
+        {% endif %}
+        {% if link == 'foreign' %}
+        <a class="navbar-brand" href="/all/foreign" style="font-size: 16px; color:white;background-color: green; border-radius: 20px;">Обзоры</a>
+        {% else %}
+        <a class="navbar-brand" href="/all/foreign" style="font-size: 16px; color:white;">Обзоры</a>
+        {% endif %}
         <a class="navbar-brand" href="/all/subscribed" style="font-size: 16px; color:white;">Подписки❤️</a>
         <a class="navbar-brand" href="/create_article" style="font-size: 16px; color:white;">Создать💡</a>
         <a class="navbar-brand" href="/search" style="font-size: 16px; color:white;">🔎</a>

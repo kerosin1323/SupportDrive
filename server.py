@@ -39,7 +39,7 @@ def getMostPopularArticle(category=None):
                     desc(articles.Articles.readings)).all()
         else:
             return []
-    categories = {'china': 'Китай', 'russia': 'Россия', 'foreign': 'Иномарка'}
+    categories = {'top': 'Топ', 'reviews': 'Обзоры', 'comparison': 'Сравнения'}
     return db_sess.query(articles.Articles).filter(and_(
                 articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
                 articles.Articles.categories == categories[category])).order_by(
@@ -58,7 +58,9 @@ def all_category(category):
         db_sess.commit()
     for article in all_articles:
         creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
+        time_delta = datetime.datetime.now() - article.created_date
+        time = text_delta(time_delta)
+        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time)
         amount_comments_articles[str(article.id)] = len(
             db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     id_article = request.form.get('id')
@@ -69,7 +71,7 @@ def all_category(category):
         user.reading += 1
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
-    return render_template('all_articles.html', amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user)
+    return render_template('all_articles.html', link=category, amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -89,7 +91,9 @@ def search():
         all_articles = db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + text + '%')).order_by(desc(articles.Articles.readings)).all()
         for article in all_articles:
             creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-            creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
+            time_delta = datetime.datetime.now() - article.created_date
+            time = text_delta(time_delta)
+            creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time)
             amount_comments_articles[str(article.id)] = len(
                 db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     if not text:
@@ -105,6 +109,22 @@ def search():
     return render_template('all_articles.html', amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user, search=True)
 
 
+def text_delta(t) -> str:
+    if t < datetime.timedelta(minutes=1):
+        return "Минуту назад"
+    elif t < datetime.timedelta(hours=1):
+        return f"{t.total_seconds() // 60:.0f} минут назад"
+    elif t < datetime.timedelta(days=1):
+        return f"{t.total_seconds() // 3600:.0f} часов назад"
+    elif t < datetime.timedelta(days=30):
+        return f"{t.days} дней назад"
+    elif t < datetime.timedelta(days=365):
+        return f"{t.days // 30} месяцев назад"
+    else:
+        return f"{t.days // 365} лет назад"
+
+
+
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
     db_sess = db_session.create_session()
@@ -113,12 +133,17 @@ def welcome_page():
     mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
     reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
+    top_russia = getMostPopularArticle('tops')
+    top_china = getMostPopularArticle('reviews')
+    top_foreign = getMostPopularArticle('comparisons')
     amount_comments_articles = {}
     popular_articles = getMostPopularArticle()
     creators = {}
     for article in popular_articles:
         creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
+        time_delta = datetime.datetime.now() - article.created_date
+        time = text_delta(time_delta)
+        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time)
         amount_comments_articles[str(article.id)] = len(db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     id_article = request.form.get('id')
     to_delete = request.form.get('delete')
@@ -133,9 +158,9 @@ def welcome_page():
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     elif len(db_sess.query(users.User).all()) < 5:
-        return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators, mark_leaders=False, amount_comments_articles=amount_comments_articles,
+        return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators,top_russia=top_russia, top_china=top_china, top_foreign=top_foreign, mark_leaders=False, amount_comments_articles=amount_comments_articles,
                                readings_leaders=False, subscribers_leaders=False)
-    return render_template('index.html', creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
+    return render_template('index.html', top_russia=top_russia, top_china=top_china, top_foreign=top_foreign, creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -221,7 +246,7 @@ def reading_article(article_id):
         return redirect(f'/article/{article_id}/read')
     if make_comment == '1' and text != '':
         comment = comments.Comment(user=current_user.id, text=text, article_id=article_id,
-                                   created_date=str(datetime.datetime.now()))
+                                   created_date=datetime.datetime.now())
         db_sess.add(comment)
         db_sess.commit()
         return redirect(f'/article/{article_id}/read')
@@ -233,11 +258,15 @@ def reading_article(article_id):
     for comment in all_comments:
         answers_comments[str(comment.id)] = db_sess.query(comments.Comment).filter(comments.Comment.answer_on == comment.id).all()
         creator = db_sess.query(users.User).filter(users.User.id == comment.user).first()
-        creators_comments[str(comment.id)] = (creator.name, creator.photo)
+        time_delta = datetime.datetime.now() - comment.created_date
+        time = text_delta(time_delta)
+        creators_comments[str(comment.id)] = (creator.name, creator.photo, creator.subscribers, time)
     to_subscribe = request.form.get('to_subscribe')
     mark = request.form.get('mark')
     comment_make_mark = request.form.get('comment_mark')
     answer = request.form.get('answer')
+    time_delta = datetime.datetime.now() - article.created_date
+    time = text_delta(time_delta)
     if comment_make_mark:
         comment_id, comment_mark = comment_make_mark.split(',')
         comment = db_sess.query(comments.Comment).filter(comments.Comment.id == comment_id).first()
@@ -299,7 +328,7 @@ def reading_article(article_id):
             is_subscribed = 0
     else:
         is_subscribed = 0
-    return render_template('reading_article.html', is_subscribed=is_subscribed, creators_comments=creators_comments,
+    return render_template('reading_article.html', time=time, is_subscribed=is_subscribed, creators_comments=creators_comments,
                            answers_comments=answers_comments, to_answer=to_answer, comment_form=comment_form,
                            amount_comments=len(all_comments), answer=answer, time_now=datetime.datetime.now(),
                            article=article, current_user=current_user, user=user, all_comments=all_comments)
@@ -331,7 +360,7 @@ def addArticle(text, form):
     article = articles.Articles()
     article.text = text
     article.user_id = current_user.id
-    article.created_date = str(datetime.datetime.now())
+    article.created_date = datetime.datetime.now()
     db_sess = db_session.create_session()
     file = form.photo.data
     if file:
@@ -442,7 +471,9 @@ def profile_user(user_id):
         db_sess.commit()
     for article in add_articles:
         creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers)
+        time_delta = datetime.datetime.now() - article.created_date
+        time = text_delta(time_delta)
+        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time)
         amount_comments_articles[str(article.id)] = len(
             db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
     if form.exit.data:
@@ -476,6 +507,7 @@ def descript_user(user_id):
         db_sess.commit()
         return redirect(f'/profile/{user_id}')
     return render_template('profile_data.html', form=form)
+
 
 @app.route('/created_articles/<user_id>', methods=['GET', 'POST'])
 def show_user_articles(user_id):

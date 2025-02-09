@@ -6,9 +6,6 @@
     <div class="container" style="color:white">
         <div class="read_article" style="box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;padding:10px;background-color: #293245">
         <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
-            <div class="time">
-                {{ time }}
-            </div>
             <div class="image">
                 <img src="/static/images/{{ user.photo }}" alt="photo" height="50px" width="50px" style="margin-top:5px;margin-bottom:15px;border-radius: 50%">
             </div>
@@ -16,11 +13,14 @@
                 <div class="creator_name" style="background-color: gray; border-radius: 10px;padding-left:5px;padding-right:5px;margin-top:15px;font-size:20px;color:white" href="/profile/{{article.user_id}}"> {{user.name}}</div>
                 <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики: {{user.subscribers}}</div>
             </div>
-            {% if is_subscribed %}
+                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
+                {{time}}
+            </div>
+            {% if is_subscribed and current_user.id != user.id %}
             <div class="follow">
                 <button name="to_subscribe" class="btn btn-secondary" value="1">Отписаться</button>
             </div>
-            {% else %}
+            {% elif current_user.id != user.id %}
             <div class="follow">
                 <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
             </div>
@@ -104,6 +104,9 @@
                     {% else %}
                     <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px"> {{ creators_comments[comment.id|string][0] }}</div>
                     {% endif %}
+                    <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
+                        {{creators_comments[comment.id|string][3]}}
+                    </div>
                 </a>
                 <div class="text" style="margin-top:10px;margin-bottom:10px;word-break:break-word">{{comment.text|safe}}</div>
 
@@ -139,6 +142,9 @@
                     {% else %}
                     <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px"> {{ creators_comments[answer.id|string][0] }}</div>
                     {% endif %}
+                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
+                        {{creators_comments[answer.id|string][3]}}
+                    </div>
                         </a>
                             <div class="text" style="margin-top:10px;margin-bottom:10px;word-break:break-word">{{answer.text|safe}}</div>
 

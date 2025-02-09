@@ -1,8 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate  style="overflow: hidden">
-    <div class="container" style="float: left; width: 80%; margin-left: 100px; overflow-wrap: break-word;margin-right:-100px">
+<form action="" method="post" novalidate  style="">
+    <div class="container" style="overflow: hidden; width: 80%; margin-left: 100px; overflow-wrap: break-word;margin-right:-100px">
+        <div class="leaders" style="float:left; margin-right:-15%">
+        <div class="top_russia" style="width: 60%; transform: translateX(-120px); background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:18px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+            {% if top_russia %}
+            <p>Российские:</p>
+            <a href="/article/{{top_russia[0].id}}/read">{{top_russia[0].name}}</a>
+            {% endif %}
+        </div>
+        <div class="top_china" style="width: 60%; transform: translateX(-120px); background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:18px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+        {% if top_china %}
+        <p>Китайские:</p>
+        <a href="/article/{{top_china[0].id}}/read">{{top_china[0].name}}</a>
+        {% endif %}
+        </div>
+        <div class="top_foreign" style="width: 60%; transform: translateX(-120px); background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:18px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+        {% if top_foreign %}
+        <p>Иномарки:</p>
+        <a href="/article/{{top_foreign[0].id}}/read">{{top_foreign[0].name}}</a>
+        {% endif %}
+        </div>
+        </div>
         {% for article in articles %}
             <div class="article">
                 <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
@@ -13,8 +33,8 @@
                         <div class="creator_name" style="font-size:20px;text-decoration: none;color:white"> {{creators[article.id|string][0]}}</div>
                         <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики: {{creators[article.id|string][2]}} </div>
                     </div>
-                    <div class="time">
-                        <h3>{{passed_time}}</h3>
+                    <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
+                        {{creators[article.id|string][3]}}
                     </div>
                 </a>
                 <div class="name_article" style="color:white">
