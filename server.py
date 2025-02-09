@@ -17,6 +17,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
 app.config['UPLOAD_FOLDER'] = './static/images'
 login_manager = LoginManager()
 login_manager.init_app(app)
+db_session.global_init("db/blogs.sql")
 
 
 @login_manager.user_loader
@@ -359,6 +360,11 @@ def create_article():
 def addArticle(text, form):
     article = articles.Articles()
     article.text = text
+    article.brand = form.brand_category.data
+    article.body = form.body_category.data
+    article.motors = form.motors_category.data
+    article.price_from = form.price_from.data
+    article.price_to = form.price_to.data
     article.user_id = current_user.id
     article.created_date = datetime.datetime.now()
     db_sess = db_session.create_session()
@@ -528,10 +534,5 @@ def getUserArticles(user_id):
     return user_articles
 
 
-def main():
-    db_session.global_init("db/blogs.db")
-    app.run()
-
-
 if __name__ == '__main__':
-    main()
+    app.run()

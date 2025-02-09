@@ -6,7 +6,7 @@
 
 {% if current_user.is_authenticated %}
 
-<div style="width:50%;position:absolute;top:55%;left:50%;transform:translate(-50%, -50%);color:white;margin-top:120px">
+<div style="width:50%;position:absolute;top:55%;left:50%;transform:translate(-50%, -50%);color:white;margin-top:320px">
         <h1>Настройки публикации</h1>
         <p>
             {{ form.name(class="form-control", style='background-color: #293245; color:white; placeholder-color: white;', placeholder='Название...') }}
@@ -42,6 +42,51 @@
             {{ form.category.label }}
             {{ form.category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
             {% for error in form.category.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.brand_category.label }}
+            {{ form.brand_category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
+            {% for error in form.brand_category.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.body_category.label }}
+            {{ form.body_category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
+            {% for error in form.body_category.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.motors_category.label }}
+            {{ form.motors_category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
+            {% for error in form.motors_category.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.price_from.label }}
+            {{ form.price_from(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
+            {% for error in form.price_from.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.price_to.label }}
+            {{ form.price_to(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
+            {% for error in form.price_to.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
