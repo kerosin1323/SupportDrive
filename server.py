@@ -31,20 +31,18 @@ def getMostPopularArticle(category=None):
     if category is None:
         return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
         desc(articles.Articles.readings))
-    if category == 'subscribed':
-        if current_user.is_authenticated and current_user.subscribed:
+    if category == 'subscribed' and current_user.is_authenticated and current_user.subscribed:
             all_subs = [int(i) for i, k in json.loads(current_user.subscribed).items() if k == '1']
             return db_sess.query(articles.Articles).filter(and_(
                     articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
                     articles.Articles.user_id.in_(all_subs))).order_by(
                     desc(articles.Articles.readings)).all()
-        else:
-            return []
-    categories = {'top': 'Топ', 'reviews': 'Обзоры', 'comparison': 'Сравнения'}
-    return db_sess.query(articles.Articles).filter(and_(
-                articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
-                articles.Articles.categories == categories[category])).order_by(
-                desc(articles.Articles.readings)).all()
+    elif category is not None:
+        categories = {'top': 'Топ', 'reviews': 'Обзоры', 'comparison': 'Сравнения'}
+        return db_sess.query(articles.Articles).filter(and_(
+                    articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
+                    articles.Articles.categories == categories[category])).order_by(
+                    desc(articles.Articles.readings)).all()
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -134,9 +132,6 @@ def welcome_page():
     mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
     reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
     subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
-    top_russia = getMostPopularArticle('tops')
-    top_china = getMostPopularArticle('reviews')
-    top_foreign = getMostPopularArticle('comparisons')
     amount_comments_articles = {}
     popular_articles = getMostPopularArticle()
     creators = {}
@@ -159,9 +154,9 @@ def welcome_page():
         db_sess.commit()
         return redirect(f'/article/{id_article}/read')
     elif len(db_sess.query(users.User).all()) < 5:
-        return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators,top_russia=top_russia, top_china=top_china, top_foreign=top_foreign, mark_leaders=False, amount_comments_articles=amount_comments_articles,
+        return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators,mark_leaders=False, amount_comments_articles=amount_comments_articles,
                                readings_leaders=False, subscribers_leaders=False)
-    return render_template('index.html', top_russia=top_russia, top_china=top_china, top_foreign=top_foreign, creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
+    return render_template('index.html',  creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
