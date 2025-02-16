@@ -1,5 +1,6 @@
 import datetime
 import os
+from data.SQL_functions import *
 from flask_login import *
 from flask import *
 from data import db_session, articles, users, comments
@@ -8,6 +9,7 @@ from werkzeug.utils import secure_filename
 from sqlalchemy import desc, and_, or_
 import json
 from forms.UserForm import *
+from functions import *
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -26,137 +28,34 @@ def load_user(user_id):
     return db_sess.query(users.User).get(user_id)
 
 
-def getMostPopularArticle(category=None):
-    db_sess = db_session.create_session()
-    if category is None:
-        return db_sess.query(articles.Articles).filter(articles.Articles.created_date.ilike('%'+ f'{datetime.datetime.today().date()}' + '%')).order_by(
-        desc(articles.Articles.readings))
-    if category == 'subscribed' and current_user.is_authenticated and current_user.subscribed:
-            all_subs = [int(i) for i, k in json.loads(current_user.subscribed).items() if k == '1']
-            return db_sess.query(articles.Articles).filter(and_(
-                    articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
-                    articles.Articles.user_id.in_(all_subs))).order_by(
-                    desc(articles.Articles.readings)).all()
-    elif category is not None:
-        categories = {'top': 'Топ', 'reviews': 'Обзоры', 'comparison': 'Сравнения'}
-        return db_sess.query(articles.Articles).filter(and_(
-                    articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
-                    articles.Articles.categories == categories[category])).order_by(
-                    desc(articles.Articles.readings)).all()
-
-
 @app.route('/all/<category>', methods=['GET', 'POST'])
 def all_category(category):
     all_articles = getMostPopularArticle(category)
-    db_sess = db_session.create_session()
-    creators = {}
-    amount_comments_articles = {}
-    to_delete = request.form.get('delete')
-    if to_delete:
-        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
-        db_sess.commit()
-    for article in all_articles:
-        creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        time_delta = datetime.datetime.now() - article.created_date
-        time = text_delta(time_delta)
-        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time)
-        amount_comments_articles[str(article.id)] = len(
-            db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
-    id_article = request.form.get('id')
-    if id_article:
-        article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
-        article.readings += 1
-        user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        user.reading += 1
-        db_sess.commit()
-        return redirect(f'/article/{id_article}/read')
-    return render_template('all_articles.html', link=category, amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user)
+    articles_data = getArticleData(all_articles)
+    checkToDelete()
+    clickedOnArticle()
+    return render_template('all_articles.html', link=category, data=articles_data, articles=all_articles, current_user=current_user)
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    to_search = request.form.get('to_search')
-    text = request.form.get('search')
-    db_sess = db_session.create_session()
-    id_article = request.form.get('id')
-    all_articles = []
-    creators = {}
-    amount_comments_articles = {}
-    to_delete = request.form.get('delete')
-    if to_delete:
-        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
-        db_sess.commit()
-    if to_search:
-        all_articles = db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + text + '%')).order_by(desc(articles.Articles.readings)).all()
-        for article in all_articles:
-            creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-            time_delta = datetime.datetime.now() - article.created_date
-            time = text_delta(time_delta)
-            creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time)
-            amount_comments_articles[str(article.id)] = len(
-                db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
-    if not text:
-        return render_template('all_articles.html', amount_comments_articles=amount_comments_articles,
-                               creators=creators, articles=[], current_user=current_user, search=True)
-    if id_article:
-        article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
-        article.readings += 1
-        user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        user.reading += 1
-        db_sess.commit()
-        return redirect(f'/article/{id_article}/read')
-    return render_template('all_articles.html', amount_comments_articles=amount_comments_articles, creators=creators, articles=all_articles, current_user=current_user, search=True)
-
-
-def text_delta(t) -> str:
-    if t < datetime.timedelta(minutes=1):
-        return "Минуту назад"
-    elif t < datetime.timedelta(hours=1):
-        return f"{t.total_seconds() // 60:.0f} минут назад"
-    elif t < datetime.timedelta(days=1):
-        return f"{t.total_seconds() // 3600:.0f} часов назад"
-    elif t < datetime.timedelta(days=30):
-        return f"{t.days} дней назад"
-    elif t < datetime.timedelta(days=365):
-        return f"{t.days // 30} месяцев назад"
-    else:
-        return f"{t.days // 365} лет назад"
-
+    text = str(request.form.get('search'))
+    all_articles = getArticleOnText(text)
+    articles_data = getArticleData(all_articles)
+    checkToDelete()
+    clickedOnArticle()
+    return render_template('all_articles.html', data=articles_data, articles=all_articles, current_user=current_user, search=True)
 
 
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
-    db_sess = db_session.create_session()
-    db_sess.query(articles.Articles).filter(articles.Articles.text == None).delete()
-    db_sess.commit()
-    mark_leaders = db_sess.query(users.User).order_by(desc(users.User.mark))
-    reading_leaders = db_sess.query(users.User).order_by(desc(users.User.reading))
-    subscribers_leaders = db_sess.query(users.User).order_by(desc(users.User.subscribers))
-    amount_comments_articles = {}
+    deleteNoneArticle()
+    leaders = getTopUsers()
     popular_articles = getMostPopularArticle()
-    creators = {}
-    for article in popular_articles:
-        creator = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        time_delta = datetime.datetime.now() - article.created_date
-        time = text_delta(time_delta)
-        creators[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time)
-        amount_comments_articles[str(article.id)] = len(db_sess.query(comments.Comment).filter(comments.Comment.article_id == article.id).all())
-    id_article = request.form.get('id')
-    to_delete = request.form.get('delete')
-    if to_delete:
-        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
-        db_sess.commit()
-    if id_article:
-        article = db_sess.query(articles.Articles).filter(articles.Articles.id == id_article).first()
-        article.readings += 1
-        user = db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-        user.reading += 1
-        db_sess.commit()
-        return redirect(f'/article/{id_article}/read')
-    elif len(db_sess.query(users.User).all()) < 5:
-        return render_template('index.html', articles=popular_articles, users=users.User(),creators=creators,mark_leaders=False, amount_comments_articles=amount_comments_articles,
-                               readings_leaders=False, subscribers_leaders=False)
-    return render_template('index.html',  creators=creators, amount_comments_articles=amount_comments_articles, articles=popular_articles, users= db_sess.query(users.User).all(), mark_leaders=mark_leaders, readings_leaders=reading_leaders,  subscribers_leaders=subscribers_leaders)
+    data = getArticleData(popular_articles)
+    checkToDelete()
+    clickedOnArticle()
+    return render_template('index.html', data=data, articles=popular_articles, leaders=leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -164,12 +63,6 @@ def popular_category_articles(category):
     popular_articles = getMostPopularArticle(category)
     clickedOnArticle()
     return render_template('index.html', articles=popular_articles)
-
-
-def clickedOnArticle():
-    id_article = request.form.get('id')
-    if id_article:
-        return redirect(f'/article/{id_article}/read')
 
 
 def getSearchArticles():
@@ -191,21 +84,6 @@ def registerUser():
     return render_template('register.html', form=form)
 
 
-def createUser():
-    form = RegisterForm()
-    db_sess = db_session.create_session()
-    user = users.User(name=form.username.data, login=form.login.data)
-    user.set_password(form.password.data)
-    db_sess.add(user)
-    db_sess.commit()
-    login_user(user)
-
-
-def userAlreadyExist(login):
-    db_sess = db_session.create_session()
-    return bool(len(db_sess.query(users.User).filter(users.User.login == login).all()))
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -217,30 +95,21 @@ def login():
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
-def checkAndLoginUser(name, password):
-    db_sess = db_session.create_session()
-    user = db_sess.query(users.User).filter(users.User.name == name).first()
-    if user and user.check_password(password):
-        login_user(user)
-        return redirect("/")
-
-
 @app.route('/article/<article_id>/read', methods=['GET', 'POST'])
 def reading_article(article_id):
     comment_form = CommentsArticle()
     db_sess = db_session.create_session()
     make_comment = request.form.get('comment')
-    text = comment_form.text.data
+    comment_text = comment_form.text.data
     to_answer = request.form.get('to_answer')
     make_answer = request.form.get('make_answer')
     answer_text = request.form.get('answer_input')
     if make_answer and answer_text != '':
-        comment = comments.Comment(user=current_user.id, text=answer_text, article_id=article_id,
-                                   created_date=str(datetime.datetime.now()), answer_on=make_answer)
+        comment = comments.Comment(user=current_user.id, text=text, article_id=article_id,
+                                   created_date=datetime.datetime.now(), answer_on=make_answer)
         db_sess.add(comment)
         db_sess.commit()
-        return redirect(f'/article/{article_id}/read')
-    if make_comment == '1' and text != '':
+    if make_comment == '1' and comment_text != '':
         comment = comments.Comment(user=current_user.id, text=text, article_id=article_id,
                                    created_date=datetime.datetime.now())
         db_sess.add(comment)
@@ -328,17 +197,6 @@ def reading_article(article_id):
                            answers_comments=answers_comments, to_answer=to_answer, comment_form=comment_form,
                            amount_comments=len(all_comments), answer=answer, time_now=datetime.datetime.now(),
                            article=article, current_user=current_user, user=user, all_comments=all_comments)
-
-
-def getCreatorArticle(article):
-    db_sess = db_session.create_session()
-    return db_sess.query(users.User).filter(users.User.id == article.user_id).first()
-
-
-def deleteArticle(article):
-    db_sess = db_session.create_session()
-    db_sess.query(articles.Articles).filter(articles.Articles.id == article.id).delete()
-    db_sess.commit()
 
 
 @app.route('/create_article', methods=['GET', 'POST'])
