@@ -18,7 +18,3 @@ class CreatingArticleDataForm(FlaskForm):
     photo = FileField('Добавить обложку')
     describe = TextAreaField('Описание')
     create = SubmitField('Создать')
-
-
-class CommentsArticle(FlaskForm):
-    text = TextAreaField()
