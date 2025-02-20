@@ -1,36 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate  style="overflow: hidden">
-    <div style="color:white">
-        <h1>{{ title }}</h1>
-    </div>
-    <div class="container" style="color:white;float: left; width: 200%; margin-left: 100px; overflow-wrap: break-word;">
+<form class="all_articles" action="" method="post" novalidate>
+    <div class="container">
         {% if search %}
-   <div class="text-field" style="color:white;background-color:#293245;width: 80%;top:15;margin-top:5%">
-              <div class="text-field__icon" style="margin-top:-50px">
-                <input style="color:white;background-color:#293245;" class="text-field__input" type="search" name="search" id="search" >
+   <div class="text-field">
+              <div class="text-field__icon">
+                <input class="text-field__input" type="search" name="search" id="search" >
                 <span class="text-field__aicon-2">
-                  <input style='background-color: #293245; border: none; color:white; font-size: 100%' type="submit" value="🔎" name="to_search">
+                  <input class="search" type="submit" value="🔎" name="to_search">
                 </span>
               </div>
             </div>
     {% endif %}
         {% for article in articles %}
             <div class="article">
-                <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
+                <a class="first_level" href="/profile/{{article.user_id}}">
                     <div class="image">
-                        <img src="/static/images/{{ data[article.id|string][1] }}" alt="photo" height="50px" width="50px" style="margin-top:10px;margin-bottom:10px;border-radius: 50%">
+                        <img src="/static/images/{{ data[article.id|string][1] }}" alt="photo" height="50px" width="50px" class="logo_user_article">
                     </div>
-                    <div style="margin-top:5px;margin-left:15px;margin-right:15px" class="creator">
-                        <div class="creator_name" style="font-size:20px;text-decoration: none;color:white"> {{data[article.id|string][0]}}</div>
-                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики: {{data[article.id|string][2]}} </div>
+                    <div class="creator" style="text-decoration:none;">
+                        <div class="creator_name" style="font-size:20px;color:white"> {{data[article.id|string][0]}}</div>
+                        <div style="font-size:14px;color:#A8A8A8">Подписчики: {{data[article.id|string][2]}} </div>
                     </div>
-                    <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
+                    <div style="font-size:14px;color:#A8A8A8">
                         {{data[article.id|string][3]}}
                     </div>
                 </a>
-                <div class="name_article" style="color:white">
+                <div class="name_article">
                     <h2>{{article.name}}</h2>
                 </div>
                 {% if article.photo %}
@@ -42,8 +39,7 @@
                 {{ article.describe }}
                 </div>
                 <hr>
-                <div class="under-photo" style="display: flex; justify-content: space-between;color:white">
-
+                <div class="under-photo">
                     <button
                         class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
@@ -56,28 +52,28 @@
                     {% endif %}
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}
-                                <div title="Оценка" style="color:#00ff00; float: right">
+                                <div title="Оценка" style="color:#00ff00;">
                                     <strong>
                                         +{{article.mark}}
                                     </strong>
                                 </div>
                             {% elif article.mark == 0 %}
-                                <div title="Оценка" style="color:white; float: right">
+                                <div title="Оценка" style="color:white;">
                                     <strong>
                                         {{article.mark}}
                                     </strong>
                                 </div>
                             {% else %}
-                                <div title="Оценка" style="color: red; float: right">
+                                <div title="Оценка" style="color: red;">
                                     <strong>
                                         {{article.mark}}
                                     </strong>
                                 </div>
                             {% endif %}
-                            <div class="readings" title="Кол-во просмотров" style="color:white; float: right; margin-right: 10px">
+                            <div class="readings" title="Кол-во просмотров">
                                 👁{{ article.readings }}
                             </div>
-                            <div class="amount_comments" title="Кол-во комментариев" style="color:white; float: right; margin-right: 5px;margin-left:10px">
+                            <div class="amount_comments" title="Кол-во комментариев">
                                 💬{{data[article.id|string][4]}}
                             </div>
                     </div>

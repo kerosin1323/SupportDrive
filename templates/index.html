@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate  style="overflow: hidden">
-    <div class="container" style="float: left; width: 80%; margin-left: 100px; overflow-wrap: break-word;margin-right:-100px">
+<form class="all_articles" action="" method="post" novalidate>
+    <div class="welcome_page">
         {% for article in articles %}
             <div class="article">
-                <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
+                <a class="first_level" href="/profile/{{article.user_id}}">
                     <div class="image">
-                        <img src="/static/images/{{ data[article.id|string][1] }}" alt="photo" height="50px" width="50px" style="margin-top:10px;margin-bottom:10px;border-radius: 50%">
+                        <img src="/static/images/{{ data[article.id|string][1] }}" alt="photo" height="50px" width="50px" class="logo_user_article">
                     </div>
-                    <div style="margin-top:5px;margin-left:15px;margin-right:15px" class="creator">
-                        <div class="creator_name" style="font-size:20px;text-decoration: none;color:white"> {{data[article.id|string][0]}}</div>
-                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики: {{data[article.id|string][2]}} </div>
+                    <div class="creator" style="text-decoration:none;">
+                        <div class="creator_name" style="font-size:20px;color:white"> {{data[article.id|string][0]}}</div>
+                        <div style="font-size:14px;color:#A8A8A8">Подписчики: {{data[article.id|string][2]}} </div>
                     </div>
-                    <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
+                    <div style="font-size:14px;color:#A8A8A8">
                         {{data[article.id|string][3]}}
                     </div>
                 </a>
-                <div class="name_article" style="color:white">
+                <div class="name_article">
                     <h2>{{article.name}}</h2>
                 </div>
                 {% if article.photo %}
@@ -29,8 +29,7 @@
                 {{ article.describe }}
                 </div>
                 <hr>
-                <div class="under-photo" style="display: flex; justify-content: space-between;color:white">
-
+                <div class="under-photo">
                     <button
                         class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
@@ -43,28 +42,28 @@
                     {% endif %}
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}
-                                <div title="Оценка" style="color:#00ff00; float: right">
+                                <div title="Оценка" style="color:#00ff00;">
                                     <strong>
                                         +{{article.mark}}
                                     </strong>
                                 </div>
                             {% elif article.mark == 0 %}
-                                <div title="Оценка" style="color:white; float: right">
+                                <div title="Оценка" style="color:white;">
                                     <strong>
                                         {{article.mark}}
                                     </strong>
                                 </div>
                             {% else %}
-                                <div title="Оценка" style="color: red; float: right">
+                                <div title="Оценка" style="color: red;">
                                     <strong>
                                         {{article.mark}}
                                     </strong>
                                 </div>
                             {% endif %}
-                            <div class="readings" title="Кол-во просмотров" style="color:white; float: right; margin-right: 10px">
+                            <div class="readings" title="Кол-во просмотров">
                                 👁{{ article.readings }}
                             </div>
-                            <div class="amount_comments" title="Кол-во комментариев" style="color:white; float: right; margin-right: 5px;margin-left:10px">
+                            <div class="amount_comments" title="Кол-во комментариев">
                                 💬{{data[article.id|string][4]}}
                             </div>
                     </div>
@@ -75,26 +74,28 @@
     </div>
     <div class="leaders" style="float:right; margin-right:-15%">
         {% if mark_leaders %}
-        <div class="mark_leaders" style="width: 60%; transform: translateX(-120px); background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:18px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+        <div class="mark_leaders">
             <b>Лидеры по рейтингу:</b>
-            <div class="names" style="float: left;margin-top:10px;color:#A8A8A8">
+            <div style="margin-top:10px;color:#A8A8A8">
+            <div class="names" style="float: left;">
                 <p>1. {{ mark_leaders[0].name }}</p>
                 <p>2. {{ mark_leaders[1].name }}</p>
                 <p>3. {{ mark_leaders[2].name }}</p>
                 <p>4. {{ mark_leaders[3].name }}</p>
                 <p>5. {{ mark_leaders[4].name }}</p>
             </div>
-            <div class="result" style="float: right;margin-top:10px;margin-right:10px;color:#A8A8A8">
+            <div class="result" style="float: right;margin-right:10px;">
                 <p>{{ mark_leaders[0].mark }}</p>
                 <p>{{ mark_leaders[1].mark }}</p>
                 <p>{{ mark_leaders[2].mark }}</p>
                 <p>{{ mark_leaders[3].mark }}</p>
                 <p>{{ mark_leaders[4].mark }}</p>
             </div>
+            </div>
         </div>
         {% endif %}
         {% if readings_leaders %}
-        <div class="readings_leaders" style="width: 60%; transform: translateX(-120px);  color:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
+        <div class="readings_leaders">
             <b>Лидеры по просмотрам:</b>
             <div style="margin-top:10px;color:#A8A8A8">
                 <div class="names" style="float: left">
@@ -115,8 +116,8 @@
         </div>
         {% endif %}
         {% if subscribers_leaders %}
-        <div class="subscribers_leaders" style="width: 60%; transform: translateX(-120px); discolor:white;background-color: #293245;margin-bottom:15px;padding-left:10px;margin-right:15px;margin-top:10px;break-word;overflow: hidden;color:white;box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);border: 2px solid #1D2330;">
-                            <b>Лидеры по подписчикам:</b>
+        <div class="subscribers_leaders">
+        <b>Лидеры по подписчикам:</b>
             <div style="margin-top:10px;color:#A8A8A8">
                 <div class="names" style="float: left">
                     <p>1. {{ subscribers_leaders[0].name }}</p>

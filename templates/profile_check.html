@@ -2,15 +2,14 @@
 
 {% block content %}
 <form action="" method="post" novalidate enctype=multipart/form-data>
-        <div class="container" style="float: left; width: 80%; margin-left: 100px; overflow-wrap: break-word;margin-right:-100px">
-
+    <div class="container" style="width: 80%; margin-right:-100px">
     {% if current_user.id == user_id %}
         <div class="profile" style="color:white;">
             <div style="display:flex">
                 <div class="image">
                     <img src="/static/images/{{ current_user.photo }}" alt="photo" height="150px" width="150px" style="margin-top:20px;border-radius:50%">
                 </div>
-                <div style="font-weight:600;margin-top:45px;margin-left:20px;font-size:25px">
+                <div class="first_level_profile">
                     <p> {{ name }}</p>
                     <div style="display:flex">
                         <p>Рейтинг: {{ mark }}</p>
@@ -20,29 +19,29 @@
                 </div>
                 </div>
             </div>
-            <div style="display:flex;margin-top:15px">
-                <div class="description" style="width: 50%; float: left">
+            <div class="second_level_profile">
+                <div class="element_profile">
                     {% if description %}
                     <p>Описание:</p>
                     <p>{{ description }} </p>
                     {% endif %}
                 </div>
-                <div class="contacts" style="width: 50%; float: right">
+                <div class="element_profile">
                     {% if contacts %}
                     <p>Контакты: </p>
                     <p>{{ contacts }} </p>
                     {% endif %}
                 </div>
             </div>
-            <div style="display:flex;margin-top:15px">
-                <div style="width: 50%; float: left">
+            <div class="third_level_profile">
+                <div class="element_profile">
                     <p>{{ form.add_data(class='btn btn-outline-primary') }}</p>
                 </div>
-                <div  style="width: 50%; float: right">
+                <div class="element_profile">
                     <p>{{ form.exit(class='btn btn-outline-danger') }}</p>
                 </div>
             </div>
-            <div style="display:flex;margin-top:15px">
+            <div style="fourth_level_profile">
                 <div style="width: 33%;">
                     {{ form.follow(class='btn btn-info') }}
                 </div>
@@ -60,7 +59,7 @@
                 <div class="image">
                     <img src="/static/images/{{ photo }}" alt="photo" height="150px" width="150px" style="margin-top:20px;border-radius:50%">
                 </div>
-                <div style="font-weight:600;margin-top:45px;margin-left:20px;font-size:25px">
+                <div class="first_level_profile">
                     <p> {{ name }}</p>
                     <div style="display:flex">
                         <p>Рейтинг: {{ mark }}</p>
@@ -70,14 +69,14 @@
                 </div>
                 </div>
             </div>
-            <div style="display:flex;margin-top:15px">
-                <div class="description" style="width: 50%; float: left">
+            <div class="second_level_profile">
+                <div class="element_profile">
                     {% if description %}
                     <p>Описание:</p>
                     <p>{{ description }} </p>
                     {% endif %}
                 </div>
-                <div class="contacts" style="width: 50%; float: right">
+                <div class="element_profile">
                     {% if contacts %}
                     <p>Контакты: </p>
                     <p>{{ contacts }} </p>
@@ -95,7 +94,7 @@
             </div>
             {% endif %}
             </div>
-            <div style="display:flex;margin-top:15px">
+            <div class="fourth_level_profile">
                 <div style="width: 33%;">
                     {{ form.follow(class='btn btn-info') }}
                 </div>
@@ -109,22 +108,22 @@
         </div>
     </div>
     {% endif %}
-        <div class="container" style="float: left; overflow-wrap: break-word;margin-right:-100px">
+        <div class="container">
         {% for article in add_articles %}
             <div class="article">
                 <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
                     <div class="image">
-                        <img src="/static/images/{{ creators[article.id|string][1] }}" alt="photo" height="50px" width="50px" style="margin-top:10px;margin-bottom:10px;border-radius: 50%">
+                        <img src="/static/images/{{ creators[article.id|string][1] }}" alt="photo" height="50px" width="50px" class="logo_user_article">
                     </div>
-                    <div style="margin-top:5px;margin-left:15px;margin-right:15px" class="creator">
-                        <div class="creator_name" style="font-size:20px;text-decoration: none;color:white"> {{creators[article.id|string][0]}}</div>
-                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики: {{creators[article.id|string][2]}} </div>
+                    <div class="creator">
+                        <div class="creator_name" style="font-size:20px;color:white"> {{creators[article.id|string][0]}}</div>
+                        <div style="font-size:14px;color:#A8A8A8">Подписчики: {{creators[article.id|string][2]}} </div>
                     </div>
-                    <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
-                        {{creators[article.id|string][3]}}
+                    <div style="font-size:14px;color:#A8A8A8">
+                        {{data[article.id|string][3]}}
                     </div>
                 </a>
-                <div class="name_article" style="color:white">
+                <div class="name_article">
                     <h2>{{article.name}}</h2>
                 </div>
                 {% if article.photo %}
@@ -136,8 +135,7 @@
                 {{ article.describe }}
                 </div>
                 <hr>
-                <div class="under-photo" style="display: flex; justify-content: space-between;color:white">
-
+                <div class="under-photo">
                     <button
                         class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
                     </button>
@@ -150,29 +148,29 @@
                     {% endif %}
                     <div class="article_mark" style="float: right">
                             {% if article.mark > 0 %}
-                                <div title="Оценка" style="color:#00ff00; float: right">
+                                <div title="Оценка" style="color:#00ff00;">
                                     <strong>
                                         +{{article.mark}}
                                     </strong>
                                 </div>
                             {% elif article.mark == 0 %}
-                                <div title="Оценка" style="color:white; float: right">
+                                <div title="Оценка" style="color:white;">
                                     <strong>
                                         {{article.mark}}
                                     </strong>
                                 </div>
                             {% else %}
-                                <div title="Оценка" style="color: red; float: right">
+                                <div title="Оценка" style="color: red;">
                                     <strong>
                                         {{article.mark}}
                                     </strong>
                                 </div>
                             {% endif %}
-                            <div class="readings" title="Кол-во просмотров" style="color:white; float: right; margin-right: 10px">
+                            <div class="readings" title="Кол-во просмотров">
                                 👁{{ article.readings }}
                             </div>
-                            <div class="amount_comments" title="Кол-во комментариев" style="color:white; float: right; margin-right: 5px;margin-left:10px">
-                                💬{{ amount_comments_articles[article.id|string] }}
+                            <div class="amount_comments" title="Кол-во комментариев">
+                                💬{{data[article.id|string][4]}}
                             </div>
                     </div>
                 </div>
@@ -181,25 +179,24 @@
         {% endfor %}
                         </div>
         {% if all_users %}
-        <div class="container" style="float: left; width: 80%; margin-left: 100px; overflow-wrap: break-word;margin-right:-100px">
+        <div class="container" style="width: 80%; margin-right:-100px">
         {% for user in all_users %}
             <div class="comment">
-        <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{user.id}}">
+            <a style="display:flex; text-decoration: none;" class="first_level" href="/profile/{{article.user_id}}">
                     <div class="image">
-                        <img src="/static/images/{{ user.photo }}" alt="photo" height="50px" width="50px" style="margin-top:10px;margin-bottom:10px;border-radius: 50%">
+                        <img src="/static/images/{{ creators[article.id|string][1] }}" alt="photo" height="50px" width="50px" class="logo_user_article">
                     </div>
-                    <div style="margin-top:5px;margin-left:15px;margin-right:15px" class="creator">
-                        <div class="creator_name" style="font-size:20px;text-decoration: none;color:white"> {{user.name}}</div>
-                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики: {{user.subscribers}} </div>
+                    <div class="creator">
+                        <div class="creator_name" style="font-size:20px;color:white"> {{creators[article.id|string][0]}}</div>
+                        <div style="font-size:14px;color:#A8A8A8">Подписчики: {{creators[article.id|string][2]}} </div>
                     </div>
-                    <div class="time">
-                        <h3>{{passed_time}}</h3>
+                    <div style="font-size:14px;color:#A8A8A8">
+                        {{data[article.id|string][3]}}
                     </div>
                 </a>
-                </div>
+            </div>
         {% endfor %}
-                                </div>
-
+        </div>
     {% endif %}
 </form>
 {% endblock %}

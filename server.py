@@ -1,14 +1,12 @@
 import datetime
 from flask_login import *
 from flask import *
-from data import db_session, articles, users, comments
+from data import db_session, articles, users, comments, functions
 from forms.ArticleForm import *
 from forms.UserForm import *
 
 
 app = Flask(__name__)
-all_articles = articles.Article()
-all_users = users.User()
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
@@ -17,12 +15,14 @@ app.config['UPLOAD_FOLDER'] = './static/images'
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.sql")
+db_sess = db_session.create_session()
+all_articles = functions.Article(db_sess)
+all_users = functions.User(db_sess)
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(users.User).get(user_id)
+    return db_sess.query(users.Users).get(user_id)
 
 
 @app.route('/', methods=['GET', 'POST'])

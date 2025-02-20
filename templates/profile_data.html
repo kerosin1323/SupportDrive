@@ -3,7 +3,7 @@
 {% block content %}
 <form action="" method="post" novalidate enctype='multipart/form-data'>
         {{ form.hidden_tag() }}
-        <div class="register-form" style="color:white; width: 50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+        <div class="profile_data">
             <div class="login-login" style="margin-top:20px">
                 {{ form.name.label }}<br>
                 {{ form.name(class="form-control", type="name", style=' background-color: #343F52;color:white ', value=current_user.name) }}<br>

@@ -7,269 +7,25 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-    <title>{{title}}</title>
-    <style>
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-      font-size: 1rem;
-      font-weight: 400;
-      line-height: 1.5;
-      color: #212529;
-      background-color: #293245;
-      -webkit-text-size-adjust: 100%;
-      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    }
-
-    h1 {
-      font-size: 1.25rem;
-      font-weight: 500;
-    }
-
-    p {
-      font-weight: 500;
-    }
-
-    /* text field */
-    .text-field {
-      margin-bottom: 1rem;
-    }
-
-    .text-field__label {
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-
-    .text-field__input {
-      display: block;
-      width: 100%;
-      height: calc(2.25rem + 2px);
-      padding: 0.375rem 0.75rem;
-      font-family: inherit;
-      font-size: 1rem;
-      font-weight: 400;
-      line-height: 1.5;
-      color: #212529;
-      background-color: #293245;
-      background-clip: padding-box;
-      border: 1px solid #bdbdbd;
-      border-radius: 0.25rem;
-      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-    }
-
-    .text-field__input[type="search"]::-webkit-search-decoration,
-    .text-field__input[type="search"]::-webkit-search-cancel-button,
-    .text-field__input[type="search"]::-webkit-search-results-button,
-    .text-field__input[type="search"]::-webkit-search-results-decoration {
-      -webkit-appearance: none;
-    }
-
-    .text-field__input::placeholder {
-      color: #212529;
-      opacity: 0.4;
-    }
-
-    .text-field__input:focus {
-      color: #212529;
-      background-color: #293245;
-      border-color: #bdbdbd;
-      outline: 0;
-      box-shadow: 0 0 0 0.2rem rgba(158, 158, 158, 0.25);
-    }
-
-    .text-field__input:disabled,
-    .text-field__input[readonly] {
-      background-color: #293245;
-      opacity: 1;
-    }
-
-    /* active icon - 1 вариант */
-    .text-field__icon {
-      position: relative;
-    }
-
-    .text-field__icon .text-field__input {
-      padding-right: 2.5rem;
-    }
-
-    .text-field__aicon {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      top: 0;
-      bottom: 0;
-      right: 0.875rem;
-      width: 1rem;
-      cursor: pointer;
-      color: #bdbdbd;
-      transition: color 0.15s ease-in-out;
-    }
-
-    .text-field__aicon:hover {
-      color: #212529;
-    }
-
-    /* active icon - 2 вариант */
-    .text-field__aicon-2 {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      width: 2.5rem;
-      border: 1px solid #bdbdbd;
-      background-color: #293245;
-      cursor: pointer;
-      color: #212529;
-      transition: background-color 0.15s ease-in-out;
-      border-top-right-radius: 0.25rem;
-      border-bottom-right-radius: 0.25rem;
-    }
-
-    .text-field__aicon-2:hover {
-      background-color: #293245;
-    }
-
-
-
-
-
-
-        *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active{
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: white;
-        transition: color #293245;
-    }
-    input:focus {
-        color: white;
-    }
-    .answer {
-        background-color: #293245;
-            width: 80%;
-            height: 100%;
-            padding-left: 20px;
-            padding-right: 30px;
-            padding-bottom:20px;
-            margin-top:18px;
-            border-left: 2px solid;
-    }
-         .article, .comment, .profile {
-
-            background-color: #293245;
-            width: 80%;
-            height: 100%;
-            padding-left: 20px;
-            padding-right: 30px;
-            padding-bottom:20px;
-            margin-top:18px;
-            box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);
-            border: 2px solid #1D2330;
-        }
-         .register-form, .login-form {
-         background-color: #293245;
-            width: 20%;
-            height: 65%;
-            padding-left: 20px;
-            padding-right: 30px;
-            margin-top:18px;
-            box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);
-            border: 2px solid #1D2330;
-            position: absolute;
-            top: 50%;
-            bottom: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        .name_article {
-            color:
-        hr {
-            width: 90%;
-            background-color: black;
-        }
-        .make-question-form,
-         .category-form, .start-form, .questions-form, .result-form,
-         .profile-form, .write-article-form {
-            background-color: #293245;
-            color: white;
-            width: 500px;
-            padding: 20px;
-            margin-top: 10px;
-            margin-left: 40px;
-            background-color: gray;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-         }
-        .submit-login, .register-submit, .make-question-submit, .start-submit, {
-            display: flex;
-            justify-content: space-between;
-            width: 50%;
-        }
-         .first_level, .second_level {
-            display: flex;
-        }
-        .input_header {
-            background-color: gray;
-            border: 0px;
-        }
-        ::placeholder {
-            color: black;
-            opacity: 1;
-        }
-
-
-
-    </style>
+    <link href="./static/css/style.css" rel="stylesheet" type="text/css">
+    <script src="script.js"></script>
 </head>
 <body style="background-color: #343F52;">
 <header>
-    <div class="navb" style="position: fixed; width: 100%; z-index: 1000; top: 0;">
+    <div class="navbar-div">
     <nav class="navbar navbar-light bg-dark">
         <a class="navbar-brand" href="/">
             <img src="/static/logo/logo.png" height="40px" width="40px">
         </a>
-        {% if link == 'china' %}
-        <a class="navbar-brand" href="/all/tops" style="font-size: 16px; color:white;background-color: green; border-radius: 20px;">Топы</a>
-        {% else %}
-        <a class="navbar-brand" href="/all/tops" style="font-size: 16px; color:white;">Топы</a>
-        {% endif %}
-        {% if link == 'russia' %}
-        <a class="navbar-brand" href="/all/comparisons" style="font-size: 16px; color:white;background-color: green; border-radius: 20px;">Сравнения</a>
-        {% else %}
-        <a class="navbar-brand" href="/all/comparisons" style="font-size: 16px; color:white;">Сравнения</a>
-        {% endif %}
-        {% if link == 'foreign' %}
-        <a class="navbar-brand" href="/all/reviews" style="font-size: 16px; color:white;background-color: green; border-radius: 20px;">Обзоры</a>
-        {% else %}
-        <a class="navbar-brand" href="/all/reviews" style="font-size: 16px; color:white;">Обзоры</a>
-        {% endif %}
-        <a class="navbar-brand" href="/all/subscribed" style="font-size: 16px; color:white;">Подписки❤️</a>
-        <a class="navbar-brand" href="/create_article" style="font-size: 16px; color:white;">Создать💡</a>
-        <a class="navbar-brand" href="/search" style="font-size: 16px; color:white;">🔎</a>
+        <a class="navbar-brand" href="/all/tops">Топы</a>
+        <a class="navbar-brand" href="/all/comparisons">Сравнения</a>
+        <a class="navbar-brand" href="/all/reviews">Обзоры</a>
+        <a class="navbar-brand" href="/all/subscribed">Подписки❤️</a>
+        <a class="navbar-brand" href="/create_article">Создать💡</a>
+        <a class="navbar-brand" href="/search">🔎</a>
         {% if current_user.is_authenticated %}
             <a href="/profile/{{ current_user.id }}">
-                <img src="/static/images/{{current_user.photo}}" alt="photo" height="50px" width="50px" style="border-radius: 50%">
+                <img class="logo_user" src="/static/images/{{current_user.photo}}" alt="photo" height="50px" width="50px">
             </a>
         {% else %}
             <a class="btn btn-primary" href="/login">Войти</a>
@@ -278,7 +34,7 @@
         </div>
 </header>
 <!-- Begin page content -->
-<main role="main" style="padding-top: 5%">
+<main role="main" style="padding-top: 5%;">
     {% block content %}
     {% endblock %}
 </main>

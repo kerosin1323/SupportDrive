@@ -3,11 +3,10 @@
 {% block content %}
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <div class="register-form" style="color:white; width: 50%;position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
-        <p>
-        <div style="display: flex; justify-content: space-between;color:white">
-            <div style="font-size:30px;margin-left:100px; text-decoration: underline;">Вход</div>
-            <div class="register-submit" style="margin-right:100px">
+        <div class="register-form">
+        <div class="login_or_register" style="display: flex">
+            <div class="position">Вход</div>
+            <div class="register-submit">
                 <p>{{ form.register(style='background-color: #293245; border: none; font-size: 30px; color:white;') }}</p>
             </div>
         </div>
