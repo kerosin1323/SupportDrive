@@ -2,7 +2,7 @@
 
 {% block content %}
 <form class="all_articles" action="" method="post" novalidate>
-    <div class="container">
+    <div class="welcome_page">
         {% if search %}
    <div class="text-field">
               <div class="text-field__icon">
@@ -15,8 +15,8 @@
     {% endif %}
         {% for article in articles %}
             <div class="article">
-                <a class="first_level" href="/profile/{{article.user_id}}">
-                    <div class="image">
+                <a class="first_level" href="/profile/{{article.user_id}}" style="text-decoration:none;">
+                    <div class="image" style="text-decoration:none;">
                         <img src="/static/images/{{ data[article.id|string][1] }}" alt="photo" height="50px" width="50px" class="logo_user_article">
                     </div>
                     <div class="creator" style="text-decoration:none;">
@@ -41,7 +41,7 @@
                 <hr>
                 <div class="under-photo">
                     <button
-                        class="btn btn-outline-primary" name="id" value="{{ article.id }}" >Читать
+                        class="btn btn-outline-primary" name="read" value="{{ article.id }}" >Читать
                     </button>
                     {% if current_user.id == article.user_id %}
                     <div style="justify-content:center">
@@ -50,7 +50,7 @@
                         </button>
                     </div>
                     {% endif %}
-                    <div class="article_mark" style="float: right">
+                    <div class="article_mark" style="float: right; display: flex;">
                             {% if article.mark > 0 %}
                                 <div title="Оценка" style="color:#00ff00;">
                                     <strong>

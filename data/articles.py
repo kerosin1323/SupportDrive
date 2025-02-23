@@ -8,8 +8,13 @@ class Articles(SqlAlchemyBase):
     __tablename__ = 'articles'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    name = sqlalchemy.Column(sqlalchemy.String)
-    categories = sqlalchemy.Column(sqlalchemy.String)
+    name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    categories = sqlalchemy.Column(sqlalchemy.String, )
+    brand = sqlalchemy.Column(sqlalchemy.String)
+    body = sqlalchemy.Column(sqlalchemy.String)
+    motors = sqlalchemy.Column(sqlalchemy.String)
+    price_from = sqlalchemy.Column(sqlalchemy.Integer)
+    price_to = sqlalchemy.Column(sqlalchemy.Integer)
     describe = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     text = sqlalchemy.Column(sqlalchemy.String, nullable=False)

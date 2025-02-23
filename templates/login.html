@@ -3,16 +3,16 @@
 {% block content %}
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <div class="register-form">
-        <div class="login_or_register" style="display: flex">
-            <div class="position">Вход</div>
+        <div class="login-form">
+        <div class="login_or_register">
+            <div class="position_login">Вход</div>
             <div class="register-submit">
-                <p>{{ form.register(style='background-color: #293245; border: none; font-size: 30px; color:white;') }}</p>
+                <p>{{ form.register(class='button_register') }}</p>
             </div>
         </div>
             <div class="login-login">
                 {{ form.username.label }}<br>
-                {{ form.username(class="form-control", type="username", style=' background-color: #343F52;color:white ') }}<br>
+                {{ form.username(class="form-control", type="username", style='background-color: #343F52;  color: white;') }}<br>
                 {% for error in form.username.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}
@@ -21,7 +21,7 @@
             </div>
             <div class="password-login">
                 {{ form.password.label }}<br>
-                {{ form.password(class="form-control", type="password", style=' background-color: #343F52;color:white ') }}<br>
+                {{ form.password(class="form-control", type="password", style='background-color: #343F52;  color: white;') }}<br>
                 {% for error in form.password.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}

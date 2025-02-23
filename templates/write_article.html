@@ -6,7 +6,7 @@
 
 {% if current_user.is_authenticated %}
 
-<div style="width:50%;position:absolute;top:55%;left:50%;transform:translate(-50%, -50%);color:white;margin-top:320px">
+    <div class="write-article-form">
         <h1>Настройки публикации</h1>
         <p>
             {{ form.name(class="form-control", style='background-color: #293245; color:white; placeholder-color: white;', placeholder='Название...') }}
@@ -27,9 +27,8 @@
     toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
   });
 </script>
-<textarea name="input" id="input" style="background-color: #293245">
+<textarea name="input" id="input">
 </textarea>
-    <div style="color:white" class="write-article-form">
         <p>
             {{ form.describe(class="form-control",style='background-color: #293245; color:white; margin-top:20px; placeholder-color: white;', placeholder='Описание...') }}
             {% for error in form.describe.errors %}

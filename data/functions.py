@@ -1,5 +1,5 @@
 from typing import Type
-from data import users, db_session, articles
+from data import users, articles, db_session, comments
 from sqlalchemy import desc, and_
 from flask import *
 import json
@@ -13,20 +13,21 @@ from data.users import Users
 
 
 class Article:
-    def __init__(self, db_sess):
-        self.db_sess = db_sess
+    def __init__(self):
+        self.db_sess = db_session.create_session()
 
-    def add(self, text: str, form: CreatingArticleDataForm, user: Users) -> None:
+    def add(self, text: str, form: CreatingArticleDataForm, user_id: Users.id, app: Flask) -> None:
         text = text.replace('<img', '<img height="100%" width="100%"')
-        article = articles.Articles(text=text, user_id=user.id, created_date=datetime.datetime.now(),
+        article = articles.Articles(text=text, user_id=user_id, created_date=datetime.datetime.now(),
                                     brand=form.brand_category.data, body=form.body_category.data,
                                     motors=form.motors_category.data, price_from=form.price_from.data,
                                     price_to=form.price_to.data, name=form.name.data, describe=form.describe.data,
                                     categories=form.category.data)
         file = form.photo.data
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        article.photo = filename
+        if file:
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            article.photo = filename
         self.db_sess.add(article)
         self.db_sess.commit()
 
@@ -60,13 +61,15 @@ class Article:
                 Comment().get(article.id)))
         return data
 
-    def clicked(self) -> Response | None:
-        to_read = request.form.get('id')
-        to_delete = request.form.get('delete')
+    def clickedToRead(self) -> str | None:
+        to_read = request.form.get('read')
         if to_read:
             self.read(to_read)
-            return redirect(f'/article/{to_read}/read')
-        elif to_delete:
+            return to_read
+
+    def toDelete(self):
+        to_delete = request.form.get('delete')
+        if to_delete:
             self.db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
             self.db_sess.commit()
 
@@ -125,8 +128,8 @@ def text_delta(t: datetime) -> str:
 
 
 class User:
-    def __init__(self, db_sess):
-        self.db_sess = db_sess
+    def __init__(self):
+        self.db_sess = db_session.create_session()
 
     def create(self, form: RegisterForm) -> None:
         user = Users(name=form.username.data, login=form.login.data)
@@ -190,11 +193,11 @@ class User:
 
 
 class Comment:
-    def __init__(self, db_sess):
-        self.db_sess = db_sess
+    def __init__(self):
+        self.db_sess = db_session.create_session()
 
     def get(self, article_id: articles.Articles.id) -> list:
-        return self.db_sess.query(Comment).filter(Comment.article_id == article_id).all()
+        return self.db_sess.query(comments.Comments).filter(comments.Comments.article_id == article_id).all()
 
     def getData(self, all_comments: list) -> dict:
         data = {}
@@ -205,7 +208,7 @@ class Comment:
         return data
 
     def addMark(self, comment_id, mark):
-        comment = self.db_sess.query(Comment).filter(Comment.id == comment_id).first()
+        comment = self.db_sess.query(comments.Comments).filter(comments.Comments.id == comment_id).first()
         if f'{current_user.id}' not in session or 'comments' not in session[str(current_user.id)] or str(
                 comment_id) not in session[f'{current_user.id}']['comments']:
             comment.mark += mark
@@ -221,7 +224,7 @@ class Comment:
         self.db_sess.commit()
 
     def add(self, text, article_id, answer_on):
-        comment = Comment(user=current_user.id, text=text, article_id=article_id,
+        comment = comments.Comments(user=current_user.id, text=text, article_id=article_id,
                           created_date=datetime.datetime.now(), answer_on=answer_on)
         self.db_sess.add(comment)
         self.db_sess.commit()
