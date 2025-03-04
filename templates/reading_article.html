@@ -7,13 +7,13 @@
         <div class="read_article">
         <a class="first_level" href="/profile/{{article.user_id}}">
             <div class="image">
-                <img src="/static/images/{{ user.photo }}" alt="photo" height="50px" width="50px" style="margin-top:5px;margin-bottom:15px;" class="logo_user">
+                <img src="/static/images/{{ user.photo }}" alt="photo" height="50px" width="50px" class="logo_user_reading">
             </div>
-            <div style="margin-top:-15px;margin-left:15px;margin-right:15px" class="creator">
+            <div style="margin-top:-15px;" class="creator">
                 <div class="creator_name"> {{user.name}}</div>
-                <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">Подписчики: {{user.subscribers}}</div>
+                <div class="amount_subscribers">Подписчики: {{user.subscribers}}</div>
             </div>
-                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
+            <div style="font-size:14px;color:#A8A8A8">
                 {{time}}
             </div>
             {% if is_subscribed and current_user.id != user.id %}
@@ -27,9 +27,7 @@
             {% endif %}
         </a>
         <div class="header">
-            <div style="font-size:50px;margin-top:-10px">
-                {{ article.name }}
-            </div>
+            {{ article.name }}
         </div>
             {% if article.photo %}
                 <div class="image" style="padding:10px">
@@ -43,24 +41,18 @@
             <div class="readings">
                 👁{{ article.readings }}
             </div>
-            <div class="article_mark">
+            <div class="article_mark" style="font-weight: 700; ">
                 {% if article.mark > 0 %}
                 <div title="Оценка" style="color:#00ff00;">
-                    <strong>
-                        +{{article.mark}}
-                    </strong>
+                    +{{article.mark}}
                 </div>
                 {% elif article.mark == 0 %}
-                <div title="Оценка" style="color:white;">
-                    <strong>
-                        {{article.mark}}
-                    </strong>
+                <div title="Оценка">
+                    {{article.mark}}
                 </div>
                 {% else %}
                 <div title="Оценка" style="color: red;">
-                    <strong>
-                        {{article.mark}}
-                    </strong>
+                    {{article.mark}}
                 </div>
                 {% endif %}
         </div>
@@ -77,16 +69,11 @@
         <div class="make_comment">
             {% if current_user.is_authenticated %}
             <div class="comment_form" style="width: 80%;margin-top:10px">
-                {{ comment_form.text(class="form-control", style=' background-color: #343F52; color:white ') }}<br>
-                {% for error in comment_form.text.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
+                <textarea name="comment_input" class="comment_form"></textarea>
             </div>
             <button class="btn btn-primary" name="comment" value="1">Создать</button>
             {% else %}
-            <div style="color:white;font-size:50px">
+            <div style="font-size:50px">
                 Чтобы создать статью, необходимо зарегестрироваться
             </div>
             {% endif %}
@@ -95,72 +82,75 @@
             {% for comment in all_comments %}
             {% if not comment.answer_on %}
             <div class="comment">
-                <a style="display:flex; text-decoration: none;" href="/profile/{{comment.user}}">
+                <a style="display:flex; text-decoration: none;" href="/profile/{{comment.user_id}}">
                     <div class="image">
-                        <img src="/static/images/{{creators_comments[comment.id|string][1]}}" height="30px" width="30px" style="margin-top:20px;border-radius: 50%">
+                        <img src="/static/images/{{data_comments[comment.id|string][1]}}" height="30px" width="30px" style="margin-top:20px;border-radius: 50%">
                     </div>
-                    {% if comment.user|string == user.id|string %}
-                    <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px; background-color: gray; border-radius: 10px;padding-left:5px;padding-right:5px;margin-bottom:10px"> {{ creators_comments[comment.id|string][0] }}</div>
+                    {% if comment.user_id|string == user.id|string %}
+                    <div class="creator_comment"> {{ data_comments[comment.id|string][0] }}</div>
                     {% else %}
-                    <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px"> {{ creators_comments[comment.id|string][0] }}</div>
+                    <div class="user_comment"> {{ data_comments[comment.id|string][0] }}</div>
                     {% endif %}
-                    <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
-                        {{creators_comments[comment.id|string][3]}}
+                    <div style="font-size:14px;color:#A8A8A8">
+                        {{data_comments[comment.id|string][3]}}
                     </div>
                 </a>
-                <div class="text" style="margin-top:10px;margin-bottom:10px;word-break:break-word">{{comment.text|safe}}</div>
+                <div class="text_comment">{{comment.text|safe}}</div>
 
-                {% if comment.mark > 0 %}
-                    <div title="Оценка" style="color:#00ff00; float: right">
-                        <strong>+{{comment.mark}}</strong>
+                <div class="article_mark" style="float: right; display: flex;font-weight: 700; ">
+                    {% if comment.mark > 0 %}
+                        <div title="Оценка" style="color:#00ff00;">
+                            +{{comment.mark}}
+                        </div>
+                        {% elif comment.mark == 0 %}
+                        <div title="Оценка" style="float: right;">
+                            {{comment.mark}}
+                        </div>
+                        {% else %}
+                        <div title="Оценка" style="color: red; float: right;">
+                            {{comment.mark}}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% elif comment.mark == 0 %}
-                    <div title="Оценка" style="color:white; float: right">
-                        <strong>{{comment.mark}}</strong>
-                    </div>
-                    {% else %}
-                    <div title="Оценка" style="color: red; float: right">
-                        <strong>{{comment.mark}}</strong>
-                    </div>
-            {% endif %}
                 <button name="comment_mark" class="btn btn-outline-danger" value="{{ comment.id }},-1">-1</button>
                 <button name="comment_mark" class="btn btn-outline-success"  value="{{ comment.id }},1">+1</button>
                 {% if to_answer == comment.id|string %}
-                    <textarea name="answer_input" class="comment_form"  style=' background-color: #343F52; color:white ;width:100%;margin-top:20px;margin-bottom:5px'></textarea>
+                    <textarea name="answer_input" class="comment_form"></textarea>
                     <button name="make_answer" class="btn btn-outline-primary" value="{{ comment.id }}">Ответить</button>
                 {% else %}
                 <button name="to_answer" class="btn btn-outline-primary" value="{{ comment.id }}">Ответить</button>
                 {% endif %}
                 {% for answer in answers_comments[comment.id|string] %}
                     <div class="answer">
-                        <a style="display:flex; text-decoration: none;" href="/profile/{{answer.user}}">
+                        <a style="display:flex; text-decoration: none;" href="/profile/{{answer.user_id}}">
                     <div class="image">
-                        <img src="/static/images/{{creators_comments[answer.id|string][1]}}" height="30px" width="30px" style="margin-top:20px; border-radius:50%">
+                        <img src="/static/images/{{data_comments[answer.id|string][1]}}" height="30px" width="30px" style="margin-top:20px; border-radius:50%">
                     </div>
-                            {% if answer.user|string == user.id|string %}
-                    <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px; background-color: gray; border-radius: 10px;padding-left:5px;padding-right:5px;margin-bottom:10px"> {{ creators_comments[answer.id|string][0] }}</div>
+                            {% if answer.user_id|string == user.id|string %}
+                    <div class="creator_comment"> {{ data_comments[answer.id|string][0] }}</div>
                     {% else %}
-                    <div class="creator_name" style="color:white;margin-top:22px;margin-left:10px"> {{ creators_comments[answer.id|string][0] }}</div>
+                    <div class="user_comment"> {{ data_comments[answer.id|string][0] }}</div>
                     {% endif %}
-                        <div style="text-decoration:none;color:white;font-size:14px;color:#A8A8A8">
-                        {{creators_comments[answer.id|string][3]}}
+                        <div style="font-size:14px;color:#A8A8A8">
+                        {{data_comments[answer.id|string][3]}}
                     </div>
                         </a>
-                            <div class="text" style="margin-top:10px;margin-bottom:10px;word-break:break-word">{{answer.text|safe}}</div>
-
+                            <div class="comment_text">{{answer.text|safe}}</div>
+                    <div class="article_mark" style="float: right; display: flex;font-weight: 700; ">
                     {% if answer.mark > 0 %}
-                        <div title="Оценка" style="color:#00ff00; float: right">
-                            <strong>+{{answer.mark}}</strong>
+                        <div title="Оценка" style="color:#00ff00;">
+                            +{{answer.mark}}
                         </div>
                         {% elif answer.mark == 0 %}
-                        <div title="Оценка" style="color:white; float: right">
-                            <strong>{{answer.mark}}</strong>
+                        <div title="Оценка" style="float: right;">
+                            {{answer.mark}}
                         </div>
                         {% else %}
-                        <div title="Оценка" style="color: red; float: right">
-                            <strong>{{answer.mark}}</strong>
+                        <div title="Оценка" style="color: red; float: right;">
+                            {{answer.mark}}
                         </div>
-                {% endif %}
+                        {% endif %}
+                    </div>
                     <button name="comment_mark" class="btn btn-outline-danger" value="{{ answer.id }},-1">-1</button>
                     <button name="comment_mark" class="btn btn-outline-success"  value="{{ answer.id }},1">+1</button>
                         <br>

@@ -5,9 +5,8 @@ from data import db_session, functions, users
 from forms.ArticleForm import *
 from forms.UserForm import *
 
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['SECRET_KEY'] = '1323'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
@@ -28,46 +27,47 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
-    to_read = article.clickedToRead()
+    to_read = article.toRead()
     if to_read:
         return redirect(f'/article/{to_read}/read')
-    article.toDelete()
-    leaders = user.getLeaders()
-    popular_articles = article.getCategory()
-    data = article.getData(popular_articles)
+    article.delete()
+    leaders = user.getMRSLeaders()
+    popular_articles = article.getArticlesOnCategory()
+    data = article.getDataArticles(popular_articles)
     return render_template('index.html', data=data, articles=popular_articles, leaders=leaders)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
 def all_category(category):
-    to_read = article.clickedToRead()
+    to_read = article.toRead()
     if to_read:
         return redirect(f'/article/{to_read}/read')
-    article.toDelete()
-    get_articles = article.getCategory(category)
-    articles_data = article.getData(get_articles)
+    article.delete()
+    get_articles = article.getArticlesOnCategory(category)
+    articles_data = article.getDataArticles(get_articles)
     return render_template('all_articles.html', data=articles_data, articles=get_articles, current_user=current_user)
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    to_read = article.clickedToRead()
+    to_read = article.toRead()
     if to_read:
         return redirect(f'/article/{to_read}/read')
-    article.toDelete()
+    article.delete()
     text = str(request.form.get('search'))
-    found_articles = article.find(text)
-    articles_data = article.getData(found_articles)
-    return render_template('all_articles.html', data=articles_data, articles=found_articles, current_user=current_user, search=True)
+    found_articles = article.findOnText(text)
+    articles_data = article.getDataArticles(found_articles)
+    return render_template('all_articles.html', data=articles_data, articles=found_articles, current_user=current_user,
+                           search=True)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
 def popular_category_articles(category):
-    to_read = article.clickedToRead()
+    to_read = article.toRead()
     if to_read:
         return redirect(f'/article/{to_read}/read')
-    article.toDelete()
-    popular_articles = article.getCategory(category)
+    article.delete()
+    popular_articles = article.getArticlesOnCategory(category)
     return render_template('index.html', articles=popular_articles)
 
 
@@ -77,7 +77,7 @@ def register():
     if form.to_login.data:
         return redirect('/login')
     elif form.validate_on_submit():
-        if user.alreadyExist(form.username.data):
+        if user.userAlreadyExist(form.username.data):
             return render_template('register.html', form=form, message="Такой пользователь уже есть")
         user.create(form)
         return redirect('/')
@@ -103,27 +103,29 @@ def reading_article(article_id):
     make_answer = request.form.get('make_answer')
     answer_text = request.form.get('answer_input')
     if make_answer and answer_text != '':
-        all_comments = comment.add(answer_text, article_id, make_answer)
+        comment.create(answer_text, article_id, make_answer)
     if make_comment and comment_text != '':
-        all_comments = comment.add(comment_text, article_id, None)
-    the_article = article.get(article_id)
-    creator = user.get(the_article.user_id)
-    all_comments = comment.get(article_id)
-    data_comments = comment.getData(all_comments)
+        comment.create(comment_text, article_id, None)
+    current_article = article.getArticleOnID(article_id)
+    creator = user.getUserOnID(current_article.user_id)
+    all_comments = comment.getCommentFromArticle(article_id)
+    answers_comments = comment.getAllAnswers(all_comments)
+    data_comments = comment.getCommentsData(all_comments)
     mark = request.form.get('mark')
     comment_make_mark = request.form.get('comment_mark')
-    time = functions.text_delta(datetime.datetime.now() - the_article.created_date)
-    if comment_make_mark:
-        comment_id, comment_mark = comment_make_mark.split(',')
-        comment.addMark(comment_id, comment_mark)
-    if mark:
-        article.addMark(article_id, int(mark))
+    time = functions.text_delta(datetime.datetime.now() - current_article.created_date)
     if request.form.get('to_subscribe'):
         user.subscribeOn(creator.id)
+    if comment_make_mark:
+        comment_id, comment_mark = comment_make_mark.split(',')
+        comment.addMark(comment_id, int(comment_mark))
+    if mark:
+        article.addMark(article_id, int(mark))
     is_subscribed = user.checkSubscribe(creator.id)
     return render_template('reading_article.html', time=time, is_subscribed=is_subscribed,
-                           to_answer=to_answer, amount_comments=len(all_comments), time_now=datetime.datetime.now(),
-                           article=article, current_user=current_user, user=creator, all_comments=all_comments)
+                           to_answer=to_answer, amount_comments=len(all_comments), answers_comments=answers_comments,
+                           article=current_article, current_user=current_user, user=creator, all_comments=all_comments,
+                           data_comments=data_comments)
 
 
 @app.route('/create_article', methods=['GET', 'POST'])
@@ -131,7 +133,7 @@ def create_article():
     form = CreatingArticleDataForm()
     data = request.form.get('input')
     if form.create.data and data != '' and form.validate_on_submit():
-        article.add(data, form, current_user.id, app)
+        article.create(data, form, current_user.id, app)
         return redirect('/')
     return render_template('write_article.html', current_user=current_user, form=form)
 
@@ -139,18 +141,21 @@ def create_article():
 @app.route('/profile/<user_id>', methods=['GET', 'POST'])
 def profile_user(user_id):
     form = ProfileView()
-    to_read = article.clickedToRead()
+    to_read = article.toRead()
     if to_read:
         return redirect(f'/article/{to_read}/read')
-    article.toDelete()
+    article.delete()
     if form.created_articles.data:
-        show_articles = article.getOnUser(user_id)
+        show_articles = article.getArticlesFromUser(user_id)
     elif form.follow.data:
-        show_articles = article.getFollowed(user_id)
+        show_articles = article.getFollowedArticles(user_id)
     else:
         show_articles = []
-    articles_data = article.getData(show_articles)
-    all_subscriptions = user.getSubscriptions(user_id)
+    articles_data = article.getDataArticles(show_articles)
+    if form.subscribe.data:
+        all_subscriptions = user.getSubscriptions(user_id)
+    else:
+        all_subscriptions = []
     if request.form.get('to_subscribe'):
         user.subscribeOn(user_id)
     if form.add_data.data:
@@ -159,15 +164,17 @@ def profile_user(user_id):
         logout_user()
         return redirect('/')
     is_subscribed = user.checkSubscribe(user_id)
-    return render_template('profile_check.html', add_articles=show_articles, articles_data=articles_data, is_subscribed=is_subscribed,
-                           form=form, current_user=current_user, user=user.get(user_id), all_subscriptions=all_subscriptions)
+    return render_template('profile_check.html', show_articles=show_articles, articles_data=articles_data,
+                           is_subscribed=is_subscribed,
+                           form=form, current_user=current_user, user=user.getUserOnID(user_id),
+                           all_subscriptions=all_subscriptions)
 
 
 @app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
-def descript_user(user_id):
+def change_data_user(user_id):
     form = DescriptionProfile()
     if form.create.data:
-        user.addData(form, user_id)
+        user.addUserData(form, user_id, app)
         return redirect(f'/profile/{user_id}')
     return render_template('profile_data.html', form=form)
 

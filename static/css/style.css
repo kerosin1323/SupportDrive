@@ -28,6 +28,7 @@ p {
 
 /* text field */
 .text-field {
+  margin-top: 50px;
   margin-bottom: 1rem;
 }
 
@@ -184,7 +185,7 @@ hr {
 }
 .make-question-form,
  .category-form, .start-form, .questions-form, .result-form,
- .profile-form, .write-article-form {
+ .profile-form, .write-article-form, .profile_data {
     background-color: #293245;
     width: 800px;
     padding: 20px;
@@ -248,6 +249,11 @@ hr {
     margin-top: 10px;
     margin-bottom: 10px;
     border-radius: 50%;
+}
+.logo_user_reading {
+    border-radius: 50%;
+    margin-top:5px;
+    margin-bottom:15px;
 }
 .search {
     background-color: #293245;
@@ -335,4 +341,37 @@ hr {
     border: 2px solid #1D2330;
     padding:10px;
     background-color: #293245;
+}
+.amount_subscribers {
+    text-decoration:none;
+    font-size:14px;
+    color:#A8A8A8;
+}
+.header {
+    font-size:50px;
+    margin-top:-10px;
+}
+.creator_comment {
+    margin-top: 22px;
+    margin-left: 10px;
+    background-color: gray;
+    border-radius: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-bottom: 10px;
+}
+.user_comment {
+    margin-top:22px;
+    margin-left:10px;
+}
+.text_comment {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    word-break: break-word;
+}
+.comment_form {
+     background-color: #343F52;
+     width:100%;
+     margin-top:20px;
+     margin-bottom:5px;
 }

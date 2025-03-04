@@ -40,25 +40,19 @@
                         </button>
                     </div>
                     {% endif %}
-                    <div class="article_mark" style="float: right; display: flex;">
+                    <div class="article_mark" style="float: right; display: flex;font-weight: 700; ">
                             {% if article.mark > 0 %}
-                                <div title="Оценка" style="color:#00ff00;">
-                                    <strong>
-                                        +{{article.mark}}
-                                    </strong>
-                                </div>
+                            <div title="Оценка" style="color:#00ff00;">
+                                +{{article.mark}}
+                            </div>
                             {% elif article.mark == 0 %}
-                                <div title="Оценка" style="color:white;">
-                                    <strong>
-                                        {{article.mark}}
-                                    </strong>
-                                </div>
+                            <div title="Оценка">
+                                {{article.mark}}
+                            </div>
                             {% else %}
-                                <div title="Оценка" style="color: red;">
-                                    <strong>
-                                        {{article.mark}}
-                                    </strong>
-                                </div>
+                            <div title="Оценка" style="color: red;">
+                                {{article.mark}}
+                            </div>
                             {% endif %}
                             <div class="readings" title="Кол-во просмотров">
                                 👁{{ article.readings }}
