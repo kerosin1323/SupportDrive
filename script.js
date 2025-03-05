@@ -1,1 +1,0 @@
-document.getElementById('navbar-brand').style.color = 'white';

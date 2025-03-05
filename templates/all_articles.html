@@ -4,14 +4,7 @@
 <form class="all_articles" action="" method="post" novalidate>
     <div class="welcome_page">
         {% if search %}
-   <div class="text-field">
-              <div class="text-field__icon">
-                <input class="text-field__input" type="search" name="search" id="search" >
-                <span class="text-field__aicon-2">
-                  <input class="search" type="submit" value="🔎" name="to_search">
-                </span>
-              </div>
-            </div>
+
     {% endif %}
         {% for article in articles %}
             <div class="article">

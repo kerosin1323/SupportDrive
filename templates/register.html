@@ -9,9 +9,9 @@
             </div>
             <div class="position_register">Регистрация</div>
         </div>
-            {{ form.login.label }}
-            {{ form.login(class="form-control", style=' background-color: #343F52;  color: white;') }}
-            {% for error in form.login.errors %}
+            {{ form.email.label }}
+            {{ form.email(class="form-control", style=' background-color: #343F52;  color: white;') }}
+            {% for error in form.email.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
