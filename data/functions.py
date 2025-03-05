@@ -31,70 +31,77 @@ class Article:
         self.db_sess.add(article)
         self.db_sess.commit()
 
-    def getArticlesOnCategory(self, category: str = None) -> list:
+    def get_on_category(self, category: str = None) -> list:
         if category is None:
             return self.db_sess.query(articles.Articles).filter(
                 articles.Articles.created_date.ilike('%' + f'{datetime.datetime.today().date()}' + '%')).order_by(
                 desc(articles.Articles.readings)).all()
         elif category == 'subscribed' and current_user.is_authenticated:
-            self.getArticlesFromSubscribedUsers(current_user)
+            self.get_from_subscribed(current_user)
         elif category != 'subscribed':
-            categories = {'tops': 'Топ', 'reviews': 'Обзоры', 'comparisons': 'Сравнения'}
+            categories = {'tops': 'Топ', 'reviews': 'Обзоры', 'comparisons': 'Сравнения', 'news': 'Новости'}
             return self.db_sess.query(articles.Articles).filter(and_(
                 articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
                 articles.Articles.categories == categories[category])).order_by(
                 desc(articles.Articles.readings)).all()
         return []
 
-    def getArticlesFromSubscribedUsers(self, user: Users) -> list:
+    def get_top(self):
+        tops = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Топ').order_by(desc(articles.Articles.readings)).all()
+        reviews = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Обзоры').order_by(desc(articles.Articles.readings)).all()
+        comparisons = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Сравнения').order_by(desc(articles.Articles.readings)).all()
+        news = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Новости').order_by(desc(articles.Articles.readings)).all()
+        return {'tops': tops, 'reviews': reviews, 'comparisons': comparisons, 'news': news}
+
+    def get_from_subscribed(self, user: Users) -> list:
         all_subs = [int(i) for i, k in json.loads(user.subscribed).items() if k == '1']
         return self.db_sess.query(articles.Articles).filter(and_(
             articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
             articles.Articles.user_id.in_(all_subs))).order_by(
             desc(articles.Articles.readings)).all()
 
-    def getArticlesFromUser(self, user_id: Users.id) -> list:
+    def get_from_user(self, user_id: Users.id) -> list:
         return self.db_sess.query(articles.Articles).filter(articles.Articles.user_id == user_id).all()
 
-    def getDataArticles(self, all_articles: list) -> dict:
+    def get_data(self, all_articles: list) -> dict:
         data = {}
         for article in all_articles:
             creator = self.db_sess.query(users.Users).filter(users.Users.id == article.user_id).first()
             time = text_delta(datetime.datetime.now() - article.created_date)
             data[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time, len(
-                Comment().getCommentFromArticle(article.id)))
+                Comment().get(article.id)))
         return data
 
-    def toRead(self) -> str | None:
+    def to_read(self) -> str | None:
         to_read = request.form.get('read')
         if to_read:
             self._read(to_read)
             return to_read
 
-    def delete(self):
+    def delete(self) -> None:
         to_delete = request.form.get('delete')
         if to_delete:
             self.db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
             self.db_sess.commit()
 
     def _read(self, id_article: articles.Articles.id) -> None:
-        article = self.getArticleOnID(id_article)
+        article = self.get(id_article)
         article.readings += 1
         user = self.db_sess.query(users.Users).filter(users.Users.id == article.user_id).first()
         user.reading += 1
         self.db_sess.commit()
 
-    def findOnText(self, text: str) -> list:
+    def find(self, text: str) -> list:
         return self.db_sess.query(articles.Articles).filter(articles.Articles.name.ilike('%' + text + '%')).order_by(
             desc(articles.Articles.readings)).all()
 
-    def getArticleOnID(self, article_id: articles.Articles.id) -> Type[articles.Articles]:
+    def get(self, article_id: articles.Articles.id) -> Type[articles.Articles]:
         return self.db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
 
-    def addMark(self, article_id: articles.Articles.id, mark: int) -> None:
-        article = self.getArticleOnID(article_id)
+    def mark(self, article_id: articles.Articles.id, mark: int) -> None:
+        article = self.get(article_id)
         user = self.db_sess.query(Users).filter(Users.id == current_user.id).first()
-        author = User().getUserOnID(article.user_id)
+        author = User().get(article.user_id)
         prev_mark = json.loads(user.marked_articles)
         if (not prev_mark) or (not str(article_id) in prev_mark.keys()):
             article.mark += mark
@@ -111,9 +118,9 @@ class Article:
         user.marked_articles = json.dumps(prev_mark)
         self.db_sess.commit()
 
-    def getFollowedArticles(self, user_id: Users.id) -> list:
-        user = User().getUserOnID(user_id)
-        return [self.getArticleOnID(int(i)) for i, k in json.loads(user.marked_articles).items() if k == '1']
+    def get_followed(self, user_id: Users.id) -> list:
+        user = User().get(user_id)
+        return [self.get(int(i)) for i, k in json.loads(user.marked_articles).items() if k == '1']
 
 
 def text_delta(t: datetime) -> str:
@@ -142,8 +149,8 @@ class User:
         self.db_sess.commit()
         login_user(user)
 
-    def addUserData(self, form: DescriptionProfile, user_id: Users.id, app: Flask) -> None:
-        user = self.getUserOnID(user_id)
+    def add_data(self, form: DescriptionProfile, user_id: Users.id, app: Flask) -> None:
+        user = self.get(user_id)
         user.name = form.name.data
         photo = form.photo.data
         if photo:
@@ -154,32 +161,32 @@ class User:
         user.contacts = form.contacts.data
         self.db_sess.commit()
 
-    def getUserOnID(self, user_id: Users.id) -> Type[Users]:
+    def get(self, user_id: Users.id) -> Type[Users]:
         return self.db_sess.query(Users).filter(Users.id == user_id).first()
 
-    def userAlreadyExist(self, login: str) -> bool:
+    def is_exist(self, login: str) -> bool:
         return bool(len(self.db_sess.query(Users).filter(Users.login == login).all()))
 
-    def checkAndLogin(self, name: str, password: str) -> Response:
+    def check_and_login(self, name: str, password: str) -> Response:
         user = self.db_sess.query(Users).filter(Users.name == name).first()
         if user and user.check_password(password):
             login_user(user)
             return redirect("/")
 
-    def getMRSLeaders(self) -> dict:
+    def get_leaders(self) -> dict:
         mark_leaders = self.db_sess.query(Users).order_by(desc(Users.mark))[:5]
         reading_leaders = self.db_sess.query(Users).order_by(desc(Users.reading))[:5]
         subscribers_leaders = self.db_sess.query(Users).order_by(desc(Users.subscribers))[:5]
         return {'mark': mark_leaders, 'reading': reading_leaders, 'subscribe': subscribers_leaders}
 
-    def getSubscriptions(self, user_id: Users.id) -> list:
-        user = self.getUserOnID(user_id)
+    def get_subscriptions(self, user_id: Users.id) -> list:
+        user = self.get(user_id)
         if user.subscribed:
-            return [self.getUserOnID(int(i)) for i, k in json.loads(user.subscribed).items() if k == '1']
+            return [self.get(int(i)) for i, k in json.loads(user.subscribed).items() if k == '1']
 
-    def subscribeOn(self, user_id: Users.id) -> None:
-        user = self.getUserOnID(current_user.id)
-        author = self.getUserOnID(user_id)
+    def subscribe(self, user_id: Users.id) -> None:
+        user = self.get(current_user.id)
+        author = self.get(user_id)
         prev_subs = json.loads(user.subscribed)
         if (not prev_subs) or (str(user_id) not in prev_subs) or (prev_subs[str(user_id)] == '0'):
             author.subscribers += 1
@@ -190,20 +197,33 @@ class User:
         user.subscribed = json.dumps(prev_subs)
         self.db_sess.commit()
 
-    def checkSubscribe(self, user_id: Users.id) -> bool:
-        user = self.getUserOnID(current_user.id)
+    def check_subscribe(self, user_id: Users.id) -> bool:
+        user = self.get(current_user.id)
         if user.subscribed:
             return str(user_id) in [str(i) for i, k in json.loads(user.subscribed).items() if k == '1']
+
+    def check_for_admin(self, form: RegisterAdmin) -> bool:
+        user = self.db_sess.query(Users).filter(Users.name == form.name.data).first()
+        if user and user.check_password(form.password.data):
+            if user.subscribed > 100 and user.reading > 1000 and user.mark > 500:
+                return True
+        return False
+
+    def check_admin(self, form):
+        user = self.db_sess.query(Users).filter(Users.name == form.name.data).first()
+        if user and user.check_password(form.password.data) and user.admin:
+            login_user(user)
+            return True
 
 
 class Comment:
     def __init__(self):
         self.db_sess = db_session.create_session()
 
-    def getCommentFromArticle(self, article_id: articles.Articles.id) -> list:
+    def get(self, article_id: articles.Articles.id) -> list:
         return self.db_sess.query(comments.Comments).filter(comments.Comments.article_id == article_id).all()
 
-    def getCommentsData(self, all_comments: list) -> dict:
+    def get_data(self, all_comments: list) -> dict:
         data = {}
         for comment in all_comments:
             creator = self.db_sess.query(users.Users).filter(users.Users.id == comment.user_id).first()
@@ -211,7 +231,7 @@ class Comment:
             data[str(comment.id)] = (creator.name, creator.photo, creator.subscribers, time)
         return data
 
-    def addMark(self, comment_id: comments.Comments.id, mark: int) -> None:
+    def mark(self, comment_id: comments.Comments.id, mark: int) -> None:
         comment = self.db_sess.query(comments.Comments).filter(comments.Comments.id == comment_id).first()
         if f'{current_user.id}' not in session or 'comments' not in session[str(current_user.id)] or str(
                 comment_id) not in session[f'{current_user.id}']['comments']:
@@ -227,13 +247,13 @@ class Comment:
             session[f'{current_user.id}'] = {'comments': {f'{comment_id}': '0'}}
         self.db_sess.commit()
 
-    def create(self, text: str, article_id: articles.Articles.id, answer_on: str) -> None:
+    def create(self, text: str, article_id: articles.Articles.id, answer_on: str | None) -> None:
         comment = comments.Comments(user_id=current_user.id, text=text, article_id=article_id,
                           created_date=datetime.datetime.now(), answer_on=answer_on)
         self.db_sess.add(comment)
         self.db_sess.commit()
 
-    def getAllAnswers(self, all_comments: list[comments.Comments]) -> dict[comments.Comments.id: comments.Comments]:
+    def get_answers(self, all_comments: list[comments.Comments]) -> dict[comments.Comments.id: comments.Comments]:
         answers = {}
         for comment in all_comments:
             answers[str(comment.id)] = self.db_sess.query(comments.Comments).filter(comments.Comments.answer_on == comment.id).all()

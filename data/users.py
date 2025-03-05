@@ -19,6 +19,7 @@ class Users(SqlAlchemyBase, UserMixin):
     contacts = sqlalchemy.Column(sqlalchemy.String, default='')
     subscribers = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    admin = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     articles = sqlalchemy.orm.relationship("Articles", back_populates='user')
     photo = sqlalchemy.Column(sqlalchemy.String, default='default_logo.jpg')
 
