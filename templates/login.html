@@ -4,34 +4,21 @@
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <div class="login-form">
-        <div class="login_or_register">
-            <div class="position_login">Вход</div>
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <div style="font-size:40px;padding-top:20px">Вход</div>
+            <div class="login-login">
+                {{ form.email(class="input_login", type="email", placeholder='Почта') }}<br>
+            </div>
+            <div class="password-login">
+                {{ form.password(class="input_login", type="password", placeholder='Пароль') }}<br>
+            </div>
+            <div class="submit-login">
+                <p>{{ form.submit(type="submit", class="btn btn-primary", style="border-radius:2rem;margin-top:20px") }}</p>
+            </div>
+            {{ message }}
             <div class="register-submit">
                 <p>{{ form.register(class='button_register') }}</p>
             </div>
-        </div>
-            <div class="login-login">
-                {{ form.email.label }}<br>
-                {{ form.email(class="form-control", type="username", style='background-color: #343F52;  color: white;') }}<br>
-                {% for error in form.email.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="password-login">
-                {{ form.password.label }}<br>
-                {{ form.password(class="form-control", type="password", style='background-color: #343F52;  color: white;') }}<br>
-                {% for error in form.password.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="submit-login">
-                <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-            </div>
-            {{ message }}
         </div>
     </form>
 {% endblock %}

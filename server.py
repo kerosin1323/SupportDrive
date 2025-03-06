@@ -4,6 +4,7 @@ from flask import *
 from data import db_session, functions, users
 from forms.ArticleForm import *
 from forms.UserForm import *
+from mailing import send_simple_email
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '1323'
@@ -75,27 +76,14 @@ def popular_category_articles(category):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-    if form.to_login.data:
+    if form.login.data:
         return redirect('/login')
-    if form.register_admin.data:
-        return redirect('/register_admin')
     elif form.validate_on_submit():
-        if user.is_exist(form.username.data):
+        if user.is_exist(form.email.data):
             return render_template('register.html', form=form, message="Такой пользователь уже есть")
-        user.create(form)
-        return redirect('/')
-    return render_template('register.html', form=form)
-
-
-@app.route('/register_admin', methods=['GET', 'POST'])
-def register_admin():
-    form = RegisterAdmin()
-    if form.register_user.data:
-        return redirect('/register')
-    elif form.validate_on_submit():
-        if user.check_for_admin(form):
-            return redirect('/')
-        return render_template('register.html', form=form, message="Не все условия выполнены")
+        send_password = user.send_password(form.email.data)
+        session[form.email.data] = (form.data, send_password)
+        return redirect(f'/check_email/$email={form.email.data}$prev=reg')
     return render_template('register.html', form=form)
 
 
@@ -104,23 +92,31 @@ def login():
     form = LoginForm()
     if form.register.data:
         return redirect('/register')
-    if form.login_admin.data:
-        return redirect('/login_admin')
     elif form.validate_on_submit():
-        user.check_and_login(form.email.data, form.password.data)
-        return render_template('login.html', message="Неправильный логин или пароль", form=form)
+        if user.check(form.email.data, form.password.data):
+            send_password = user.send_password(form.email.data)
+            session[form.email.data] = (form.data, send_password)
+            return redirect(f'/check_email/$email={form.email.data}$prev=log')
+        return render_template('login.html', message="Неправильная почта или пароль", form=form)
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
-@app.route('/login_admin', methods=['GET', 'POST'])
-def login_admin():
-    form = LoginAdmin()
-    if form.login_user.data:
-        return redirect('/login')
-    elif form.validate_on_submit():
-        if user.check_admin(form):
-            return redirect('/')
-    return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
+@app.route('/check_email/$email=<email>$prev=<prev>', methods=['GET', 'POST'])
+def check_email(email, prev):
+    email_form = EmailForm()
+    data = session[email][0]
+    send_password = session[email][1]
+    password = email_form.email_password.data
+    if prev == 'reg' and str(password) == str(send_password):
+        user.create(data)
+        return redirect('/')
+    elif prev == 'log' and str(password) == str(send_password):
+        user_log = user.get_on_email(email)
+        login_user(user_log)
+        return redirect('/')
+    elif password and str(password) != str(send_password):
+        return render_template('email.html', message="Неправильный пароль", form=email_form)
+    return render_template('email.html', form=email_form)
 
 
 @app.route('/article/<article_id>/read', methods=['GET', 'POST'])

@@ -10,6 +10,8 @@ from forms.ArticleForm import *
 from forms.UserForm import *
 from flask_login import *
 from data.users import Users
+from mailing import send_simple_email
+from random import randint
 
 
 class Article:
@@ -142,9 +144,9 @@ class User:
     def __init__(self):
         self.db_sess = db_session.create_session()
 
-    def create(self, form: RegisterForm) -> None:
-        user = Users(name=form.username.data, login=form.login.data)
-        user.set_password(form.password.data)
+    def create(self, data: dict) -> None:
+        user = Users(name=data['username'], email=data['email'])
+        user.set_password(data['password'])
         self.db_sess.add(user)
         self.db_sess.commit()
         login_user(user)
@@ -164,14 +166,24 @@ class User:
     def get(self, user_id: Users.id) -> Type[Users]:
         return self.db_sess.query(Users).filter(Users.id == user_id).first()
 
-    def is_exist(self, login: str) -> bool:
-        return bool(len(self.db_sess.query(Users).filter(Users.login == login).all()))
+    def is_exist(self, email: str) -> bool:
+        return bool(len(self.db_sess.query(Users).filter(Users.email == email).all()))
 
-    def check_and_login(self, name: str, password: str) -> Response:
-        user = self.db_sess.query(Users).filter(Users.name == name).first()
+    def check(self, email: str, password: str) -> bool:
+        user = self.db_sess.query(Users).filter(Users.email == email).first()
         if user and user.check_password(password):
-            login_user(user)
-            return redirect("/")
+            return True
+
+    def send_password(self, email):
+        password = randint(100000, 999999)
+        send_simple_email(
+            receiver_email=email,
+            body=str(password),
+        )
+        return password
+
+    def get_on_email(self, email: str):
+        return self.db_sess.query(Users).filter(Users.email == email).first()
 
     def get_leaders(self) -> dict:
         mark_leaders = self.db_sess.query(Users).order_by(desc(Users.mark))[:5]
@@ -202,18 +214,12 @@ class User:
         if user.subscribed:
             return str(user_id) in [str(i) for i, k in json.loads(user.subscribed).items() if k == '1']
 
-    def check_for_admin(self, form: RegisterAdmin) -> bool:
+    def check_for_admin(self, form) -> bool:
         user = self.db_sess.query(Users).filter(Users.name == form.name.data).first()
         if user and user.check_password(form.password.data):
             if user.subscribed > 100 and user.reading > 1000 and user.mark > 500:
                 return True
         return False
-
-    def check_admin(self, form):
-        user = self.db_sess.query(Users).filter(Users.name == form.name.data).first()
-        if user and user.check_password(form.password.data) and user.admin:
-            login_user(user)
-            return True
 
 
 class Comment:

@@ -6,27 +6,21 @@ from wtforms.validators import DataRequired
 class LoginForm(FlaskForm):
     email = StringField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
-    login_admin = SubmitField('Войти как админ')
-    register = SubmitField('Регистрация')
+    register = SubmitField('Нет аккаунта? Зарегестрироваться')
     submit = SubmitField('Войти')
-
-
-class LoginAdmin(LoginForm):
-    admin_password = StringField('Админ-Пароль', validators=[DataRequired()])
-    login_user = SubmitField('Войти как пользователь')
 
 
 class RegisterForm(FlaskForm):
     email = StringField('Почта', validators=[DataRequired()])
-    username = StringField('Никнейм', validators=[DataRequired()])
+    username = StringField('Имя', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
-    register_admin = SubmitField('Стать админом')
-    to_login = SubmitField('Вход')
+    login = SubmitField('Войти в аккаунт')
     submit = SubmitField('Создать')
 
 
-class RegisterAdmin(RegisterForm):
-    register_user = SubmitField('Стать пользователем')
+class EmailForm(FlaskForm):
+    email_password = StringField('Код', validators=[DataRequired()])
+    submit = SubmitField('Проверить')
 
 
 class ProfileView(FlaskForm):
@@ -43,3 +37,4 @@ class DescriptionProfile(FlaskForm):
     create = SubmitField('Изменить')
     photo = FileField('Изменить фото')
     name = StringField('Изменить имя')
+

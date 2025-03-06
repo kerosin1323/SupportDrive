@@ -9,8 +9,8 @@ class Users(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    name = sqlalchemy.Column(sqlalchemy.Integer, default=0)
-    login = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    email = sqlalchemy.Column(sqlalchemy.String, default='')
+    name = sqlalchemy.Column(sqlalchemy.String, default='')
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     marked_articles = sqlalchemy.Column(sqlalchemy.String, default='{}')
     subscribed = sqlalchemy.Column(sqlalchemy.String, default='{}')
