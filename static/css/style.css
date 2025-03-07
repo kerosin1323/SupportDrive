@@ -2,7 +2,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  color: gray;
+  color: white;
   font-size: 18px;
   font-family: "Arial Rounded MT Bold";
 }
@@ -150,12 +150,13 @@ input:-webkit-autofill:active{
  .article, .comment, .profile {
 
     background-color: #293245;
-    width: 80%;
+    width: 65%;
     height: 100%;
     padding-left: 20px;
     padding-right: 30px;
     padding-bottom:20px;
     margin-top:18px;
+    margin-left:20%;
     box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);
     border: 2px solid #1D2330;
 }
@@ -212,6 +213,8 @@ input:-webkit-autofill:active{
 }
 /* Крестик */
 .closebtn {
+background-color: #293245;
+    border: none;
     margin-top: 20px;
     color: gray;
     font-weight: bold;
@@ -291,22 +294,32 @@ input:-webkit-autofill:active{
     font-size: 100%
 }
 .creator {
-    margin-top: 5px;
+    margin-top: 15px;
     margin-left: 15px;
     margin-right: 15px
 }
 .under-photo {
     display: flex;
     justify-content: space-between;
+    text-align: center;
 }
 .readings {
     float: right;
-    margin-right: 10px
+}
+.mark_article, .readings, .amount_comments {
+    background-color: #293245;
+    border: 1px solid gray;
+    color: white;
+    border-radius: 2rem;
+    padding: 8px;
+    width: 60px;
+    text-align: center;
+    margin: 20px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 .amount_comments {
     float: right;
-    margin-right: 5px;
-    margin-left:10px
 }
 .welcome_page {
     float: left;
@@ -498,5 +511,15 @@ input:-webkit-autofill:active{
 }
 input:focus {
     outline: none;
-    border-top:none;
+}
+.selector_form {
+    -webkit-appearance: none;
+    background-color: #293245;
+    color: white;
+    border:none;
+    border-bottom:1px solid gray;
+    width: 30%;
+    height: 40px;
+    margin-top: 20px;
+      -webkit-border-radius: 0px;
 }

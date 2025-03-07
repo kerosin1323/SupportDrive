@@ -126,18 +126,43 @@ class Article:
 
 
 def text_delta(t: datetime) -> str:
-    if t < datetime.timedelta(minutes=1):
-        return "Минуту назад"
+    if t < datetime.timedelta(minutes=2):
+        return "1 минуту назад"
     elif t < datetime.timedelta(hours=1):
-        return f"{t.total_seconds() // 60:.0f} минут назад"
+        if t.total_seconds() // 60 % 10 in (2, 3, 4) and (t.total_seconds() > 20 or t.total_seconds() < 5):
+            return f"{t.total_seconds() // 60:.0f} минуты назад"
+        elif t.total_seconds() // 60 % 10 == 1 and (t.total_seconds() > 20 or t.total_seconds() < 5):
+            return f"{t.total_seconds() // 60:.0f} минуту назад"
+        else:
+            return f"{t.total_seconds() // 60:.0f} минут назад"
     elif t < datetime.timedelta(days=1):
-        return f"{t.total_seconds() // 3600:.0f} часов назад"
+        if t.total_seconds() // 3600 % 10 in (2, 3, 4) and (t.total_seconds() > 20 or t.total_seconds() < 5):
+            return f"{t.total_seconds() // 3600:.0f} часа назад"
+        elif t.total_seconds() // 3600 % 10 == 1 and (t.total_seconds() > 20 or t.total_seconds() < 5):
+            return f"{t.total_seconds() // 3600:.0f} час назад"
+        else:
+            return f"{t.total_seconds() // 3600:.0f} часов назад"
     elif t < datetime.timedelta(days=30):
-        return f"{t.days} дней назад"
+        if t.days % 10 in (2, 3, 4) and (t.days > 20 or t.days < 5):
+            return f"{t.days:.0f} дня назад"
+        elif t.days % 10 == 1 and (t.days > 20 or t.days < 5):
+            return f"{t.days:.0f} день назад"
+        else:
+            return f"{t.days:.0f} дней назад"
     elif t < datetime.timedelta(days=365):
-        return f"{t.days // 30} месяцев назад"
+        if t.days // 30 % 10 in (2, 3, 4) and (t.days > 20 or t.days < 5):
+            return f"{t.days // 30:.0f} месяца назад"
+        elif t.days // 30 % 10 == 1 and (t.days > 20 or t.days < 5):
+            return f"{t.days // 30:.0f} месяц назад"
+        else:
+            return f"{t.days // 30:.0f} месяцев назад"
     else:
-        return f"{t.days // 365} лет назад"
+        if t.days // 365 % 10 in (2, 3, 4) and (t.days > 20 or t.days < 5):
+            return f"{t.days // 365:.0f} года назад"
+        elif t.days // 365 % 10 == 1 and (t.days > 20 or t.days < 5):
+            return f"{t.days // 365:.0f} год назад"
+        else:
+            return f"{t.days // 365:.0f} лет назад"
 
 
 class User:

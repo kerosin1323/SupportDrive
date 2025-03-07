@@ -8,14 +8,9 @@
 
     <div class="write-article-form">
         <h1>Настройки публикации</h1>
-        <p>
-            {{ form.name(class="form-control", style='background-color: #293245; color:white; placeholder-color: white;', placeholder='Название...') }}
-            {% for error in form.name.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
+            <span>
+                {{ form.name(class="input_login", style='margin-bottom:20px;width:98%', placeholder='Название') }}<span style="color:red;" title="Обязательно">*</span>
+            </span>
 <!-- Place the first <script> tag in your HTML's <head> -->
 <script src="https://cdn.tiny.cloud/1/yz21sbvfhoqwvo3hl2p58u312quu2ubwy1n6vp9mtxaf2ctu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
@@ -30,72 +25,37 @@
 <textarea name="input" id="input">
 </textarea>
         <p>
-            {{ form.describe(class="form-control",style='background-color: #293245; color:white; margin-top:20px; placeholder-color: white;', placeholder='Описание...') }}
-            {% for error in form.describe.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
+            {{ form.describe(class='input_login', placeholder='Описание') }}
         </p>
-        <p>
-            {{ form.category.label }}
-            {{ form.category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
-            {% for error in form.category.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.brand_category.label }}
-            {{ form.brand_category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
-            {% for error in form.brand_category.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.body_category.label }}
-            {{ form.body_category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
-            {% for error in form.body_category.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.motors_category.label }}
-            {{ form.motors_category(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
-            {% for error in form.motors_category.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.price_from.label }}
-            {{ form.price_from(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
-            {% for error in form.price_from.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.price_to.label }}
-            {{ form.price_to(class="form-control",style='background-color: #293245; color:white; margin-top:10px;') }}
-            {% for error in form.price_to.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
+        <div>
+        <span>
+        <span>
+            Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form") }}
+
+        </span>
+            <span>
+            Марка: {{ form.brand_category(class="selector_form") }}
+            </span>
+        </span>
+        </div>
+        <div>
+        <span>
+        <span>
+            Кузов: {{ form.body_category(class="selector_form") }}
+        </span>
+            <span>
+            Двигатель: {{ form.motors_category(class="selector_form") }}
+            </span>
+        </span>
+            </div>
+        <span>
+            {{ form.price_from(class='input_login',style='width:30%', placeholder='Цена от') }}
+            {{ form.price_to(class='input_login',style='width:30%', placeholder='Цена до') }}
             {{ form.photo }}
-        </p>
+        </span>
+
         <p>
-            {{ form.create(type='submit', class="btn btn-primary") }}
+            {{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px") }}
         </p>
     </div>
 {% else %}

@@ -10,15 +10,15 @@
     <link href="/static/css/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<header>
-    <div class="navbar-div">
-    <nav class="navbar navbar-light" style="border-bottom:1px solid gray">
+    <div class="navbar-div" style="background-color: #293245;color:gray;">
+    <nav class="navbar navbar-light" style="border-bottom:1px solid gray;">
         <a class="navbar-brand" href="/">
             <span>
-            <img src="/static/logo/logo.png" height="40px" width="40px">
+            <img src="/static/logo/logo.png" height="40px" width="40px" style="margin-left:12px;">
             SupportDrive
                 </span>
         </a>
+        <form action="" method="post" novalidate>
         <div class="text-field">
           <div class="text-field__icon">
             <input class="text-field__input" type="search" name="search" id="search" style="width:500px">
@@ -27,6 +27,7 @@
             </span>
           </div>
         </div>
+        </form>
         {% if current_user.is_authenticated %}
             <a href="/profile/{{ current_user.id }}">
                 <img class="logo_user" src="/static/images/{{current_user.photo}}" alt="photo" height="50px" width="50px">
@@ -36,13 +37,12 @@
         {% endif %}
     </nav>
         </div>
-</header>
-<div class="w3-sidebar w3-bar-block w3-card" style="width:20%;background-color: #293245;border-right:1px solid gray">
-    <a class="w3-bar-item w3-button" href="/all/tops" style="margin-top:10px">Топы</a>
-    <a class="w3-bar-item w3-button" href="/all/comparisons">Сравнения</a>
+<div class="w3-sidebar w3-bar-block w3-card" style="width:18%;background-color: #293245;border-right:1px solid gray;color:gray;">
+    <a class="w3-bar-item w3-button" href="/all/tops" style="margin-top:10px"><img src="/static/logo/tops.png" width="30px">Топы</a>
+    <a class="w3-bar-item w3-button" href="/all/comparisons"><img src="/static/logo/vs.png" width="30px">Сравнения</a>
     <a class="w3-bar-item w3-button" href="/all/reviews">Обзоры</a>
-    <a class="w3-bar-item w3-button" href="/all/news">Новости</a>
-    <a class="w3-bar-item w3-button" href="/all/subscribed">Подписки</a>
+    <a class="w3-bar-item w3-button" href="/all/news"><img src="/static/logo/news.png" width="30px">Новости</a>
+    <a class="w3-bar-item w3-button" href="/all/subscribed"><img src="/static/logo/subscribe.png" width="30px">Подписки</a>
     <hr style="border-color:gray;">
     <a class="w3-bar-item w3-button" href="/all/sedans">Легковые</a>
     <a class="w3-bar-item w3-button" href="/all/trucks">Внедорожники</a>
@@ -53,6 +53,7 @@
     <a class="w3-bar-item w3-button" href="/all/china">Китайские</a>
     <hr style="border-color:gray;">
     <a class="w3-bar-item w3-button" href="/create_article">Создать</a>
+    <a class="w3-bar-item w3-button" href="/forum">Форум</a>
 </div>
 <!-- Begin page content -->
 <main role="main" style="padding-top: 5%;margin-top: 65px;">

@@ -4,7 +4,6 @@ from flask import *
 from data import db_session, functions, users
 from forms.ArticleForm import *
 from forms.UserForm import *
-from mailing import send_simple_email
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '1323'
@@ -29,6 +28,9 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
     to_read = article.to_read()
+    to_search = request.form.get('to_search')
+    if to_search:
+        return redirect(f'/search/{request.form.get('search')}')
     if to_read:
         return redirect(f'/article/{to_read}/read')
     article.delete()
@@ -50,17 +52,18 @@ def all_category(category):
     return render_template('all_articles.html', data=articles_data, articles=get_articles, current_user=current_user)
 
 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
+@app.route('/search/<text>', methods=['GET', 'POST'])
+def search(text):
     to_read = article.to_read()
     if to_read:
         return redirect(f'/article/{to_read}/read')
+    to_search = request.form.get('to_search')
+    if to_search:
+        return redirect(f'/search/{request.form.get('search')}')
     article.delete()
-    text = str(request.form.get('search'))
-    found_articles = article.find(text)
+    found_articles = article.find(str(text))
     articles_data = article.get_data(found_articles)
-    return render_template('all_articles.html', data=articles_data, articles=found_articles, current_user=current_user,
-                           search=True)
+    return render_template('all_articles.html', data=articles_data, articles=found_articles, current_user=current_user)
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -69,6 +72,9 @@ def popular_category_articles(category):
     if to_read:
         return redirect(f'/article/{to_read}/read')
     article.delete()
+    to_search = request.form.get('to_search')
+    if to_search:
+        return redirect(f'/search/{request.form.get('search')}')
     popular_articles = article.get_on_category(category)
     return render_template('index.html', articles=popular_articles)
 
@@ -78,6 +84,8 @@ def register():
     form = RegisterForm()
     if form.login.data:
         return redirect('/login')
+    if request.form.get('close'):
+        return redirect('/')
     elif form.validate_on_submit():
         if user.is_exist(form.email.data):
             return render_template('register.html', form=form, message="Такой пользователь уже есть")
@@ -92,6 +100,8 @@ def login():
     form = LoginForm()
     if form.register.data:
         return redirect('/register')
+    if request.form.get('close'):
+        return redirect('/')
     elif form.validate_on_submit():
         if user.check(form.email.data, form.password.data):
             send_password = user.send_password(form.email.data)
@@ -126,6 +136,9 @@ def reading_article(article_id):
     to_answer = request.form.get('to_answer')
     make_answer = request.form.get('make_answer')
     answer_text = request.form.get('answer_input')
+    to_search = request.form.get('to_search')
+    if to_search:
+        return redirect(f'/search/{request.form.get('search')}')
     if make_answer and answer_text != '':
         comment.create(answer_text, article_id, make_answer)
     if make_comment and comment_text != '':
@@ -156,6 +169,9 @@ def reading_article(article_id):
 def create_article():
     form = CreatingArticleDataForm()
     data = request.form.get('input')
+    to_search = request.form.get('to_search')
+    if to_search:
+        return redirect(f'/search/{request.form.get('search')}')
     if form.create.data and data != '' and form.validate_on_submit():
         article.create(data, form, current_user.id, app)
         return redirect('/')
@@ -166,6 +182,9 @@ def create_article():
 def profile_user(user_id):
     form = ProfileView()
     to_read = article.to_read()
+    to_search = request.form.get('to_search')
+    if to_search:
+        return redirect(f'/search/{request.form.get('search')}')
     if to_read:
         return redirect(f'/article/{to_read}/read')
     article.delete()
@@ -197,6 +216,9 @@ def profile_user(user_id):
 @app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
 def change_data_user(user_id):
     form = DescriptionProfile()
+    to_search = request.form.get('to_search')
+    if to_search:
+        return redirect(f'/search/{request.form.get('search')}')
     if form.create.data:
         user.add_data(form, user_id, app)
         return redirect(f'/profile/{user_id}')
