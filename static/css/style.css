@@ -150,13 +150,13 @@ input:-webkit-autofill:active{
  .article, .comment, .profile {
 
     background-color: #293245;
-    width: 65%;
     height: 100%;
+    width:110%;
+    margin-left:20px;
     padding-left: 20px;
     padding-right: 30px;
     padding-bottom:20px;
-    margin-top:18px;
-    margin-left:20%;
+    margin-bottom:18px;
     box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);
     border: 2px solid #1D2330;
 }
@@ -323,22 +323,13 @@ background-color: #293245;
 }
 .welcome_page {
     float: left;
-    width: 80%;
-    margin-left: 100px;
+    margin-left: 20%;
     overflow-wrap: break-word;
-    margin-right:-100px
 }
-.mark_leaders, .readings_leaders, .subscribers_leaders {
-    width: 60%;
-    transform: translateX(-120px);
-    background-color: #293245;
-    margin-bottom:15px;
-    padding-left:10px;
-    margin-right:15px;
-    margin-top:18px;
-    break-word;overflow: hidden;
-    box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);
-    border: 2px solid #1D2330;
+.mark_leaders, .top_articles {
+    background-color: #323232;
+    border-radius: 1rem;
+    padding:20px;
 }
 .login_or_register {
     margin-top: 30px;

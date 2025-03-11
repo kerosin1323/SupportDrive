@@ -35,25 +35,21 @@ class Article:
 
     def get_on_category(self, category: str = None) -> list:
         if category is None:
-            return self.db_sess.query(articles.Articles).filter(
-                articles.Articles.created_date.ilike('%' + f'{datetime.datetime.today().date()}' + '%')).order_by(
-                desc(articles.Articles.readings)).all()
+            recently = self.db_sess.query(articles.Articles).all()[::-1][:20]
+            return recently
         elif category == 'subscribed' and current_user.is_authenticated:
             self.get_from_subscribed(current_user)
         elif category != 'subscribed':
             categories = {'tops': 'Топ', 'reviews': 'Обзоры', 'comparisons': 'Сравнения', 'news': 'Новости'}
-            return self.db_sess.query(articles.Articles).filter(and_(
-                articles.Articles.created_date.ilike('%' + str(datetime.datetime.today().date()) + '%'),
-                articles.Articles.categories == categories[category])).order_by(
-                desc(articles.Articles.readings)).all()
+            return self.db_sess.query(articles.Articles).filter(articles.Articles.categories == categories[category]).all()[::-1][:20]
         return []
 
     def get_top(self):
-        tops = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Топ').order_by(desc(articles.Articles.readings)).all()
-        reviews = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Обзоры').order_by(desc(articles.Articles.readings)).all()
-        comparisons = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Сравнения').order_by(desc(articles.Articles.readings)).all()
-        news = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Новости').order_by(desc(articles.Articles.readings)).all()
-        return {'tops': tops, 'reviews': reviews, 'comparisons': comparisons, 'news': news}
+        tops = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Топ').order_by(desc(articles.Articles.readings)).first()
+        reviews = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Обзоры').order_by(desc(articles.Articles.readings)).first()
+        comparisons = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Сравнения').order_by(desc(articles.Articles.readings)).first()
+        news = self.db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Новости').order_by(desc(articles.Articles.readings)).first()
+        return {'top': tops, 'review': reviews, 'comparison': comparisons, 'news': news}
 
     def get_from_subscribed(self, user: Users) -> list:
         all_subs = [int(i) for i, k in json.loads(user.subscribed).items() if k == '1']
@@ -129,16 +125,16 @@ def text_delta(t: datetime) -> str:
     if t < datetime.timedelta(minutes=2):
         return "1 минуту назад"
     elif t < datetime.timedelta(hours=1):
-        if t.total_seconds() // 60 % 10 in (2, 3, 4) and (t.total_seconds() > 20 or t.total_seconds() < 5):
+        if t.total_seconds() // 60 % 10 in (2, 3, 4) and (t.total_seconds() // 60 > 20 or t.total_seconds() // 60 < 5):
             return f"{t.total_seconds() // 60:.0f} минуты назад"
-        elif t.total_seconds() // 60 % 10 == 1 and (t.total_seconds() > 20 or t.total_seconds() < 5):
+        elif t.total_seconds() // 60 % 10 == 1 and (t.total_seconds() // 60 > 20 or t.total_seconds() // 60 < 5):
             return f"{t.total_seconds() // 60:.0f} минуту назад"
         else:
             return f"{t.total_seconds() // 60:.0f} минут назад"
     elif t < datetime.timedelta(days=1):
-        if t.total_seconds() // 3600 % 10 in (2, 3, 4) and (t.total_seconds() > 20 or t.total_seconds() < 5):
+        if t.total_seconds() // 3600 % 10 in (2, 3, 4) and (t.total_seconds() // 3600 > 20 or t.total_seconds() // 3600 < 5):
             return f"{t.total_seconds() // 3600:.0f} часа назад"
-        elif t.total_seconds() // 3600 % 10 == 1 and (t.total_seconds() > 20 or t.total_seconds() < 5):
+        elif t.total_seconds() // 3600 % 10 == 1 and (t.total_seconds() // 3600 > 20 or t.total_seconds() // 3600 < 5):
             return f"{t.total_seconds() // 3600:.0f} час назад"
         else:
             return f"{t.total_seconds() // 3600:.0f} часов назад"
@@ -150,16 +146,16 @@ def text_delta(t: datetime) -> str:
         else:
             return f"{t.days:.0f} дней назад"
     elif t < datetime.timedelta(days=365):
-        if t.days // 30 % 10 in (2, 3, 4) and (t.days > 20 or t.days < 5):
+        if t.days // 30 % 10 in (2, 3, 4) and (t.days // 30 > 20 or t.days < 5):
             return f"{t.days // 30:.0f} месяца назад"
-        elif t.days // 30 % 10 == 1 and (t.days > 20 or t.days < 5):
+        elif t.days // 30 % 10 == 1 and (t.days // 30 > 20 or t.days // 30 < 5):
             return f"{t.days // 30:.0f} месяц назад"
         else:
             return f"{t.days // 30:.0f} месяцев назад"
     else:
-        if t.days // 365 % 10 in (2, 3, 4) and (t.days > 20 or t.days < 5):
+        if t.days // 365 % 10 in (2, 3, 4) and (t.days // 365 > 20 or t.days // 365 < 5):
             return f"{t.days // 365:.0f} года назад"
-        elif t.days // 365 % 10 == 1 and (t.days > 20 or t.days < 5):
+        elif t.days // 365 % 10 == 1 and (t.days // 365 > 20 or t.days // 365 < 5):
             return f"{t.days // 365:.0f} год назад"
         else:
             return f"{t.days // 365:.0f} лет назад"
@@ -210,11 +206,8 @@ class User:
     def get_on_email(self, email: str):
         return self.db_sess.query(Users).filter(Users.email == email).first()
 
-    def get_leaders(self) -> dict:
-        mark_leaders = self.db_sess.query(Users).order_by(desc(Users.mark))[:5]
-        reading_leaders = self.db_sess.query(Users).order_by(desc(Users.reading))[:5]
-        subscribers_leaders = self.db_sess.query(Users).order_by(desc(Users.subscribers))[:5]
-        return {'mark': mark_leaders, 'reading': reading_leaders, 'subscribe': subscribers_leaders}
+    def get_leaders(self):
+        return self.db_sess.query(Users).order_by(desc(Users.mark))[:5]
 
     def get_subscriptions(self, user_id: Users.id) -> list:
         user = self.get(user_id)

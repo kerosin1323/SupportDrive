@@ -1,73 +1,70 @@
-<form class="all_articles" action="" method="post" novalidate>
-    <div class="welcome_page">
-        {% for article in articles %}
-            <div class="article">
-                <a class="first_level" href="/profile/{{article.user_id}}" style="text-decoration:none;">
-                    <div class="image" style="text-decoration:none;">
-                        <img src="/static/images/{{ data[article.id|string][1] }}" alt="photo" height="40px" width="40px" class="logo_user_article">
+{% for article in articles %}
+    <div class="article">
+        <a class="first_level" href="/profile/{{article.user_id}}" style="text-decoration:none;">
+            <div class="image" style="text-decoration:none;">
+                <img src="/static/images/{{ data[article.id|string][1] }}" alt="photo" height="40px" width="40px" class="logo_user_article">
+            </div>
+            <span class="creator" style="text-decoration:none;">
+                <span class="creator_name" style="font-size:20px;"> {{data[article.id|string][0]}}</span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8" title="Подписчики">{{data[article.id|string][2]}} </span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8">
+                    {{data[article.id|string][3]}}
+                </span>
+                <span>|</span>
+                <span style="color: #ffdead;margin-top:20px;font-size:18px;">{{article.categories}}</span>
+            </span>
+        </a>
+        <div class="name_article">
+            <h2>{{article.name}}</h2>
+        </div>
+        <div class="tags" style="color:gray;font-size:18px;">
+            {{article.brand}}, {{article.body}}, {{article.motors}}
+        </div>
+        {% if article.photo %}
+        <div class="image">
+            <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
+        </div>
+        {% endif %}
+        <div style="color:white">
+        {{ article.describe }}
+        </div>
+        <hr>
+        <div class="under-photo">
+            <button
+                class="btn btn-outline-primary" name="read" value="{{ article.id }}" style="border-radius:2rem;float:left;">Читать
+            </button>
+            <div class="article_mark" style="display: flex;font-weight: 700; ">
+                    {% if article.mark > 0 %}
+                    <div title="Оценка" class='mark_article' style="color:#00ff00;">
+                        +{{article.mark}}
                     </div>
-                    <span class="creator" style="text-decoration:none;">
-                        <span class="creator_name" style="font-size:20px;"> {{data[article.id|string][0]}}</span>
-                        <span style="font-size:14px;color:#A8A8A8">•</span>
-                        <span style="font-size:14px;color:#A8A8A8" title="Подписчики">{{data[article.id|string][2]}} </span>
-                        <span style="font-size:14px;color:#A8A8A8">•</span>
-                        <span style="font-size:14px;color:#A8A8A8">
-                            {{data[article.id|string][3]}}
-                        </span>
-                        <span>|</span>
-                        <span style="color: #ffdead;margin-top:20px;font-size:18px;">{{article.categories}}</span>
-                    </span>
-                </a>
-                <div class="name_article">
-                    <h2>{{article.name}}</h2>
-                </div>
-                <div class="tags" style="color:gray;font-size:18px;">
-                    {{article.brand}}, {{article.body}}, {{article.motors}}
-                </div>
-                {% if article.photo %}
-                <div class="image">
-                    <img src="/static/images/{{ article.photo }}" alt="photo" height="100%" width="100%">
-                </div>
-                {% endif %}
-                <div style="color:white">
-                {{ article.describe }}
-                </div>
-                <hr>
-                <div class="under-photo">
-                    <button
-                        class="btn btn-outline-primary" name="read" value="{{ article.id }}" style="border-radius:2rem;float:left;">Читать
-                    </button>
-                    <div class="article_mark" style="display: flex;font-weight: 700; ">
-                            {% if article.mark > 0 %}
-                            <div title="Оценка" class='mark_article' style="color:#00ff00;">
-                                +{{article.mark}}
-                            </div>
-                            {% elif article.mark == 0 %}
-                            <div title="Оценка" class='mark_article' style="color: white;">
-                                {{article.mark}}
-                            </div>
-                            {% else %}
-                            <div title="Оценка" class='mark_article' style="color: red;">
-                                {{article.mark}}
-                            </div>
-                            {% endif %}
-                            <div class="readings" title="Кол-во просмотров">
-                                👁 {{ article.readings }}
-                            </div>
-                            <div class="amount_comments" title="Кол-во комментариев">
-                                💬 {{data[article.id|string][4]}}
-                            </div>
+                    {% elif article.mark == 0 %}
+                    <div title="Оценка" class='mark_article' style="color: white;">
+                        {{article.mark}}
                     </div>
-                    {% if current_user.id == article.user_id %}
-                    <div>
-                        <button
-                            class="btn btn-outline-danger" name="delete" value="{{ article.id }}" style="border-radius:2rem;float:right;">Удалить
-                        </button>
+                    {% else %}
+                    <div title="Оценка" class='mark_article' style="color: red;">
+                        {{article.mark}}
                     </div>
                     {% endif %}
-                </div>
-
+                    <div class="readings" title="Кол-во просмотров">
+                        👁 {{ article.readings }}
+                    </div>
+                    <div class="amount_comments" title="Кол-во комментариев">
+                        💬 {{data[article.id|string][4]}}
+                    </div>
             </div>
-        {% endfor %}
+            {% if current_user.id == article.user_id %}
+            <div>
+                <button
+                    class="btn btn-outline-danger" name="delete" value="{{ article.id }}" style="border-radius:2rem;float:right;">Удалить
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
     </div>
-</form>
+{% endfor %}
+
