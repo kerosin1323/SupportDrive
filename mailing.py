@@ -17,7 +17,7 @@ def send_simple_email(receiver_email, body):
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "Код проверки"
-    msg['From'] = 'Python script <' + sender + '>'
+    msg['From'] = sender
     msg['To'] = ', '.join(recipients)
     msg['Reply-To'] = sender
     msg['Return-Path'] = sender
@@ -31,5 +31,3 @@ def send_simple_email(receiver_email, body):
     mail.login(user, password)
     mail.sendmail(sender, recipients, msg.as_string())
     mail.quit()
-
-
