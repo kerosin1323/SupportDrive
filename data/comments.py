@@ -12,5 +12,6 @@ class Comments(db_session.SqlAlchemyBase):
     answer_on = sqlalchemy.Column(sqlalchemy.String)
     text = sqlalchemy.Column(sqlalchemy.String)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    level = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     article_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('articles.id'))
     article = sqlalchemy.orm.relationship('Articles')

@@ -2,8 +2,7 @@
 
 {% block content %}
 <form action="" method="post" novalidate>
-    <p></p>
-    <div class="container">
+    <div class="container" style="margin-left: 20%;">
         <div class="read_article">
         <a class="first_level" href="/profile/{{article.user_id}}">
             <div class="image">
@@ -80,8 +79,7 @@
         </div>
         <div style="padding-bottom:10px" class="all_comments">
             {% for comment in all_comments %}
-            {% if not comment.answer_on %}
-            <div class="comment">
+            <div class="comment" style="border-left: {{comment.level * 2}}px solid;margin-left:{{comment.level * 20}}px;">
                 <a style="display:flex; text-decoration: none;" href="/profile/{{comment.user_id}}">
                     <div class="image">
                         <img src="/static/images/{{data_comments[comment.id|string][1]}}" height="30px" width="30px" style="margin-top:20px;border-radius: 50%">
@@ -120,47 +118,8 @@
                 {% else %}
                 <button name="to_answer" class="btn btn-outline-primary" value="{{ comment.id }}">Ответить</button>
                 {% endif %}
-                {% for answer in answers_comments[comment.id|string] %}
-                    <div class="answer">
-                        <a style="display:flex; text-decoration: none;" href="/profile/{{answer.user_id}}">
-                    <div class="image">
-                        <img src="/static/images/{{data_comments[answer.id|string][1]}}" height="30px" width="30px" style="margin-top:20px; border-radius:50%">
-                    </div>
-                            {% if answer.user_id|string == user.id|string %}
-                    <div class="creator_comment"> {{ data_comments[answer.id|string][0] }}</div>
-                    {% else %}
-                    <div class="user_comment"> {{ data_comments[answer.id|string][0] }}</div>
-                    {% endif %}
-                        <div style="font-size:14px;color:#A8A8A8">
-                        {{data_comments[answer.id|string][3]}}
-                    </div>
-                        </a>
-                            <div class="comment_text">{{answer.text|safe}}</div>
-                    <div class="article_mark" style="float: right; display: flex;font-weight: 700; ">
-                    {% if answer.mark > 0 %}
-                        <div title="Оценка" style="color:#00ff00;">
-                            +{{answer.mark}}
-                        </div>
-                        {% elif answer.mark == 0 %}
-                        <div title="Оценка" style="float: right;">
-                            {{answer.mark}}
-                        </div>
-                        {% else %}
-                        <div title="Оценка" style="color: red; float: right;">
-                            {{answer.mark}}
-                        </div>
-                        {% endif %}
-                    </div>
-                    <button name="comment_mark" class="btn btn-outline-danger" value="{{ answer.id }},-1">-1</button>
-                    <button name="comment_mark" class="btn btn-outline-success"  value="{{ answer.id }},1">+1</button>
-                        <br>
-                        </div>
-                {% endfor %}
-
-            </div>
-            {% endif %}
-            {% endfor %}
         </div>
+        {% endfor %}
     </div>
 </form>
 {% endblock %}

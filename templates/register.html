@@ -16,10 +16,10 @@
             <button class="closebtn" name='close' value="1" onclick="this.parentElement.style.display='none';">&times;</button>
             <div style="font-size:40px;padding-top:20px">Регистрация</div>
             <div class="login-login">
-                {{ form.email(class="input_login", type="email", placeholder='Почта') }}<br>
+                {{ form.email(class="input_login", type='email', id='email', placeholder='Почта') }}<br>
             </div>
             <div class="password-login">
-                {{ form.username(class="input_login",placeholder='Имя') }}<br>
+                {{ form.username(class="input_login", type='text', id='username', placeholder='Имя') }}<br>
             </div>
             <div class="password-login">
                 {{ form.password(class="input_login", type="password", placeholder='Пароль') }}<br>

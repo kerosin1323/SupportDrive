@@ -24,7 +24,7 @@ class TopArticle(NamedTuple):
     news: Type[articles.Articles]
 
 
-def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, app: Flask) -> None:
+def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, app) -> None:
     text = text.replace('<img', '<img height="100%" width="100%"')
     article = articles.Articles(text=text, user_id=user_id, created_date=datetime.datetime.now(),
                                 brand=form.brand_category.data, body=form.body_category.data,
@@ -36,11 +36,11 @@ def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, 
     db_sess.commit()
 
 
-def add_photo(file: str, object: users.Users | articles.Articles, app: Flask) -> None:
+def add_photo(file, article, app) -> None:
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        object.photo = filename
+        article.photo = filename
 
 
 def get_on_category(category: str = None) -> list[Type[articles.Articles]]:
@@ -64,7 +64,8 @@ def get_top() -> TopArticle:
         desc(articles.Articles.readings)).first()
     news = db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Новости').order_by(
         desc(articles.Articles.readings)).first()
-    return TopArticle(tops=tops, reviews=reviews, comparisons=comparisons, news=news)
+    if tops and reviews and comparisons and news:
+        return TopArticle(tops=tops, reviews=reviews, comparisons=comparisons, news=news)
 
 
 def get_article_subscribed(user: Users) -> list[Type[articles.Articles]]:
@@ -85,21 +86,12 @@ def get_article_data(all_articles: list[Type[articles.Articles]]) -> dict:
     return data
 
 
-def to_read() -> str | None:
-    to_read = request.form.get('read')
-    if to_read:
-        _read(to_read)
-        return to_read
+def delete(article_id) -> None:
+    db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).delete()
+    db_sess.commit()
 
 
-def delete() -> None:
-    to_delete = request.form.get('delete')
-    if to_delete:
-        db_sess.query(articles.Articles).filter(articles.Articles.id == to_delete).delete()
-        db_sess.commit()
-
-
-def _read(id_article: articles.Articles.id) -> None:
+def add_reading(id_article: articles.Articles.id) -> None:
     article = get_article(id_article)
     article.readings += 1
     user = get_user(article.user_id)
@@ -204,7 +196,7 @@ def get_user(user_id: Users.id) -> Type[Users]:
     return db_sess.query(Users).filter(Users.id == user_id).first()
 
 
-def is_exist(email: str) -> bool:
+def is_email_already_exist(email: str) -> bool:
     return bool(len(db_sess.query(Users).filter(Users.email == email).all()))
 
 
@@ -219,12 +211,26 @@ def send_password(email):
     return password
 
 
+def check_email_and_login_user(prev_link, password, email):
+    parse_password = session[email][1]
+    print(password, parse_password)
+    if str(password) == str(parse_password):
+        if prev_link == 'reg':
+            create_user(session[email][0])
+        else:
+            user_log = get_on_email(email)
+            login_user(user_log)
+        return 'True'
+    return 'Неправильный пароль'
+
 def get_on_email(email: str):
     return db_sess.query(Users).filter(Users.email == email).first()
 
 
-def get_leaders():
-    return db_sess.query(Users).order_by(desc(Users.mark))[:5]
+def get_leaders() -> list | None:
+    leaders = db_sess.query(Users).order_by(desc(Users.mark)).all()[:5]
+    if len(leaders) > 4:
+        return leaders
 
 
 def get_subscriptions(user_id: Users.id) -> list:
@@ -247,8 +253,11 @@ def subscribe(user_id: Users.id) -> None:
     db_sess.commit()
 
 
-def check_subscribe(user_id: Users.id) -> bool:
-    user = get_user(current_user.id)
+def check_subscribe(user_id: Users.id) -> bool | None:
+    try:
+        user = get_user(current_user.id)
+    except Exception:
+        return None
     if user.subscribed:
         return str(user_id) in [str(i) for i, k in json.loads(user.subscribed).items() if k == '1']
 
@@ -262,7 +271,22 @@ def check_for_admin(form) -> bool:
 
 
 def get_comments(article_id: articles.Articles.id) -> list:
-    return db_sess.query(comments.Comments).filter(comments.Comments.article_id == article_id).all()
+    all_sorted_comments = []
+    last_id_comment = len(db_sess.query(comments.Comments).order_by(desc(comments.Comments.mark)).filter(comments.Comments.article_id == article_id).all())
+    id_comment = 1
+    while id_comment <= last_id_comment != 0:
+        current_comment = get_comment(id_comment)
+        answers_on_current_comment = get_answers(id_comment)
+        if current_comment in all_sorted_comments and len(answers_on_current_comment) != 0:
+            idx_in_asc = all_sorted_comments.index(current_comment)
+            all_sorted_comments = [*all_sorted_comments[:idx_in_asc], current_comment, *answers_on_current_comment, *all_sorted_comments[idx_in_asc+1:]]
+        elif current_comment not in all_sorted_comments:
+            if answers_on_current_comment != 0:
+                all_sorted_comments += current_comment, *answers_on_current_comment
+            else:
+                all_sorted_comments += current_comment
+        id_comment += 1
+    return all_sorted_comments
 
 
 def get_comment_data(all_comments: list) -> dict:
@@ -294,13 +318,14 @@ def mark_comment(comment_id: comments.Comments.id, mark: int) -> None:
 def create_comment(text: str, article_id: articles.Articles.id, answer_on: str | None) -> None:
     comment = comments.Comments(user_id=current_user.id, text=text, article_id=article_id,
                                 created_date=datetime.datetime.now(), answer_on=answer_on)
+    comment.level = get_comment(int(answer_on)).level + 1 if answer_on else 0
     db_sess.add(comment)
     db_sess.commit()
 
 
-def get_answers(all_comments: list[comments.Comments]) -> dict[comments.Comments.id: comments.Comments]:
-    answers = {}
-    for comment in all_comments:
-        answers[str(comment.id)] = db_sess.query(comments.Comments).filter(
-            comments.Comments.answer_on == comment.id).all()
-    return answers
+def get_answers(comment_id) -> list:
+    return db_sess.query(comments.Comments).filter(comments.Comments.answer_on == comment_id).all()
+
+
+def get_comment(comment_id):
+    return db_sess.query(comments.Comments).filter(comments.Comments.id == comment_id).first()

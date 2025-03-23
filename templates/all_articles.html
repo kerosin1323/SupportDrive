@@ -32,9 +32,9 @@
         </div>
         <hr>
         <div class="under-photo">
-            <button
-                class="btn btn-outline-primary" name="read" value="{{ article.id }}" style="border-radius:2rem;float:left;">Читать
-            </button>
+            <a href="/read/{{ article.id }}" class="btn btn-outline-primary" style="border-radius:2rem;float:left;">
+                Читать
+            </a>
             <div class="article_mark" style="display: flex;font-weight: 700; ">
                     {% if article.mark > 0 %}
                     <div title="Оценка" class='mark_article' style="color:#00ff00;">
@@ -56,11 +56,11 @@
                         💬 {{data[article.id|string][4]}}
                     </div>
             </div>
-            {% if current_user.id == article.user_id %}
+            {% if current_user.id != article.user_id %}
             <div>
-                <button
-                    class="btn btn-outline-danger" name="delete" value="{{ article.id }}" style="border-radius:2rem;float:right;">Удалить
-                </button>
+                <a
+                    href="/delete_article/{{article.id}}" class="btn btn-outline-danger" style="border-radius:2rem;float:right;">Удалить
+                </a>
             </div>
             {% endif %}
         </div>

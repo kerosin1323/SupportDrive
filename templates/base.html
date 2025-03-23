@@ -21,10 +21,12 @@
         <form action="" method="post" novalidate>
         <div class="text-field">
           <div class="text-field__icon">
-            <input class="text-field__input" type="search" name="search" id="search" style="width:500px">
-            <span class="text-field__aicon-2">
-              <input class="search" type="submit" value="🔎" name="to_search">
-            </span>
+            <input class="text-field__input" id='input-search' type="search" name="search" style="width:500px">
+            <a style="background-color: #293245" id='search' onclick="this.href='/search/'+document.getElementById('input-search').value">
+                <span class="text-field__aicon-2">
+                🔎
+                </span>
+                </a>
           </div>
         </div>
         </form>
