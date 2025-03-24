@@ -108,12 +108,13 @@ def get_article(article_id: articles.Articles.id) -> Type[articles.Articles]:
     return db_sess.query(articles.Articles).filter(articles.Articles.id == article_id).first()
 
 
-def mark_article(article_id: articles.Articles.id, mark: int) -> None:
-    article = get_user(article_id)
+def mark_article(article_id: articles.Articles.id, mark: int) -> str:
+    article = get_article(article_id)
     user = get_user(current_user.id)
     author = get_user(article.user_id)
     prev_mark = json.loads(user.marked_articles)
-    if (not prev_mark) or (not str(article_id) in prev_mark.keys()):
+    if not mark: return prev_mark[str(article_id)]
+    elif (not prev_mark) or (not str(article_id) in prev_mark.keys()):
         article.mark += mark
         author.mark += mark
         prev_mark[str(article_id)] = str(mark)
@@ -127,6 +128,7 @@ def mark_article(article_id: articles.Articles.id, mark: int) -> None:
         prev_mark[str(article_id)] = '0'
     user.marked_articles = json.dumps(prev_mark)
     db_sess.commit()
+    return prev_mark[str(article_id)]
 
 
 def get_followed(user_id: Users.id) -> list:
@@ -213,7 +215,6 @@ def send_password(email):
 
 def check_email_and_login_user(prev_link, password, email):
     parse_password = session[email][1]
-    print(password, parse_password)
     if str(password) == str(parse_password):
         if prev_link == 'reg':
             create_user(session[email][0])
@@ -222,6 +223,7 @@ def check_email_and_login_user(prev_link, password, email):
             login_user(user_log)
         return 'True'
     return 'Неправильный пароль'
+
 
 def get_on_email(email: str):
     return db_sess.query(Users).filter(Users.email == email).first()
@@ -272,14 +274,16 @@ def check_for_admin(form) -> bool:
 
 def get_comments(article_id: articles.Articles.id) -> list:
     all_sorted_comments = []
-    last_id_comment = len(db_sess.query(comments.Comments).order_by(desc(comments.Comments.mark)).filter(comments.Comments.article_id == article_id).all())
+    last_id_comment = len(db_sess.query(comments.Comments).order_by(desc(comments.Comments.mark)).filter(
+        comments.Comments.article_id == article_id).all())
     id_comment = 1
     while id_comment <= last_id_comment != 0:
         current_comment = get_comment(id_comment)
         answers_on_current_comment = get_answers(id_comment)
         if current_comment in all_sorted_comments and len(answers_on_current_comment) != 0:
             idx_in_asc = all_sorted_comments.index(current_comment)
-            all_sorted_comments = [*all_sorted_comments[:idx_in_asc], current_comment, *answers_on_current_comment, *all_sorted_comments[idx_in_asc+1:]]
+            all_sorted_comments = [*all_sorted_comments[:idx_in_asc], current_comment, *answers_on_current_comment,
+                                   *all_sorted_comments[idx_in_asc + 1:]]
         elif current_comment not in all_sorted_comments:
             if answers_on_current_comment != 0:
                 all_sorted_comments += current_comment, *answers_on_current_comment

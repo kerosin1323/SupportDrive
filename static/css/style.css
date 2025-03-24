@@ -151,7 +151,7 @@ input:-webkit-autofill:active{
 
     background-color: #293245;
     height: 100%;
-    width:110%;
+    width:150%;
     margin-left:20px;
     padding-left: 20px;
     padding-right: 30px;
@@ -312,9 +312,6 @@ background-color: #293245;
     color: white;
     border-radius: 2rem;
     padding: 8px;
-    width: 60px;
-    text-align: center;
-    margin: 20px;
     margin-top: 0px;
     margin-bottom: 0px;
 }
@@ -400,8 +397,6 @@ background-color: #293245;
 .comment_form {
      background-color: #343F52;
      width:100%;
-     margin-top:20px;
-     margin-bottom:5px;
 }
 
 .w3-btn, .w3-button {

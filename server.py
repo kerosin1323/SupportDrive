@@ -16,7 +16,7 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def welcome_page():
     popular_articles = get_on_category()
-    return render_template('index.html', top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
+    return render_template('index.html', all_news=popular_articles, top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
 
 
 @app.route('/all/<category>', methods=['GET', 'POST'])
@@ -97,19 +97,18 @@ def reading_article(article_id):
     creator = get_user(current_article.user_id)
     all_comments = get_comments(article_id)
     data_comments = get_comment_data(all_comments)
-    mark = request.form.get('mark')
+    mark = request.form.get('mark') or 0
     comment_make_mark = request.form.get('comment_mark')
     if request.form.get('to_subscribe'):
         subscribe(creator.id)
     if comment_make_mark:
         comment_id, comment_mark = comment_make_mark.split(',')
         mark_comment(comment_id, int(comment_mark))
-    if mark:
-        mark_article(article_id, int(mark))
+    article_mark = mark_article(article_id, int(mark))
     return render_template('reading_article.html', time=text_delta(datetime.datetime.now() - current_article.created_date),
                            is_subscribed=check_subscribe(creator.id), to_answer=to_answer, amount_comments=len(all_comments),
                            article=current_article, current_user=current_user, user=creator, all_comments=all_comments,
-                           data_comments=data_comments)
+                           data_comments=data_comments, mark=int(article_mark))
 
 
 @app.route('/create_article', methods=['GET', 'POST'])

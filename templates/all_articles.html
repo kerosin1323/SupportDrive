@@ -32,31 +32,31 @@
         </div>
         <hr>
         <div class="under-photo">
-            <a href="/read/{{ article.id }}" class="btn btn-outline-primary" style="border-radius:2rem;float:left;">
+            <div class="read"><a href="/read/{{ article.id }}" class="btn btn-outline-primary" style="border-radius:2rem;float:left;">
                 Читать
-            </a>
+            </a></div>
             <div class="article_mark" style="display: flex;font-weight: 700; ">
                     {% if article.mark > 0 %}
-                    <div title="Оценка" class='mark_article' style="color:#00ff00;">
+                    <div title="Оценка" class='mark_article' style="color:#00ff00;margin-right:20px;">
                         +{{article.mark}}
                     </div>
                     {% elif article.mark == 0 %}
-                    <div title="Оценка" class='mark_article' style="color: white;">
+                    <div title="Оценка" class='mark_article' style="color: white;margin-right:20px;">
                         {{article.mark}}
                     </div>
                     {% else %}
-                    <div title="Оценка" class='mark_article' style="color: red;">
+                    <div title="Оценка" class='mark_article' style="color: red;margin-right:20px;">
                         {{article.mark}}
                     </div>
                     {% endif %}
-                    <div class="readings" title="Кол-во просмотров">
-                        👁 {{ article.readings }}
+                    <div class="readings" title="Кол-во просмотров" style="margin-right:20px;">
+                        👁{{ article.readings }}
                     </div>
                     <div class="amount_comments" title="Кол-во комментариев">
-                        💬 {{data[article.id|string][4]}}
+                        💬{{data[article.id|string][4]}}
                     </div>
             </div>
-            {% if current_user.id != article.user_id %}
+            {% if current_user.id == article.user_id %}
             <div>
                 <a
                     href="/delete_article/{{article.id}}" class="btn btn-outline-danger" style="border-radius:2rem;float:right;">Удалить

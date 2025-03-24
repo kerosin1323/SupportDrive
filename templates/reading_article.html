@@ -4,29 +4,35 @@
 <form action="" method="post" novalidate>
     <div class="container" style="margin-left: 20%;">
         <div class="read_article">
-        <a class="first_level" href="/profile/{{article.user_id}}">
-            <div class="image">
-                <img src="/static/images/{{ user.photo }}" alt="photo" height="50px" width="50px" class="logo_user_reading">
+        <a class="first_level" href="/profile/{{article.user_id}}" style="text-decoration:none;">
+            <div class="image" style="text-decoration:none;">
+                <img src="/static/images/{{ user.photo }}" alt="photo" height="40px" width="40px" class="logo_user_article">
             </div>
-            <div style="margin-top:-15px;" class="creator">
-                <div class="creator_name"> {{user.name}}</div>
-                <div class="amount_subscribers">Подписчики: {{user.subscribers}}</div>
-            </div>
-            <div style="font-size:14px;color:#A8A8A8">
-                {{time}}
-            </div>
-            {% if is_subscribed and current_user.id != user.id %}
-            <div class="follow">
-                <button name="to_subscribe" class="btn btn-secondary" value="1">Отписаться</button>
-            </div>
-            {% elif current_user.id != user.id %}
-            <div class="follow">
-                <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
-            </div>
-            {% endif %}
+            <span class="creator" style="text-decoration:none;">
+                <span class="creator_name" style="font-size:20px;"> {{user.name}}</span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8" title="Подписчики">{{user.subscribers}} </span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8">
+                    {{time}}
+                </span>
+                <span>|</span>
+                <span style="color: #ffdead;margin-top:20px;font-size:18px;">{{article.categories}}</span>
+                {% if is_subscribed and current_user.id != user.id %}
+                <span class="follow">
+                    <button name="to_subscribe" class="btn btn-secondary" value="1">Отписаться</button>
+                </span>
+                {% elif current_user.id != user.id %}
+                <span class="follow">
+                    <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
+                </span>
+                {% endif %}
         </a>
         <div class="header">
             {{ article.name }}
+        </div>
+        <div class="tags" style="color:gray;font-size:18px;">
+            {{article.brand}}, {{article.body}}, {{article.motors}}
         </div>
             {% if article.photo %}
                 <div class="image" style="padding:10px">
@@ -36,62 +42,83 @@
         <div class="text" style="word-break:break-word">
             {{ article.text|safe }}
         </div>
-        <div class="second_level">
-            <div class="readings">
-                👁{{ article.readings }}
+        <div class="under-photo">
+            <div class="make_mark">
+                <button class="btn btn-outline-danger" name="mark" value="-1">-1</button>
+                {% if mark > 0 %}
+                    <span title="Твоя оценка" style="color:#00ff00;">
+                        +{{mark}}
+                    </span>
+                    {% elif mark == 0 %}
+                    <span title="Твоя оценка" style="color: white;">
+                        {{mark}}
+                    </span>
+                    {% else %}
+                    <span title="Твоя оценка" style="color: red;">
+                        {{mark}}
+                    </span>
+                    {% endif %}
+                <button class="btn btn-outline-success" name="mark" value="1">+1</button>
             </div>
-            <div class="article_mark" style="font-weight: 700; ">
-                {% if article.mark > 0 %}
-                <div title="Оценка" style="color:#00ff00;">
-                    +{{article.mark}}
-                </div>
-                {% elif article.mark == 0 %}
-                <div title="Оценка">
-                    {{article.mark}}
-                </div>
-                {% else %}
-                <div title="Оценка" style="color: red;">
-                    {{article.mark}}
-                </div>
-                {% endif %}
-        </div>
-        <div class="make_mark">
-            <button class="btn btn-outline-danger" name="mark" value="-1">-1</button>
-            <button class="btn btn-outline-success" name="mark" value="1">+1</button>
-        </div>
+            <div class="article_mark" style="display: flex;font-weight: 700; ">
+                    {% if article.mark > 0 %}
+                    <div title="Оценка" class='mark_article' style="color:#00ff00;">
+                        +{{article.mark}}
+                    </div>
+                    {% elif article.mark == 0 %}
+                    <div title="Оценка" class='mark_article' style="color: white;">
+                        {{article.mark}}
+                    </div>
+                    {% else %}
+                    <div title="Оценка" class='mark_article' style="color: red;">
+                        {{article.mark}}
+                    </div>
+                    {% endif %}
+                    <div class="readings" title="Кол-во просмотров">
+                        👁{{ article.readings }}
+                    </div>
+            </div>
+            {% if current_user.id == article.user_id %}
+            <div>
+                <a
+                    href="/delete_article/{{article.id}}" class="btn btn-outline-danger" style="border-radius:2rem;float:right;">Удалить
+                </a>
+            </div>
+            {% endif %}
         </div>
         </div>
     <div class="comments">
-        <div style=" margin-top:15px">
-            <h1>Комментарии ({{ amount_comments }})</h1>
-        </div>
         <div class="make_comment">
             {% if current_user.is_authenticated %}
-            <div class="comment_form" style="width: 80%;margin-top:10px">
+            <div class="comment_form" style="width: 80%;margin:40px;">
                 <textarea name="comment_input" class="comment_form"></textarea>
             </div>
             <button class="btn btn-primary" name="comment" value="1">Создать</button>
             {% else %}
-            <div style="font-size:50px">
-                Чтобы создать статью, необходимо зарегестрироваться
+            <div style="font-size:30px">
+                Чтобы написать комментарий, необходимо зарегестрироваться
             </div>
             {% endif %}
+        <div style=" margin-top:15px">
+            <h1>Комментарии ({{ amount_comments }})</h1>
+        </div>
         </div>
         <div style="padding-bottom:10px" class="all_comments">
             {% for comment in all_comments %}
             <div class="comment" style="border-left: {{comment.level * 2}}px solid;margin-left:{{comment.level * 20}}px;">
-                <a style="display:flex; text-decoration: none;" href="/profile/{{comment.user_id}}">
-                    <div class="image">
-                        <img src="/static/images/{{data_comments[comment.id|string][1]}}" height="30px" width="30px" style="margin-top:20px;border-radius: 50%">
+                <a class="first_level" href="/profile/{{comment.user_id}}" style="text-decoration:none;">
+                    <div class="image" style="text-decoration:none;">
+                        <img src="/static/images/{{ data_comments[comment.id|string][1] }}" alt="photo" height="40px" width="40px" class="logo_user_article">
                     </div>
-                    {% if comment.user_id|string == user.id|string %}
-                    <div class="creator_comment"> {{ data_comments[comment.id|string][0] }}</div>
-                    {% else %}
-                    <div class="user_comment"> {{ data_comments[comment.id|string][0] }}</div>
-                    {% endif %}
-                    <div style="font-size:14px;color:#A8A8A8">
-                        {{data_comments[comment.id|string][3]}}
-                    </div>
+                    <span class="creator" style="text-decoration:none;">
+                        <span class="creator_name" style="font-size:20px;"> {{data_comments[comment.id|string][0]}}</span>
+                        <span style="font-size:14px;color:#A8A8A8">•</span>
+                        <span style="font-size:14px;color:#A8A8A8" title="Подписчики">{{data_comments[comment.id|string][2]}} </span>
+                        <span style="font-size:14px;color:#A8A8A8">•</span>
+                        <span style="font-size:14px;color:#A8A8A8">
+                            {{data_comments[comment.id|string][3]}}
+                        </span>
+                    </span>
                 </a>
                 <div class="text_comment">{{comment.text|safe}}</div>
 
