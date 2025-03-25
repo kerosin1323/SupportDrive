@@ -8,6 +8,8 @@
         {{ form.name(class="input_login", style='margin-bottom:20px;width:98%', placeholder='Название') }}
         <span style="color:red;" title="Обязательно">*</span>
         {% include 'redactor.html' %}
+        <div class="editor" id="editor" contenteditable="true" style="background-color: #293245;" placeholder="Текст"></div>
+        <input type="hidden" name="text" value="" id="text_from_editor">
         <p>{{ form.describe(class='input_login', placeholder='Описание') }}</p>
         <div>
             <span>Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form") }}</span>
@@ -20,7 +22,7 @@
         {{ form.price_from(class='input_login',style='width:30%', placeholder='Цена от') }}
         {{ form.price_to(class='input_login',style='width:30%', placeholder='Цена до') }}
         {{ form.photo }}
-        <p>{{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px") }}</p>
+        <p>{{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px", onclick="document.getElementById('text_from_editor').value=document.getElementById('editor').innerHTML.trim();") }}</p>
 {% else %}
     <div style="color:white">Чтобы создать статью, необходимо зарегестрироваться</div>
 {% endif %}

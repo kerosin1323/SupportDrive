@@ -1,57 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" novalidate enctype=multipart/form-data>
-        {{ form.hidden_tag() }}
-
-{% if current_user.is_authenticated %}
-
-    <div class="write-article-form">
-        <h1>Настройки публикации</h1>
-            <span>
-                {{ form.name(class="input_login", style='margin-bottom:20px;width:98%', placeholder='Название', value=article.name) }}<span style="color:red;" title="Обязательно">*</span>
-            </span>
+<form class="write-article-form" method="post" novalidate enctype=multipart/form-data>
+    {{ form.hidden_tag() }}
+    {% if current_user.is_authenticated %}
+    <h1>Изменение статьи</h1>
+    <span>
+        {{ form.name(class="input_login", style='margin-bottom:20px;width:98%', placeholder='Название', value=article.name) }}
+        <span style="color:red;" title="Обязательно">*</span>
+    </span>
     {% include 'redactor.html' %}
-
-        <p>
-            {{ form.describe(class='input_login', placeholder='Описание', value=article.describe) }}
-        </p>
-        <div>
-        <span>
-        <span>
-            Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form", value=article.category) }}
-
-        </span>
-            <span>
-            Марка: {{ form.brand_category(class="selector_form", value=article.brand) }}
-            </span>
-        </span>
-        </div>
-        <div>
-        <span>
-        <span>
-            Кузов: {{ form.body_category(class="selector_form", value=article.body) }}
-        </span>
-            <span>
-            Двигатель: {{ form.motors_category(class="selector_form", value=article.motors) }}
-            </span>
-        </span>
-            </div>
-        <span>
-            {{ form.price_from(class='input_login',style='width:30%', placeholder='Цена от', value=article.price_from) }}
-            {{ form.price_to(class='input_login',style='width:30%', placeholder='Цена до', value=article.price_to) }}
-            {{ form.photo(value=article.photo) }}
-        </span>
-
-        <p>
-            {{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px") }}
-        </p>
+    <p>{{ form.describe(class='input_login', placeholder='Описание', value=article.describe) }}</p>
+    <div>
+        <span>Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form", value=article.category) }}</span>
+        <span>Марка: {{ form.brand_category(class="selector_form", value=article.brand) }}</span>
     </div>
+    <div>
+        <span>Кузов: {{ form.body_category(class="selector_form", value=article.body) }}</span>
+        <span>Двигатель: {{ form.motors_category(class="selector_form", value=article.motors) }}</span>
+    </div>
+    {{ form.price_from(class='input_login',style='width:30%', placeholder='Цена от', value=article.price_from) }}
+    {{ form.price_to(class='input_login',style='width:30%', placeholder='Цена до', value=article.price_to) }}
+    {{ form.photo(value=article.photo) }}
+    <p>{{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px") }}</p>
 {% else %}
-    <div style="color:white">
-        <p>Чтобы создать статью, необходимо зарегестрироваться</p>
-    </div>
+    <div style="color:white">Чтобы создать статью, необходимо зарегестрироваться</div>
 {% endif %}
-</div>
 </form>
 {% endblock content %}
