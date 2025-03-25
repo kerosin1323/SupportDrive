@@ -13,31 +13,31 @@ def load_user(user_id):
     return db_sess.query(users.Users).get(user_id)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.get('/')
 def welcome_page():
     popular_articles = get_on_category()
-    return render_template('index.html', all_news=popular_articles, top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
+    return render_template('index.html', data_news=get_article_data(popular_articles), all_news=popular_articles, top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
 
 
-@app.route('/all/<category>', methods=['GET', 'POST'])
+@app.get('/all/<category>')
 def all_category(category):
     get_articles = get_on_category(category)
     return render_template('all_articles.html', data=get_article_data(get_articles), articles=get_articles, current_user=current_user)
 
 
-@app.route('/search/<text>', methods=['GET', 'POST'])
+@app.get('/search/<text>')
 def search(text):
     found_articles = find(str(text))
     return render_template('all_articles.html', data=get_article_data(found_articles), articles=found_articles, current_user=current_user)
 
 
-@app.route('/delete_article/<article_id>', methods=['GET'])
+@app.get('/delete_article/<article_id>')
 def delete_article(article_id):
     delete(article_id)
     return redirect(request.referrer)
 
 
-@app.route('/all/<category>', methods=['GET', 'POST'])
+@app.get('/all/<category>')
 def popular_category_articles(category):
     return render_template('index.html', articles=get_on_category(category))
 
@@ -121,8 +121,19 @@ def creating_article():
     return render_template('write_article.html', current_user=current_user, form=form)
 
 
-@app.route('/profile/<user_id>', methods=['GET', 'POST'])
-def profile_user(user_id):
+@app.route('/edit_article/<int:article_id>', methods=['GET', 'POST'])
+def edit_article(article_id: int):
+    form = EditArticleForm()
+    article = get_article(article_id)
+    data = request.form.get('input')
+    if form.create.data and data != '' and form.validate_on_submit():
+        change_article(data, form, article.id, app)
+        return redirect('/')
+    return render_template('edit_article.html', article=article, form=form)
+
+
+@app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+def profile_user(user_id: int):
     form = ProfileView()
     if form.created_articles.data:
         show_articles = get_article_from_user(user_id)
@@ -149,8 +160,8 @@ def profile_user(user_id):
                            all_subscriptions=all_subscriptions)
 
 
-@app.route('/profile_data/<user_id>', methods=['GET', 'POST'])
-def change_data_user(user_id):
+@app.route('/profile_data/<int:user_id>', methods=['GET', 'POST'])
+def change_data_user(user_id: int):
     form = DescriptionProfile()
     if form.create.data:
         add_user_data(form, user_id, app)

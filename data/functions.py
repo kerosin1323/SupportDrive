@@ -36,6 +36,22 @@ def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, 
     db_sess.commit()
 
 
+def change_article(text: str, form: EditArticleForm, article_id: int, app) -> None:
+    text = text.replace('<img', '<img height="100%" width="100%"')
+    article = get_article(article_id)
+    article.text = text
+    article.brand = form.brand_category.data
+    article.body = form.body_category.data
+    article.motors = form.motors_category.data
+    article.price_from = form.price_from.data
+    article.price_to = form.price_to.data
+    article.name = form.name.data
+    article.describe = form.describe.data
+    article.categories = form.category.data
+    add_photo(form.photo.data, article, app)
+    db_sess.commit()
+
+
 def add_photo(file, article, app) -> None:
     if file:
         filename = secure_filename(file.filename)
@@ -113,7 +129,7 @@ def mark_article(article_id: articles.Articles.id, mark: int) -> str:
     user = get_user(current_user.id)
     author = get_user(article.user_id)
     prev_mark = json.loads(user.marked_articles)
-    if not mark: return prev_mark[str(article_id)]
+    if not mark and prev_mark and str(article_id) in prev_mark.keys(): return prev_mark[str(article_id)]
     elif (not prev_mark) or (not str(article_id) in prev_mark.keys()):
         article.mark += mark
         author.mark += mark

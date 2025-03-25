@@ -230,16 +230,23 @@ background-color: #293245;
 }
 .make-question-form,
  .category-form, .start-form, .questions-form, .result-form,
- .profile-form, .write-article-form, .profile_data {
+ .profile-form,  .profile_data {
     background-color: #293245;
     width: 800px;
     padding: 20px;
     margin-top: 10px;
     margin-left: 40px;
     position: absolute;
-    top: 800px;
+    top: 500px;
     left: 50%;
     transform: translate(-50%, -50%);
+ }
+ .write-article-form {
+    background-color: #293245;
+    width: 800px;
+    padding: 20px;
+    margin-top: -80px;
+    margin-left: 25%;
  }
 .login-submit {margin-left: 100px}
  .first_level, .second_level {
@@ -509,3 +516,4 @@ input:focus {
     margin-top: 20px;
       -webkit-border-radius: 0px;
 }
+
