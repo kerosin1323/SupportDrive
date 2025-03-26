@@ -152,6 +152,29 @@ def get_followed(user_id: Users.id) -> list:
     return [get_article(int(i)) for i, k in json.loads(user.marked_articles).items() if k == '1']
 
 
+def get_sorted_by_time(time_delta: str):
+    if time_delta == 'h':
+        return db_sess.query(articles.Articles).filter(datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(hours=1)).subquery()
+    elif time_delta == 'd':
+        return db_sess.query(articles.Articles).filter(
+            datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(days=1)).subquery()
+    elif time_delta == 'm':
+        return db_sess.query(articles.Articles).filter(
+            datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(days=30)).subquery()
+    elif time_delta == 'y':
+        return db_sess.query(articles.Articles).filter(datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(days=365)).subquery()
+    return db_sess.query(articles.Articles).order_by(articles.Articles.created_date).subquery()
+
+
+def sort_articles_by(type_sorted: str, all_articles: articles.Articles):
+    if articles is None: return []
+    if type_sorted == 'm':
+        return all_articles.order_by(articles.Articles.mark).all()
+    elif type_sorted == 'r':
+        return all_articles.order_by(articles.Articles.readings).all()
+    return all_articles.all()
+
+
 def text_delta(t: datetime) -> str:
     if t < datetime.timedelta(minutes=2):
         return "1 минуту назад"

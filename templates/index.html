@@ -17,6 +17,20 @@
         {% endfor %}
     </div>
     <div class="welcome_page" style="float:left;">
+            <div class="filter">
+        <select name="filter_time" id="filter_time" onchange="if (this.value) window.location.href='/filter/time='+this.value+'$type='+document.getElementById('filter_type').value">
+            <option selected value="o">Сортировка по времени</option>
+            <option value="h" onclick="">За час</option>
+            <option value="d">За день</option>
+            <option value="m">За месяц</option>
+            <option value="y">За год</option>
+        </select>
+        <select name="filter_time" id="filter_type" onchange="if (this.value) window.location.href='/filter/time='+document.getElementById('filter_time').value+'$type='+this.value">
+            <option value="r" onclick="">Просмотры</option>
+            <option value="m">Оценка</option>
+            <option value="p" selected>Недавние</option>
+        </select>
+    </div>
     {% include 'all_articles.html' %}
     </div>
     <div class="leaders" style="float: right;margin-right:50px;">
