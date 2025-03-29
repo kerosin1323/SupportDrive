@@ -1,6 +1,5 @@
 import smtplib
 from email.message import EmailMessage
-from email.mime.text import MIMEText
 from email.utils import make_msgid
 import mimetypes
 from platform import python_version
@@ -35,7 +34,7 @@ def send_simple_email(receiver_email, body, username):
                     <div style="font-size:20px;padding-top:5px">
                         SupportDrive
                     </div>
-                </div>   
+                </div>  
                 <div style="word-wrap:break-word;margin:20px;padding-bottom:20px">
                     Спасибо, {username}, что зарегстрировали аккаунт на SupportDrive! Прежде чем мы начнем, нам нужно подтвердить, что это вы. Введите представленный ниже код в поле ввода для подтверждения почты: 
                 </div>
