@@ -16,7 +16,8 @@ def load_user(user_id: int):
 @app.get('/')
 def welcome_page():
     popular_articles = get_on_category()
-    return render_template('index.html', data_news=get_article_data(popular_articles), all_news=popular_articles, top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
+    all_news = get_all_news()
+    return render_template('index.html', all_news=all_news, data_news=get_article_data(all_news), top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
 
 
 @app.get('/search/<string:text>')
@@ -27,8 +28,9 @@ def search(text: str):
 
 @app.get('/filter/time=<filter_time>$type=<filter_type>')
 def filter_articles(filter_time, filter_type):
-    popular_articles = sort_articles_by(filter_type, get_sorted_by_time(filter_time)) or []
-    return render_template('index.html', data_news=get_article_data(popular_articles), all_news=popular_articles, top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
+    filtered_articles = sort_articles_by_time_and_type(filter_time, filter_type)
+    all_news = get_all_news()
+    return render_template('index.html', all_news=all_news, data_news=get_article_data(all_news), top_articles=get_top(), data=get_article_data(filtered_articles), articles=filtered_articles, leaders=get_leaders())
 
 
 @app.get('/delete_article/<int:article_id>')
@@ -48,10 +50,12 @@ def register():
     form = RegisterForm()
     if request.form.get('close'):
         return redirect('/')
+    if request.form.get('login'):
+        return redirect('/login')
     elif form.validate_on_submit():
         if is_email_already_exist(form.email.data):
             return render_template('register.html', form=form, message="Такая почта уже есть")
-        password = send_password(form.email.data)
+        password = send_password(form.email.data, form.username.data)
         session[form.email.data] = (form.data, password)
         return redirect(f'/check_email/$email={form.email.data}$prev=reg')
     return render_template('register.html', form=form)
@@ -66,7 +70,7 @@ def login():
         return redirect('/')
     elif form.validate_on_submit():
         if check(form.email.data, form.password.data):
-            password = send_password(form.email.data)
+            password = send_password(form.email.data, None)
             session[form.email.data] = (form.data, password)
             return redirect(f'/check_email/$email={form.email.data}$prev=log')
         return render_template('login.html', message="Неправильная почта или пароль", form=form)
