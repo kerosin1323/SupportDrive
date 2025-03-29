@@ -84,6 +84,10 @@ def get_top() -> TopArticle:
         return TopArticle(tops=tops, reviews=reviews, comparisons=comparisons, news=news)
 
 
+def get_all_news():
+    return db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Новости').all()
+
+
 def get_article_subscribed(user: Users) -> list[Type[articles.Articles]]:
     all_subs = [int(i) for i, k in json.loads(user.subscribed).items() if k == '1']
     return db_sess.query(articles.Articles).filter(articles.Articles.user_id.in_(all_subs)).all()
@@ -152,27 +156,20 @@ def get_followed(user_id: Users.id) -> list:
     return [get_article(int(i)) for i, k in json.loads(user.marked_articles).items() if k == '1']
 
 
-def get_sorted_by_time(time_delta: str):
-    if time_delta == 'h':
-        return db_sess.query(articles.Articles).filter(datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(hours=1)).subquery()
-    elif time_delta == 'd':
-        return db_sess.query(articles.Articles).filter(
-            datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(days=1)).subquery()
-    elif time_delta == 'm':
-        return db_sess.query(articles.Articles).filter(
-            datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(days=30)).subquery()
-    elif time_delta == 'y':
-        return db_sess.query(articles.Articles).filter(datetime.datetime.now() - articles.Articles.created_date < datetime.timedelta(days=365)).subquery()
-    return db_sess.query(articles.Articles).order_by(articles.Articles.created_date).subquery()
-
-
-def sort_articles_by(type_sorted: str, all_articles: articles.Articles):
-    if articles is None: return []
-    if type_sorted == 'm':
-        return all_articles.order_by(articles.Articles.mark).all()
-    elif type_sorted == 'r':
-        return all_articles.order_by(articles.Articles.readings).all()
-    return all_articles.all()
+def sort_articles_by_time_and_type(time: str, type_sorted: str):
+    time_dict = {
+        'h': datetime.datetime.now() - datetime.timedelta(hours=1),
+        'd': datetime.datetime.now() - datetime.timedelta(days=1),
+        'm': datetime.datetime.now() - datetime.timedelta(days=30),
+        'y': datetime.datetime.now() - datetime.timedelta(days=365),
+        'o': datetime.datetime.now() - datetime.timedelta(days=365*2000)
+    }
+    type_dict = {
+        'm': articles.Articles.mark,
+        'r': articles.Articles.readings,
+        'p': articles.Articles.id
+    }
+    return db_sess.query(articles.Articles).order_by(desc(type_dict[type_sorted])).filter(articles.Articles.created_date > time_dict[time]).all()
 
 
 def text_delta(t: datetime) -> str:
@@ -246,9 +243,11 @@ def check(email: str, password: str) -> bool:
     return user and user.check_password(password)
 
 
-def send_password(email):
+def send_password(email, name):
     password = randint(100000, 999999)
-    send_simple_email(receiver_email=email, body=str(password))
+    if name is None:
+        name = get_on_email(email).name
+    send_simple_email(receiver_email=email, body=str(password), username=name)
     return password
 
 
@@ -264,7 +263,7 @@ def check_email_and_login_user(prev_link, password, email):
     return 'Неправильный пароль'
 
 
-def get_on_email(email: str):
+def get_on_email(email: str) -> users.Users:
     return db_sess.query(Users).filter(Users.email == email).first()
 
 

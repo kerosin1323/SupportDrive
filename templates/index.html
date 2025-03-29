@@ -5,7 +5,7 @@
     <div class="all_news" style="margin-left: 20%;display: flex;margin-bottom:30px;">
         {% for news in all_news %}
         <a href="/read/{{news.id}}" style="text-decoration:none;">
-            <div class="news" style="margin-right:30px; background:linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,1)), url(/static/images/{{news.photo}});background-repeat: no-repeat; background-size:contain;width:300px; height:200px;border-radius:2rem;">
+            <div class="news" style="margin-right:30px; background:linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,1)), url(/static/images/{{news.photo}});background-repeat: no-repeat; background-size:cover;width:300px; height:200px;border-radius:2rem;">
             <div class="name_news" style="padding-top:100px;margin-left:20px;font-size:25px;">{{news.name}}</div>
             <div class="short_describe_news" style="margin-left:20px;font-size:15px;">{{news.describe}}</div>
             <a class="creator_news" style="margin-left:20px;font-size:15px;text-decoration:none;" href="/profile/{{news.user_id}}">
@@ -17,20 +17,37 @@
         {% endfor %}
     </div>
     <div class="welcome_page" style="float:left;">
-            <div class="filter">
-        <select name="filter_time" id="filter_time" onchange="if (this.value) window.location.href='/filter/time='+this.value+'$type='+document.getElementById('filter_type').value">
-            <option selected value="o">Сортировка по времени</option>
-            <option value="h" onclick="">За час</option>
-            <option value="d">За день</option>
+    <div class="filter" style="margin-bottom:50px;">
+        <span><select name="filter_time" style='width:30%' class="input_login" id="filter_time" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+this.value+'$type='+document.getElementById('filter_type').value">
+            <option value="h">За час</option>
+            <option value="d" selected>За день</option>
             <option value="m">За месяц</option>
             <option value="y">За год</option>
-        </select>
-        <select name="filter_time" id="filter_type" onchange="if (this.value) window.location.href='/filter/time='+document.getElementById('filter_time').value+'$type='+this.value">
-            <option value="r" onclick="">Просмотры</option>
+        </select></span>
+        <span><select name="filter_time" style='width:30%' class="input_login" id="filter_type" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+document.getElementById('filter_time').value+'$type='+this.value">
+            <option value="r">Просмотры</option>
             <option value="m">Оценка</option>
             <option value="p" selected>Недавние</option>
-        </select>
+        </select></span>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            var item_time = localStorage.getItem('filter_time');
+            var select_time = document.getElementById("filter_time");
+            select_time.value = item_time;
+            var item_type = localStorage.getItem('filter_type');
+            var select_type = document.getElementById("filter_type");
+            select_type.value = item_type;
+        });
+        function submitForm(){
+            var select_time = document.getElementById("filter_time");
+            var value_time = select_time.options[select_time.selectedIndex].value;
+            localStorage.setItem('filter_time', value_time);
+            var select_type = document.getElementById("filter_type");
+            var value_type = select_type.options[select_type.selectedIndex].value;
+            localStorage.setItem('filter_type', value_type);
+        };
+    </script>
     {% include 'all_articles.html' %}
     </div>
     <div class="leaders" style="float: right;margin-right:50px;">

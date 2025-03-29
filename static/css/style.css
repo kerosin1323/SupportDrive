@@ -151,7 +151,7 @@ input:-webkit-autofill:active{
 
     background-color: #293245;
     height: 100%;
-    width:150%;
+    width:50vw;
     margin-left:20px;
     padding-left: 20px;
     padding-right: 30px;
@@ -160,6 +160,7 @@ input:-webkit-autofill:active{
     box-shadow: 2px 2px 4px 4px rgba(0,0,0,0.2);
     border: 2px solid #1D2330;
 }
+
  .login-form {
  background-color: #293245;
     width: 40%;
@@ -334,6 +335,7 @@ background-color: #293245;
     background-color: #323232;
     border-radius: 1rem;
     padding:20px;
+    width:15vw;
 }
 .login_or_register {
     margin-top: 30px;

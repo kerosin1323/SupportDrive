@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from platform import python_version
 
 
-def send_simple_email(receiver_email, body):
+def send_simple_email(receiver_email, body, username):
     server = "smtp.yandex.ru"
     user = "kerosin1323@yandex.ru"
     password = "zfucdufhtralhtxh"
@@ -14,10 +14,9 @@ def send_simple_email(receiver_email, body):
     text = body
     html = '<html><head></head><body><p>' + text + '</p></body></html>'
 
-
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = "Код проверки"
-    msg['From'] = sender
+    msg['Subject'] = "Проверка"
+    msg['From'] = f'SupportDrive <{sender}>'
     msg['To'] = ', '.join(recipients)
     msg['Reply-To'] = sender
     msg['Return-Path'] = sender
