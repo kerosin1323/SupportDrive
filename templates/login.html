@@ -12,6 +12,8 @@
 <body>
     <form class='' action="" method="post" novalidate>
         {{ form.hidden_tag() }}
+                <img src="/static/logo/logo.png" class="sd_logo">
+
         <div class="login-form">
             <button class="closebtn" name='close' value="1" onclick="this.parentElement.style.display='none';">&times;</button>
             <div style="font-size:40px;padding-top:20px">Вход</div>
@@ -26,7 +28,7 @@
             </div>
             {{ message }}
             <div class="register-submit">
-                <p>{{ form.register(class='button_register') }}</p>
+                <a href="/register" style="font-size: 15px;text-decoration: none;color: white;">Нет аккаунта? Зарегестрироваться</a>
             </div>
         </div>
 

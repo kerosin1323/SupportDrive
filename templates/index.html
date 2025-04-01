@@ -18,13 +18,13 @@
     </div>
     <div class="welcome_page" style="float:left;">
     <div class="filter" style="margin-bottom:50px;">
-        <span><select name="filter_time" style='width:30%' class="input_login" id="filter_time" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+this.value+'$type='+document.getElementById('filter_type').value">
+        <span><select name="filter_time" style='width:30%' class="selector_form" id="filter_time" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+this.value+'$type='+document.getElementById('filter_type').value">
             <option value="h">За час</option>
             <option value="d" selected>За день</option>
             <option value="m">За месяц</option>
             <option value="y">За год</option>
         </select></span>
-        <span><select name="filter_time" style='width:30%' class="input_login" id="filter_type" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+document.getElementById('filter_time').value+'$type='+this.value">
+        <span><select name="filter_time" style='width:30%' class="selector_form" id="filter_type" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+document.getElementById('filter_time').value+'$type='+this.value">
             <option value="r">Просмотры</option>
             <option value="m">Оценка</option>
             <option value="p" selected>Недавние</option>

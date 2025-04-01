@@ -13,7 +13,7 @@
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <div class="register-form">
-            <button class="closebtn" name='close' value="1" onclick="this.parentElement.style.display='none';">&times;</button>
+            <a href='/' class="closebtn" name='close' style="text-decoration:none;" onclick="this.parentElement.style.display='none';">&times;</a>
             <div style="font-size:40px;padding-top:20px">Регистрация</div>
             <div class="login-login">
                 {{ form.email(class="input_login", type='email', id='email', placeholder='Почта') }}<br>
@@ -29,7 +29,7 @@
             </div>
             {{message}}
             <div class="register-submit">
-                <p>{{ form.login(class='button_register') }}</p>
+                <a href="/login" style="font-size: 15px;text-decoration: none;color: white;">Войти в аккаунт</a>
             </div>
     </div>
 </form>

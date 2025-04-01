@@ -43,11 +43,7 @@ def delete_article(article_id: int):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
-    if request.form.get('close'):
-        return redirect('/')
-    if request.form.get('login'):
-        return redirect('/login')
-    elif form.validate_on_submit():
+    if form.validate_on_submit():
         if is_email_already_exist(form.email.data):
             return render_template('register.html', form=form, message="Такая почта уже есть")
         password = send_password(form.email.data, form.username.data)
@@ -59,11 +55,7 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    if form.register.data:
-        return redirect('/register')
-    if request.form.get('close'):
-        return redirect('/')
-    elif form.validate_on_submit():
+    if form.validate_on_submit():
         if check(form.email.data, form.password.data):
             password = send_password(form.email.data, None)
             session[form.email.data] = (form.data, password)
@@ -120,8 +112,9 @@ def reading_article(article_id: int):
 def creating_article():
     form = CreatingArticleDataForm()
     data = request.form.get('text')
+    brand = request.form.get('brand')
     if form.create.data and data != '' and form.validate_on_submit():
-        create_article(data, form, current_user.id, app)
+        create_article(data, form, current_user.id, app, brand)
         return redirect('/')
     return render_template('write_article.html', current_user=current_user, form=form, all_brands=form.brand)
 

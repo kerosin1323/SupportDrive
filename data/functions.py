@@ -24,23 +24,21 @@ class TopArticle(NamedTuple):
     news: Type[articles.Articles]
 
 
-def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, app) -> None:
+def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, app, brand) -> None:
     text = text.replace('<img', '<img height="100%" width="100%"')
     article = articles.Articles(text=text, user_id=user_id, created_date=datetime.datetime.now(),
-                                brand=form.brand_category.data, body=form.body_category.data,
-                                motors=form.motors_category.data, price_from=form.price_from.data,
-                                price_to=form.price_to.data, name=form.name.data, describe=form.describe.data,
-                                categories=form.category.data)
+                                brand=brand, body=form.body_category.data,
+                                name=form.name.data, describe=form.describe.data, categories=form.category.data)
     add_photo(form.photo.data, article, app)
     db_sess.add(article)
     db_sess.commit()
 
 
-def change_article(text: str, form: EditArticleForm, article_id: int, app) -> None:
+def change_article(text: str, form: EditArticleForm, article_id: int, app, brand) -> None:
     text = text.replace('<img', '<img height="100%" width="100%"')
     article = get_article(article_id)
     article.text = text
-    article.brand = form.brand_category.data
+    article.brand = brand
     article.body = form.body_category.data
     article.name = form.name.data
     article.describe = form.describe.data
@@ -64,10 +62,18 @@ def get_on_category(category: str = None) -> list[Type[articles.Articles]]:
     elif category != 'subscribed':
         categories = {'tops': 'Топ', 'reviews': 'Обзоры', 'comparisons': 'Сравнения', 'news': 'Новости'}
         body_categories = {'sedans': ['Седан', 'Универсал'], 'trucks': ['Хэтчбек', 'Внедорожник'], 'electro': ['Электро']}
+        countries = {
+            'russia': ['Lada', 'УАЗ'],
+            'foreign': ['Volkswagen', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Land Rover', 'Porshe', 'Renault', 'Skoda', 'Volvo', 'Opel'],
+            'asia': ['Toyota', 'Honda', 'Nissan', 'Hyundai', 'Kia', 'Lexus', 'LiXiang', 'Mitsubishi', 'Subaru', 'Exeed', 'Mazda', 'Changan', 'Chery', 'Citroen', 'GAC', 'Geely', 'Haval', 'Hyndai']
+        }
         if category in categories:
             return db_sess.query(articles.Articles).filter(articles.Articles.categories == categories[category]).all()[
                ::-1][:20]
-        return db_sess.query(articles.Articles).filter(articles.Articles.body.in_(body_categories[category])).all()[
+        elif category in body_categories.keys():
+            return db_sess.query(articles.Articles).filter(articles.Articles.body.in_(body_categories[category])).all()[
+               ::-1][:20]
+        return db_sess.query(articles.Articles).filter(articles.Articles.brand.in_(countries[category])).all()[
                ::-1][:20]
     return []
 
