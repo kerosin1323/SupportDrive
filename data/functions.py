@@ -42,9 +42,6 @@ def change_article(text: str, form: EditArticleForm, article_id: int, app) -> No
     article.text = text
     article.brand = form.brand_category.data
     article.body = form.body_category.data
-    article.motors = form.motors_category.data
-    article.price_from = form.price_from.data
-    article.price_to = form.price_to.data
     article.name = form.name.data
     article.describe = form.describe.data
     article.categories = form.category.data
@@ -66,7 +63,11 @@ def get_on_category(category: str = None) -> list[Type[articles.Articles]]:
         get_article_subscribed(current_user)
     elif category != 'subscribed':
         categories = {'tops': 'Топ', 'reviews': 'Обзоры', 'comparisons': 'Сравнения', 'news': 'Новости'}
-        return db_sess.query(articles.Articles).filter(articles.Articles.categories == categories[category]).all()[
+        body_categories = {'sedans': ['Седан', 'Универсал'], 'trucks': ['Хэтчбек', 'Внедорожник'], 'electro': ['Электро']}
+        if category in categories:
+            return db_sess.query(articles.Articles).filter(articles.Articles.categories == categories[category]).all()[
+               ::-1][:20]
+        return db_sess.query(articles.Articles).filter(articles.Articles.body.in_(body_categories[category])).all()[
                ::-1][:20]
     return []
 
@@ -98,12 +99,31 @@ def get_article_from_user(user_id: Users.id) -> list[Type[articles.Articles]]:
 
 
 def get_article_data(all_articles: list[Type[articles.Articles]]) -> dict:
+    """
+        DATA[0] = username
+        DATA[1] = user_logo
+        DATA[2] = user_subscribers
+        DATA[3] = time
+        DATA[4] = amount_comments
+        DATA[5] = short_mark
+        DATA[6] = short_readings
+        DATA[7] = short_amount_comments
+    """
     data = {}
     for article in all_articles:
         creator = get_user(article.user_id)
         time = text_delta(datetime.datetime.now() - article.created_date)
-        data[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time, len(get_comments(article.id)))
+        data[str(article.id)] = (creator.name, creator.photo, creator.subscribers, time, len(get_comments(article.id)),
+                                 short_form(article.mark), short_form(article.readings), short_form(len(get_comments(article.id))))
     return data
+
+
+def short_form(form: int):
+    if 1_000_000 > int(form) >= 1000:
+        return f'{form // 1000}k'
+    elif form >= 1_000_000:
+        return f'{form // 1000000}kk'
+    return form
 
 
 def delete(article_id) -> None:

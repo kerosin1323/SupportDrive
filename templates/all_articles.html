@@ -32,28 +32,28 @@
         </div>
         <hr>
         <div class="under-photo">
-            <div class="read"><a href="/read/{{ article.id }}" class="btn btn-outline-primary" style="border-radius:2rem;float:left;">
+            <div class="read"><a href="/add_reading/{{ article.id }}" class="btn btn-outline-primary" style="border-radius:2rem;float:left;">
                 Читать
             </a></div>
             <div class="article_mark" style="display: flex;font-weight: 700; ">
                     {% if article.mark > 0 %}
-                    <div title="Оценка" class='mark_article' style="color:#00ff00;margin-right:20px;">
-                        +{{article.mark}}
+                    <div title="Оценка: +{{article.mark}}" class='mark_article' style="color:#00ff00;margin-right:20px;">
+                        +{{data[article.id|string][5]}}
                     </div>
                     {% elif article.mark == 0 %}
-                    <div title="Оценка" class='mark_article' style="color: white;margin-right:20px;">
-                        {{article.mark}}
+                    <div title="Оценка: {{article.mark}}" class='mark_article' style="color: white;margin-right:20px;">
+                        {{data[article.id|string][5]}}
                     </div>
                     {% else %}
-                    <div title="Оценка" class='mark_article' style="color: red;margin-right:20px;">
-                        {{article.mark}}
+                    <div title="Оценка: {{article.mark}}" class='mark_article' style="color: red;margin-right:20px;">
+                        {{data[article.id|string][5]}}
                     </div>
                     {% endif %}
-                    <div class="readings" title="Кол-во просмотров" style="margin-right:20px;">
-                        👁{{ article.readings }}
+                    <div class="readings" title="{{article.readings}} просмотров" style="margin-right:20px;">
+                        👁{{ data[article.id|string][6] }}
                     </div>
-                    <div class="amount_comments" title="Кол-во комментариев">
-                        💬{{data[article.id|string][4]}}
+                    <div class="amount_comments" title="{{data[article.id|string][4]}} комментария">
+                        💬{{data[article.id|string][7]}}
                     </div>
             </div>
             {% if current_user.id == article.user_id %}

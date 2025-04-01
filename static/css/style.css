@@ -485,7 +485,7 @@ background-color: #293245;
     background: #293285 !important;
     border-radius: 3rem!important;
     margin-left:20px!important;
-    width:70%!important;
+    width:80%!important;
     color:white;
     text-decoration:none;
 }
@@ -518,4 +518,3 @@ input:focus {
     margin-top: 20px;
       -webkit-border-radius: 0px;
 }
-

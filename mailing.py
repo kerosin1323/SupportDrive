@@ -15,7 +15,7 @@ def send_simple_email(receiver_email, body, username):
 
     msg = EmailMessage()
     msg['Subject'] = "Код проверки"
-    msg['From'] = sender
+    msg['From'] = f'SupportDrive <{sender}>'
     msg['To'] = ', '.join(recipients)
     msg['Reply-To'] = sender
     msg['Return-Path'] = sender
