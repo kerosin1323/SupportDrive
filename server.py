@@ -27,8 +27,8 @@ def search(text: str):
     return render_template('index.html', data=get_article_data(found_articles), articles=found_articles, current_user=current_user)
 
 
-@app.get('/filter/time=<filter_time>$type=<filter_type>')
-def filter_articles(filter_time, filter_type):
+@app.get('/filter/time=<string:filter_time>$type=<string:filter_type>')
+def filter_articles(filter_time: str, filter_type: str):
     filtered_articles = sort_articles_by_time_and_type(filter_time, filter_type)
     all_news = get_all_news()
     return render_template('index.html', all_news=all_news, data_news=get_article_data(all_news), top_articles=get_top(), data=get_article_data(filtered_articles), articles=filtered_articles, leaders=get_leaders())
@@ -44,10 +44,9 @@ def delete_article(article_id: int):
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        if is_email_already_exist(form.email.data):
-            return render_template('register.html', form=form, message="Такая почта уже есть")
-        password = send_password(form.email.data, form.username.data)
-        session[form.email.data] = (form.data, password)
+        check_data = check_data_and_register_user(form)
+        if check_data:
+            return render_template('register.html', form=form, message=check_data)
         return redirect(f'/check_email/$email={form.email.data}$prev=reg')
     return render_template('register.html', form=form)
 
@@ -56,11 +55,10 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        if check(form.email.data, form.password.data):
-            password = send_password(form.email.data, None)
-            session[form.email.data] = (form.data, password)
-            return redirect(f'/check_email/$email={form.email.data}$prev=log')
-        return render_template('login.html', message="Неправильная почта или пароль", form=form)
+        check_data = check_data_and_send_email(form)
+        if check_data:
+            return render_template('login.html', message=check_data, form=form)
+        return redirect(f'/check_email/$email={form.email.data}$prev=log')
     return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
@@ -114,8 +112,11 @@ def creating_article():
     data = request.form.get('text')
     brand = request.form.get('brand')
     if form.create.data and data != '' and form.validate_on_submit():
-        create_article(data, form, current_user.id, app, brand)
-        return redirect('/')
+        check_data = check_article_data(form, data)
+        if not check_data:
+            create_article(data, form, current_user.id, app, brand)
+            return redirect('/')
+        return render_template('write_article.html', current_user=current_user, form=form, all_brands=form.brand, message=check_data)
     return render_template('write_article.html', current_user=current_user, form=form, all_brands=form.brand)
 
 
@@ -123,11 +124,20 @@ def creating_article():
 def edit_article(article_id: int):
     form = EditArticleForm()
     article = get_article(article_id)
-    data = request.form.get('input')
+    data = request.form.get('text')
+    brand = request.form.get('brand')
     if form.create.data and data != '' and form.validate_on_submit():
-        change_article(data, form, article.id, app)
-        return redirect('/')
-    return render_template('edit_article.html', article=article, form=form)
+        check_data = check_article_data(form, data)
+        if not check_data:
+            change_article(data, form, article.id, app, brand)
+            return redirect('/')
+        return render_template('edit_article.html', article=article, form=form, all_brands=form.brand, message=check_data)
+    if request.method == 'GET':
+        form.describe.data = article.describe
+        form.category.data = article.categories
+        form.body_category.data = article.body
+        form.photo.data = article.photo
+    return render_template('edit_article.html', article=article, form=form, all_brands=form.brand)
 
 
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])

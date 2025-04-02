@@ -4,25 +4,28 @@
 <form class="write-article-form" method="post" novalidate enctype=multipart/form-data>
     {{ form.hidden_tag() }}
     {% if current_user.is_authenticated %}
-    <h1>Изменение статьи</h1>
-    <span>
+        <h1>Публикация</h1>
+        <div style="color: red;">{{ message }}</div>
         {{ form.name(class="input_login", style='margin-bottom:20px;width:98%', placeholder='Название', value=article.name) }}
         <span style="color:red;" title="Обязательно">*</span>
-    </span>
-    {% include 'redactor.html' %}
-    <p>{{ form.describe(class='input_login', placeholder='Описание', value=article.describe) }}</p>
-    <div>
-        <span>Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form", value=article.category) }}</span>
-        <span>Марка: {{ form.brand_category(class="selector_form", value=article.brand) }}</span>
-    </div>
-    <div>
-        <span>Кузов: {{ form.body_category(class="selector_form", value=article.body) }}</span>
-        <span>Двигатель: {{ form.motors_category(class="selector_form", value=article.motors) }}</span>
-    </div>
-    {{ form.price_from(class='input_login',style='width:30%', placeholder='Цена от', value=article.price_from) }}
-    {{ form.price_to(class='input_login',style='width:30%', placeholder='Цена до', value=article.price_to) }}
-    {{ form.photo(value=article.photo) }}
-    <p>{{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px") }}</p>
+        {% include 'redactor.html' %}
+        <div class="editor" id="editor" contenteditable="true" style="background-color: #293245;" placeholder="Текст">{{ article.text|safe }}</div>
+        <input type="hidden" name="text" value="" id="text_from_editor">
+        <p>{{ form.describe(class='input_login', id='describe', placeholder='Описание') }}</p>
+        <div>
+            <span>Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form", value=article.category) }}</span>
+            <span>Марка: <input type="text" name="brand" list="brands" value="{{article.brand}}" class="input_login" style="width:30%">
+            <datalist id="brands">
+                {% for brand in all_brands %}
+                <option value="{{brand}}">
+                {% endfor %}
+            </datalist></span>
+        </div>
+        <div>
+            <span>Категория: {{ form.body_category(class="selector_form", value=article.body) }}</span>
+            <span>{{ form.photo() }}</span>
+        </div>
+        <p>{{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px", onclick="document.getElementById('text_from_editor').value=document.getElementById('editor').innerHTML.trim();") }}</p>
 {% else %}
     <div style="color:white">Чтобы создать статью, необходимо зарегестрироваться</div>
 {% endif %}

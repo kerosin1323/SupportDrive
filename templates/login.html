@@ -12,11 +12,11 @@
 <body>
     <form class='' action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-                <img src="/static/logo/logo.png" class="sd_logo">
-
+        <img src="/static/logo/logo.png" class="sd_logo" height="200px;">
         <div class="login-form">
-            <button class="closebtn" name='close' value="1" onclick="this.parentElement.style.display='none';">&times;</button>
+            <a href='/' class="closebtn" name='close' style="text-decoration:none;" onclick="this.parentElement.style.display='none';">&times;</a>
             <div style="font-size:40px;padding-top:20px">Вход</div>
+            <div style="color: red;">{{ message }}</div>
             <div class="login-login">
                 {{ form.email(class="input_login", type="email", placeholder='Почта') }}<br>
             </div>
@@ -26,7 +26,6 @@
             <div class="submit-login">
                 <p>{{ form.submit(type="submit", class="btn btn-primary", style="border-radius:2rem;margin-top:20px") }}</p>
             </div>
-            {{ message }}
             <div class="register-submit">
                 <a href="/register" style="font-size: 15px;text-decoration: none;color: white;">Нет аккаунта? Зарегестрироваться</a>
             </div>

@@ -5,6 +5,7 @@
     {{ form.hidden_tag() }}
     {% if current_user.is_authenticated %}
         <h1>Публикация</h1>
+        <div style="color: red;">{{ message }}</div>
         {{ form.name(class="input_login", style='margin-bottom:20px;width:98%', placeholder='Название') }}
         <span style="color:red;" title="Обязательно">*</span>
         {% include 'redactor.html' %}
@@ -13,7 +14,7 @@
         <p>{{ form.describe(class='input_login', placeholder='Описание') }}</p>
         <div>
             <span>Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form") }}</span>
-            <span>Марка: <input type="text" name="city" list="brands" class="input_login" style="width:30%">
+            <span>Марка: <input type="text" name="brand" list="brands" class="input_login" style="width:30%">
             <datalist id="brands">
                 {% for brand in all_brands %}
                 <option value="{{brand}}">

@@ -1,9 +1,11 @@
 from data import users, articles, db_session, comments
 from sqlalchemy import desc
 from flask import *
+from email_validator import validate_email
 from typing import NamedTuple, Type
 import json
 import datetime
+from bs4 import BeautifulSoup
 from werkzeug.utils import secure_filename
 import os
 from forms.ArticleForm import *
@@ -45,6 +47,22 @@ def change_article(text: str, form: EditArticleForm, article_id: int, app, brand
     article.categories = form.category.data
     add_photo(form.photo.data, article, app)
     db_sess.commit()
+
+
+def check_article_data(data: CreatingArticleDataForm, text):
+    if len(data.name.data) < 5:
+        return 'Имя слишком короткое! Минимальная длина - 5 символов'
+    elif len(data.name.data) > 30:
+        return 'Имя слишком длинное! Максимальная длина - 30 символов'
+    if len(BeautifulSoup(text).get_text()) < 50:
+        return 'Текст слишком короткий! Минимальная длина - 50 символов'
+    if len(BeautifulSoup(text).get_text()) > 10000:
+        return 'Текст слишком короткий! Максимальная длина - 10000 символов'
+    if len(data.describe.data) > 200:
+        return 'Описание слишком длинное! Максимальная длина - 100 символов'
+    if data.category.data == '':
+        return 'Тип статьи обязателен для заполнения!'
+    return False
 
 
 def add_photo(file, article, app) -> None:
@@ -260,8 +278,62 @@ def get_user(user_id: Users.id) -> Type[Users]:
     return db_sess.query(Users).filter(Users.id == user_id).first()
 
 
-def is_email_already_exist(email: str) -> bool:
+def _is_email_already_exist(email: str) -> bool:
     return bool(len(db_sess.query(Users).filter(Users.email == email).all()))
+
+
+def check_data_and_send_email(data: LoginForm):
+    if not _is_email_already_exist(data.email.data):
+        return f'Почта {data.email.data} не зарегестрирована в системе'
+    elif not check(data.email.data, data.password.data):
+        return f'Пароль {data.password.data} неверный'
+    password = send_password(data.email.data, None)
+    session[data.email.data] = (data.data, password)
+    return False
+
+
+def check_data_and_register_user(data: RegisterForm):
+    try:
+        validate_email(data.email.data)
+    except Exception:
+        return f'Почты {data.email.data} не существует'
+    if _is_username_exist(data.username.data):
+        return f'Имя {data.username.data} уже используется'
+    elif len(data.username.data) < 3:
+        return f'Имя {data.username.data} слишком короткое! Минимальная длина - 3 символа'
+    elif len(data.username.data) > 20:
+        return f'Имя {data.username.data} слишком длинное! Максимальная длина - 20 символов'
+    elif _is_email_already_exist(data.email.data):
+        return f'Почта {data.email.data} уже используется'
+    elif _is_password_already_exist(users.generate_password_hash(data.password.data)):
+        return f'Пароль {data.password.data} уже используется'
+    elif _is_password_too(data.password.data) == 'short':
+        return f'Пароль {data.password.data} слишком простой! Минимальная длина пароля - 8 символов'
+    elif _is_password_too(data.password.data) == 'long':
+        return f'Пароль {data.password.data} слишком длинный! Максимальная длина пароля - 30 символов'
+    elif _is_password_too(data.password.data):
+        return f'Пароль {data.password.data} слишком простой! Используйте заглавные буквы и цифры'
+    password = send_password(data.email.data, data.username.data)
+    session[data.email.data] = (data.data, password)
+    return False
+
+
+def _is_password_already_exist(hashed_password):
+    return bool(len(db_sess.query(Users).filter(Users.hashed_password == hashed_password).all()))
+
+
+def _is_password_too(password: str):
+    if len(password) < 8:
+        return 'short'
+    elif len(password) > 30:
+        return 'long'
+    elif (not any(i.isalpha() for i in password)) or (not any(i.isupper() for i in password)):
+        return 'simple'
+    return False
+
+
+def _is_username_exist(username: str) -> bool:
+    return bool(len(db_sess.query(Users).filter(Users.name == username).all()))
 
 
 def check(email: str, password: str) -> bool:

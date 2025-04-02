@@ -20,7 +20,7 @@
             <h2>{{article.name}}</h2>
         </div>
         <div class="tags" style="color:gray;font-size:18px;">
-            {{article.brand}}, {{article.body}}, {{article.motors}}
+            {{article.brand}}, {{article.body}}
         </div>
         {% if article.photo %}
         <div class="image">
@@ -63,7 +63,7 @@
                 </a>
             </div>
             <div class="btn btn-outline-primary">
-                <a href="/edit_article/{{article.id}}">Изменить</a>
+                <a style="text-decoration:none;" href="/edit_article/{{article.id}}">Изменить</a>
             </div>
             {% endif %}
         </div>
