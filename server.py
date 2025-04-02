@@ -111,10 +111,11 @@ def creating_article():
     form = CreatingArticleDataForm()
     data = request.form.get('text')
     brand = request.form.get('brand')
+    photo = request.files.get('file[]')
     if form.create.data and data != '' and form.validate_on_submit():
         check_data = check_article_data(form, data)
         if not check_data:
-            create_article(data, form, current_user.id, app, brand)
+            create_article(data, form, current_user.id, app, brand, photo)
             return redirect('/')
         return render_template('write_article.html', current_user=current_user, form=form, all_brands=form.brand, message=check_data)
     return render_template('write_article.html', current_user=current_user, form=form, all_brands=form.brand)
@@ -126,17 +127,17 @@ def edit_article(article_id: int):
     article = get_article(article_id)
     data = request.form.get('text')
     brand = request.form.get('brand')
+    photo = request.files.get('file[]')
     if form.create.data and data != '' and form.validate_on_submit():
         check_data = check_article_data(form, data)
         if not check_data:
-            change_article(data, form, article.id, app, brand)
+            change_article(data, form, article.id, app, brand, photo)
             return redirect('/')
         return render_template('edit_article.html', article=article, form=form, all_brands=form.brand, message=check_data)
     if request.method == 'GET':
         form.describe.data = article.describe
         form.category.data = article.categories
         form.body_category.data = article.body
-        form.photo.data = article.photo
     return render_template('edit_article.html', article=article, form=form, all_brands=form.brand)
 
 

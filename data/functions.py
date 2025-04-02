@@ -26,17 +26,17 @@ class TopArticle(NamedTuple):
     news: Type[articles.Articles]
 
 
-def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, app, brand) -> None:
+def create_article(text: str, form: CreatingArticleDataForm, user_id: Users.id, app, brand, photo) -> None:
     text = text.replace('<img', '<img height="100%" width="100%"')
     article = articles.Articles(text=text, user_id=user_id, created_date=datetime.datetime.now(),
                                 brand=brand, body=form.body_category.data,
                                 name=form.name.data, describe=form.describe.data, categories=form.category.data)
-    add_photo(form.photo.data, article, app)
+    add_photo(photo, article, app)
     db_sess.add(article)
     db_sess.commit()
 
 
-def change_article(text: str, form: EditArticleForm, article_id: int, app, brand) -> None:
+def change_article(text: str, form: EditArticleForm, article_id: int, app, brand, photo) -> None:
     text = text.replace('<img', '<img height="100%" width="100%"')
     article = get_article(article_id)
     article.text = text
@@ -45,7 +45,7 @@ def change_article(text: str, form: EditArticleForm, article_id: int, app, brand
     article.name = form.name.data
     article.describe = form.describe.data
     article.categories = form.category.data
-    add_photo(form.photo.data, article, app)
+    add_photo(photo, article, app)
     db_sess.commit()
 
 
@@ -76,7 +76,7 @@ def get_on_category(category: str = None) -> list[Type[articles.Articles]]:
     if category is None:
         return db_sess.query(articles.Articles).all()[::-1][:20]
     elif category == 'subscribed' and current_user.is_authenticated:
-        get_article_subscribed(current_user)
+        return get_article_subscribed(current_user)
     elif category != 'subscribed':
         categories = {'tops': 'Топ', 'reviews': 'Обзоры', 'comparisons': 'Сравнения', 'news': 'Новости'}
         body_categories = {'sedans': ['Седан', 'Универсал'], 'trucks': ['Хэтчбек', 'Внедорожник'], 'electro': ['Электро']}

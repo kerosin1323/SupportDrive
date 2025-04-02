@@ -10,7 +10,6 @@ class CreatingArticleDataForm(FlaskForm):
     name = StringField('Название')
     category = SelectField('Тип статьи', choices=categories)
     body_category = SelectField('Кузов', choices=body)
-    photo = FileField('Добавить обложку')
     describe = TextAreaField('Описание')
     create = SubmitField('Создать')
 

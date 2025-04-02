@@ -11,6 +11,61 @@
         {% include 'redactor.html' %}
         <div class="editor" id="editor" contenteditable="true" style="background-color: #293245;" placeholder="Текст">{{ article.text|safe }}</div>
         <input type="hidden" name="text" value="" id="text_from_editor">
+    {% if article.photo %}
+        <div class="input-file-row" style="margin-top:20px">
+            <label for="images" class="input-file" id="dropcontainer" style="display:none;">
+              <span class="drop-title">Добавить фото</span>
+              <input type="file" id="images" accept="image/*" name="file[]" required  style="display:none;">
+            </label><div class="input-file-list"></div>
+            <div class="input-file-list-item">
+				    <img class="input-file-list-img" height="100%" width="100%" src="/static/images/{{article.photo}}">
+				    <span class="input-file-list-name">{{article.photo}}</span>
+				    <a href="#" onclick="removeFilesItem(this); return false;" class="input-file-list-remove">x</a>
+                </div>
+            </div>
+            <script>
+                var dt = new DataTransfer();
+
+$('.input-file input[type=file]').on('change', function(){
+	let $files_list = $(this).closest('.input-file').next();
+	$files_list.empty();
+
+	for(var i = 0; i < this.files.length; i++){
+		let file = this.files.item(i);
+		dt.items.add(file);
+
+		let reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onloadend = function(){
+			let new_file_input = '<div class="input-file-list-item">' +
+				'<img class="input-file-list-img" height="100%" width="100%" src="' + reader.result + '">' +
+				'<span class="input-file-list-name">' + file.name + '</span>' +
+				'<a href="#" onclick="removeFilesItem(this); return false;" class="input-file-list-remove">x</a>' +
+			'</div>';
+			$files_list.append(new_file_input);
+			$(this).closest('.input-file').remove();
+		}
+	};
+	this.files = dt.files;
+	document.getElementById('dropcontainer').style.display = "none";
+});
+
+function removeFilesItem(target){
+	let name = $(target).prev().text();
+	let input = $(target).closest('.input-file-row').find('input[type=file]');
+	document.getElementById('dropcontainer').style.display = "flex";
+	$(target).closest('.input-file-list-item').remove();
+	for(let i = 0; i < dt.items.length; i++){
+		if(name === dt.items[i].getAsFile().name){
+			dt.items.remove(i);
+		}
+	}
+	input[0].files = dt.files;
+}
+            </script>
+    {% else %}
+    {% include 'photo_input.html' %}
+    {% endif %}
         <p>{{ form.describe(class='input_login', id='describe', placeholder='Описание') }}</p>
         <div>
             <span>Тип статьи<span style="color:red;" title="Обязательно">*</span>: {{ form.category(class="selector_form", value=article.category) }}</span>
@@ -23,7 +78,6 @@
         </div>
         <div>
             <span>Категория: {{ form.body_category(class="selector_form", value=article.body) }}</span>
-            <span>{{ form.photo() }}</span>
         </div>
         <p>{{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px", onclick="document.getElementById('text_from_editor').value=document.getElementById('editor').innerHTML.trim();") }}</p>
 {% else %}
