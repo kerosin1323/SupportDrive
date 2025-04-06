@@ -21,6 +21,13 @@ def welcome_page(category=None):
     return render_template('index.html', all_news=all_news, data_news=get_article_data(all_news), top_articles=get_top(), data=get_article_data(popular_articles), articles=popular_articles, leaders=get_leaders())
 
 
+@app.get('/forum')
+def forum():
+    popular_questions = get_popular_questions()
+    top_experts = get_experts()
+    return render_template('forum.html', data=get_question_data(popular_questions), questions=popular_questions, experts=top_experts)
+
+
 @app.route('/search/<string:text>', methods=['GET', 'POST'])
 def search(text: str):
     found_articles = find(str(text))
@@ -37,6 +44,12 @@ def filter_articles(filter_time: str, filter_type: str):
 @app.get('/delete_article/<int:article_id>')
 def delete_article(article_id: int):
     delete(article_id)
+    return redirect(request.referrer)
+
+
+@app.get('/delete_question/<int:question_id>')
+def delete_question(question_id: int):
+    delete_question(question_id)
     return redirect(request.referrer)
 
 
@@ -77,6 +90,12 @@ def add_read(article_id: int):
     return redirect(f'/read/{article_id}')
 
 
+@app.get('/add_reading_question/<int:question_id>')
+def add_read_question(question_id):
+    add_reading_question(question_id)
+    return redirect(f'/read_question/{question_id}')
+
+
 @app.route('/read/<int:article_id>', methods=['GET', 'POST'])
 def reading_article(article_id: int):
     make_comment = request.form.get('comment')
@@ -106,6 +125,31 @@ def reading_article(article_id: int):
                            data_comments=data_comments, mark=int(article_mark), short_readings=short_form(current_article.readings))
 
 
+@app.route('/read_question/<int:question_id>', methods=['GET', 'POST'])
+def reading_question(question_id: int):
+    make_answer = request.form.get('answer')
+    answer_text = request.form.get('answer_input')
+    if make_answer and answer_text != '':
+        create_answer(answer_text, question_id)
+    current_question = get_question(question_id)
+    creator = get_user(current_question.user_id)
+    all_answers = get_answers_on_question(question_id)
+    data_answers = get_answers_data(all_answers)
+    mark = request.form.get('mark') or 0
+    answer_make_mark = request.form.get('answer_mark')
+    if request.form.get('to_subscribe'):
+        subscribe(creator.id)
+    if answer_make_mark:
+        answer_id, answer_mark = answer_make_mark.split(',')
+        mark_answer(answer_id, int(answer_mark), current_user.id)
+    question_mark = mark_question(question_id, int(mark))
+    return render_template('reading_question.html', time=text_delta(datetime.datetime.now() - current_question.created_date),
+                           is_subscribed=check_subscribe(creator.id), short_amount_answers=short_form(len(all_answers)),
+                           question=current_question, current_user=current_user, user=creator, all_answers=all_answers, short_mark=short_form(current_question.mark),
+                           data_answers=data_answers, mark=int(question_mark), short_readings=short_form(current_question.readings))
+
+
+
 @app.route('/create_article', methods=['GET', 'POST'])
 def creating_article():
     form = CreatingArticleDataForm()
@@ -119,6 +163,20 @@ def creating_article():
             return redirect('/')
         return render_template('write_article.html', current_user=current_user, form=form, all_brands=form.brand, message=check_data)
     return render_template('write_article.html', current_user=current_user, form=form, all_brands=form.brand)
+
+
+@app.route('/ask', methods=['GET', 'POST'])
+def ask_question():
+    form = CreatingQuestionForm()
+    data = request.form.get('text')
+    brand = request.form.get('brand')
+    if form.create.data and data != '' and form.validate_on_submit():
+        check_data = check_question_data(form, data)
+        if not check_data:
+            create_question(data, form, current_user.id, brand)
+            return redirect('/')
+        return render_template('create_question.html', current_user=current_user, form=form, all_brands=form.brand, message=check_data)
+    return render_template('create_question.html', current_user=current_user, form=form, all_brands=form.brand)
 
 
 @app.route('/edit_article/<int:article_id>', methods=['GET', 'POST'])
@@ -139,6 +197,23 @@ def edit_article(article_id: int):
         form.category.data = article.categories
         form.body_category.data = article.body
     return render_template('edit_article.html', article=article, form=form, all_brands=form.brand)
+
+
+@app.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
+def edit_question(question_id: int):
+    form = EditQuestionForm()
+    question = get_question(question_id)
+    data = request.form.get('text')
+    brand = request.form.get('brand')
+    if form.create.data and data != '' and form.validate_on_submit():
+        check_data = check_question_data(form, data)
+        if not check_data:
+            change_question(data, form, question.id, brand)
+            return redirect('/')
+        return render_template('edit_question.html', question=question, form=form, all_brands=form.brand, message=check_data)
+    if request.method == 'GET':
+        form.body_category.data = question.body
+    return render_template('edit_question.html', question=question, form=form, all_brands=form.brand)
 
 
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])

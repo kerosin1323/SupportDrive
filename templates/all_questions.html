@@ -1,0 +1,70 @@
+{% for question in questions %}
+    <div class="question">
+        <a class="first_level" href="/profile/{{question.user_id}}" style="text-decoration:none;">
+            <div class="image" style="text-decoration:none;">
+                <img src="/static/images/{{ data[question.id|string][1] }}" alt="photo" height="40px" width="40px" class="logo_user_article">
+            </div>
+            <span class="creator" style="text-decoration:none;overflow-hidden">
+                <span class="creator_name" style="font-size:20px;"> {{data[question.id|string][0]}}</span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8" title="Подписчики">{{data[question.id|string][2]}} </span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8">
+                 {{data[question.id|string][3]}}
+                </span>
+                <span>|</span>
+                <span style="color: #ffdead;margin-top:20px;font-size:18px;">{{question.brand}}</span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="color: #ffdead;margin-top:20px;font-size:18px;">{{question.body}}</span>
+                <span>|</span>
+                {% if question.is_solved %}
+                <span title="Решено">✅</span>
+                {% endif %}
+            </span>
+        </a>
+        <div class="second-level">
+            <div class="name_article">
+            <h2>{{question.name}}</h2>
+        </div>
+        </div>
+        <hr>
+        <div class="under-photo">
+            <div class="read"><a href="/add_reading_question/{{ question.id }}" class="btn btn-outline-primary" style="border-radius:2rem;float:left;">
+                Читать
+            </a></div>
+            <div class="article_mark" style="display: flex;font-weight: 700; ">
+                    {% if question.mark > 0 %}
+                    <div title="Оценка: +{{question.mark}}" class='mark_article' style="color:#00ff00;margin-right:20px;">
+                        +{{data[question.id|string][5]}}
+                    </div>
+                    {% elif question.mark == 0 %}
+                    <div title="Оценка: {{question.mark}}" class='mark_article' style="color: white;margin-right:20px;">
+                        {{data[question.id|string][5]}}
+                    </div>
+                    {% else %}
+                    <div title="Оценка: {{question.mark}}" class='mark_article' style="color: red;margin-right:20px;">
+                        {{data[question.id|string][5]}}
+                    </div>
+                    {% endif %}
+                    <div class="readings" title="{{question.readings}} просмотров" style="margin-right:20px;">
+                        👁{{ data[question.id|string][6] }}
+                    </div>
+                    <div class="amount_comments" title="{{data[question.id|string][4]}} комментария">
+                        💬{{data[question.id|string][7]}}
+                    </div>
+            </div>
+            {% if current_user.id == question.user_id %}
+            <div>
+                <a
+                    href="/delete_question/{{question.id}}" class="btn btn-outline-danger" style="border-radius:2rem;float:right;">Удалить
+                </a>
+            </div>
+            <div class="btn btn-outline-primary">
+                <a style="text-decoration:none;" href="/edit_question/{{question.id}}">Изменить</a>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+{% endfor %}
+

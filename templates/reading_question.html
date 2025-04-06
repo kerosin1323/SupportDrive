@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post" novalidate>
+    <div class="container" style="margin-left: 20%;">
+        <div class="read_article">
+        <a class="first_level" href="/profile/{{question.user_id}}" style="text-decoration:none;">
+            <div class="image" style="text-decoration:none;">
+                <img src="/static/images/{{ user.photo }}" alt="photo" height="40px" width="40px" class="logo_user_article">
+            </div>
+            <span class="creator" style="text-decoration:none;overflow-hidden">
+                <span class="creator_name" style="font-size:20px;"> {{user.name}}</span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8" title="Подписчики">{{user.subscribers}} </span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="font-size:14px;color:#A8A8A8">
+                 {{time}}
+                </span>
+                <span>|</span>
+                <span style="color: #ffdead;margin-top:20px;font-size:18px;">{{question.brand}}</span>
+                <span style="font-size:14px;color:#A8A8A8">•</span>
+                <span style="color: #ffdead;margin-top:20px;font-size:18px;">{{question.body}}</span>
+                <span>|</span>
+                {% if question.is_solved %}
+                <span title="Решено">✅</span>
+                {% endif %}
+                {% if is_subscribed and current_user.id != user.id %}
+                <span class="follow">
+                    <button name="to_subscribe" class="btn btn-secondary" value="1">Отписаться</button>
+                </span>
+                {% elif current_user.id != user.id %}
+                <span class="follow">
+                    <button name="to_subscribe" class="btn btn-danger" value="1">Подписаться</button>
+                </span>
+                {% endif %}
+            </span>
+        </a>
+            <div class="header">
+            {{ question.name }}
+        </div>
+        <div class="text" style="word-break:break-word">
+            {{ question.text|safe }}
+        </div>
+        <div class="under-photo">
+            <div class="make_mark">
+                <button class="btn btn-outline-danger" name="mark" value="-1">-1</button>
+                {% if mark > 0 %}
+                    <span title="Твоя оценка" style="color:#00ff00;">
+                        +{{mark}}
+                    </span>
+                    {% elif mark == 0 %}
+                    <span title="Твоя оценка" style="color: white;">
+                        {{mark}}
+                    </span>
+                    {% else %}
+                    <span title="Твоя оценка" style="color: red;">
+                        {{mark}}
+                    </span>
+                    {% endif %}
+                <button class="btn btn-outline-success" name="mark" value="1">+1</button>
+            </div>
+            <div class="article_mark" style="display: flex;font-weight: 700;">
+                    {% if question.mark > 0 %}
+                    <div title="Оценка" class='mark_article' style="color:#00ff00;">
+                        +{{short_mark}}
+                    </div>
+                    {% elif question.mark == 0 %}
+                    <div title="Оценка" class='mark_article' style="color: white;">
+                        {{short_mark}}
+                    </div>
+                    {% else %}
+                    <div title="Оценка" class='mark_article' style="color: red;">
+                        {{short_mark}}
+                    </div>
+                    {% endif %}
+                    <div class="readings" title="Кол-во просмотров" style="margin-left: 20px;">
+                        👁{{ short_readings }}
+                    </div>
+            </div>
+            {% if current_user.id == question.user_id %}
+            <div>
+                <a
+                    href="/delete_question/{{question.id}}" class="btn btn-outline-danger" style="border-radius:2rem;float:right;">Удалить
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        </div>
+    <div class="comments">
+        <div class="make_comment">
+            {% if current_user.is_authenticated %}
+            <div class="comment_form" style="width: 80%;margin:40px;">
+                <textarea name="answer_input" class="comment_form"></textarea>
+            </div>
+            <button class="btn btn-primary" name="answer" value="1">Создать</button>
+            {% else %}
+            <div style="font-size:30px">
+                Чтобы написать ответ, необходимо зарегестрироваться
+            </div>
+            {% endif %}
+        <div style=" margin-top:15px">
+            <h1>Комментарии ({{ short_amount_answers }})</h1>
+        </div>
+        </div>
+        <div style="padding-bottom:10px" class="all_comments">
+            {% for answer in all_answers %}
+            <div class="comment">
+                <a class="first_level" href="/profile/{{answer.user_id}}" style="text-decoration:none;">
+                    <div class="image" style="text-decoration:none;">
+                        <img src="/static/images/{{ data_answers[answer.id|string][1] }}" alt="photo" height="40px" width="40px" class="logo_user_article">
+                    </div>
+                    <span class="creator" style="text-decoration:none;">
+                        <span class="creator_name" style="font-size:20px;"> {{data_answers[answer.id|string][0]}}</span>
+                        <span style="font-size:14px;color:#A8A8A8">•</span>
+                        <span style="font-size:14px;color:#A8A8A8" title="Подписчики">{{data_answers[answer.id|string][2]}} </span>
+                        <span style="font-size:14px;color:#A8A8A8">•</span>
+                        <span style="font-size:14px;color:#A8A8A8">
+                            {{data_answers[answer.id|string][3]}}
+                        </span>
+                    </span>
+                </a>
+                <div class="text_answer">{{answer.text|safe}}</div>
+                <div class="article_mark" style="float: right; display: flex;font-weight: 700; ">
+                    {% if answer.mark > 0 %}
+                        <div title="Оценка" style="color:#00ff00;">
+                            +{{answer.mark}}
+                        </div>
+                        {% elif answer.mark == 0 %}
+                        <div title="Оценка" style="float: right;">
+                            {{answer.mark}}
+                        </div>
+                        {% else %}
+                        <div title="Оценка" style="color: red; float: right;">
+                            {{answer.mark}}
+                        </div>
+                        {% endif %}
+                    </div>
+                <button name="comment_mark" class="btn btn-outline-danger" value="{{ answer.id }},-1">-1</button>
+                <button name="comment_mark" class="btn btn-outline-success"  value="{{ answer.id }},1">+1</button>
+            </div>
+        {% endfor %}
+    </div>
+</form>
+{% endblock %}

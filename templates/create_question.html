@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form class="write-article-form" method="post" novalidate enctype=multipart/form-data>
+    {{ form.hidden_tag() }}
+    {% if current_user.is_authenticated %}
+        <h1>Задать вопрос</h1>
+        <div style="color: red;">{{ message }}</div>
+        {{ form.name(class="input_login", style='margin-bottom:20px;width:98%', placeholder='Название') }}
+        <span style="color:red;" title="Обязательно">*</span>
+        {% include 'redactor.html' %}
+        <div class="editor" id="editor" contenteditable="true" style="background-color: #293245;" placeholder="Текст"></div>
+        <input type="hidden" name="text" value="" id="text_from_editor">
+        <div>
+            <span>Категория: {{ form.body_category(class="selector_form") }}</span>
+            <span>Марка: <input type="text" name="brand" list="brands" class="input_login" style="width:30%">
+            <datalist id="brands">
+                {% for brand in all_brands %}
+                <option value="{{brand}}">
+                {% endfor %}
+            </datalist></span>
+        </div>
+        <p>{{ form.create(type='submit', class="btn btn-primary", style="border-radius:2rem;margin-top:20px", onclick="document.getElementById('text_from_editor').value=document.getElementById('editor').innerHTML.trim();") }}</p>
+{% else %}
+    <div style="color:white">Чтобы задать вопрос, необходимо зарегестрироваться</div>
+{% endif %}
+</form>
+{% endblock content %}

@@ -1,5 +1,5 @@
-from data import users, articles, db_session, comments
-from sqlalchemy import desc
+from data import users, articles, db_session, comments, questions, answers
+from sqlalchemy import desc, and_
 from flask import *
 from email_validator import validate_email
 from typing import NamedTuple, Type
@@ -14,6 +14,7 @@ from flask_login import *
 from data.users import Users
 from mailing import send_simple_email
 from random import randint
+from forms.ForumForm import *
 
 db_session.global_init("db/blogs.sql")
 db_sess = db_session.create_session()
@@ -469,3 +470,161 @@ def get_answers(comment_id) -> list:
 
 def get_comment(comment_id):
     return db_sess.query(comments.Comments).filter(comments.Comments.id == comment_id).first()
+
+
+def create_question(text: str, form: CreatingQuestionForm, user_id: int, brand: str) -> None:
+    text = text.replace('<img', '<img height="100%" width="100%"')
+    question = questions.Questions(text=text, user_id=user_id, brand=brand, body=form.body_category.data,name=form.name.data)
+    db_sess.add(question)
+    db_sess.commit()
+
+
+def change_question(text: str, form: EditQuestionForm, question_id: int, brand) -> None:
+    text = text.replace('<img', '<img height="100%" width="100%"')
+    question = get_question(question_id)
+    question.text = text
+    question.brand = brand
+    question.body = form.body_category.data
+    question.name = form.name.data
+    db_sess.commit()
+
+
+def check_question_data(data: EditQuestionForm, text):
+    if len(data.name.data) < 5:
+        return 'Имя слишком короткое! Минимальная длина - 5 символов'
+    elif len(data.name.data) > 30:
+        return 'Имя слишком длинное! Максимальная длина - 30 символов'
+    if len(BeautifulSoup(text).get_text()) < 20:
+        return 'Текст слишком короткий! Минимальная длина - 20 символов'
+    if len(BeautifulSoup(text).get_text()) > 10000:
+        return 'Текст слишком короткий! Максимальная длина - 10000 символов'
+    return False
+
+
+def get_popular_questions() -> list:
+    return db_sess.query(questions.Questions).order_by(desc(questions.Questions.created_date)).all()[:20]
+
+
+def get_questions_from_user(user_id: int) -> list:
+    return db_sess.query(questions.Questions).filter(questions.Questions.user_id == user_id).all()
+
+
+def get_question_data(all_questions) -> dict:
+    """
+        DATA[0] = username
+        DATA[1] = user_logo
+        DATA[2] = user_subscribers
+        DATA[3] = time
+        DATA[4] = amount_answers
+        DATA[5] = is_solved
+        DATA[6] = short_mark
+        DATA[7] = short_readings
+        DATA[8] = short_amount_comments
+    """
+    data = {}
+    for question in all_questions:
+        creator = get_user(question.user_id)
+        time = text_delta(datetime.datetime.now() - question.created_date)
+        amount_answers = get_answers_on_question(question.id)
+        data[str(question.id)] = (creator.name, creator.photo, creator.subscribers, time, len(amount_answers),
+                                 short_form(question.mark), short_form(question.readings), short_form(len(amount_answers)))
+    return data
+
+
+def delete_question(question_id) -> None:
+    db_sess.query(questions.Questions).filter(questions.Questions.id == question_id).delete()
+    db_sess.commit()
+
+
+def add_reading_question(question_id: articles.Articles.id) -> None:
+    question = get_question(question_id)
+    question.readings += 1
+    db_sess.commit()
+
+
+def get_question(question_id: int):
+    return db_sess.query(questions.Questions).filter(questions.Questions.id == question_id).first()
+
+
+def mark_question(question_id: int, mark: int) -> str:
+    question = get_question(question_id)
+    user = get_user(current_user.id)
+    author = get_user(question.user_id)
+    prev_mark = json.loads(user.marked_questions)
+    if not mark and prev_mark and str(question_id) in prev_mark.keys(): return prev_mark[str(question_id)]
+    elif (not prev_mark) or (not str(question_id) in prev_mark.keys()):
+        question.mark += mark
+        author.mark += mark
+        prev_mark[str(question_id)] = str(mark)
+    elif 1 >= int(prev_mark[str(question_id)]) + mark >= -1:
+        question.mark += (mark - int(prev_mark[str(question_id)]))
+        author.mark += (mark - int(prev_mark[str(question_id)]))
+        prev_mark[str(question_id)] = str(mark)
+    elif not 1 >= int(prev_mark[str(question_id)]) + mark >= -1:
+        question.mark -= mark
+        author.mark -= mark
+        prev_mark[str(question_id)] = '0'
+    user.marked_questions = json.dumps(prev_mark)
+    db_sess.commit()
+    return prev_mark[str(question_id)]
+
+
+def sort_questions_by_time_and_type(time: str, type_sorted: str):
+    time_dict = {
+        'h': datetime.datetime.now() - datetime.timedelta(hours=1),
+        'd': datetime.datetime.now() - datetime.timedelta(days=1),
+        'm': datetime.datetime.now() - datetime.timedelta(days=30),
+        'y': datetime.datetime.now() - datetime.timedelta(days=365),
+        'o': datetime.datetime.now() - datetime.timedelta(days=365*2000)
+    }
+    type_dict = {
+        'm': questions.Questions.mark,
+        'r': questions.Questions.readings,
+        'p': questions.Questions.id
+    }
+    if type_sorted == 's':
+        return db_sess.query(questions.Questions).filter(and_(
+            articles.Articles.created_date > time_dict[time], questions.Questions.is_solved == True)).all()
+    return db_sess.query(articles.Articles).order_by(desc(type_dict[type_sorted])).filter(articles.Articles.created_date > time_dict[time]).all()
+
+
+def get_experts() -> list | None:
+    experts = db_sess.query(Users).order_by(desc(Users.right_answers)).all()[:5]
+    if len(experts) > 4:
+        return experts
+
+
+def get_answers_on_question(question_id: int):
+    return db_sess.query(answers.Answers).filter(answers.Answers.question_id == question_id).all()
+
+
+def create_answer(text, question_id):
+    answer = answers.Answers(user_id=current_user.id, text=text, question_id=question_id)
+    db_sess.add(answer)
+    db_sess.commit()
+
+
+def get_answers_data(all_answers):
+    data = {}
+    for answer in all_answers:
+        creator = get_user(answer.user_id)
+        time = text_delta(datetime.datetime.now() - answer.created_date)
+        data[str(answer.id)] = (creator.name, creator.photo, creator.subscribers, time)
+    return data
+
+
+def mark_answer(answer_id, mark, user_id):
+    comment = db_sess.query(comments.Comments).filter(comments.Comments.id == comment_id).first()
+    if f'{current_user.id}' not in session or 'comments' not in session[str(current_user.id)] or str(
+            comment_id) not in session[f'{current_user.id}']['comments']:
+        comment.mark += mark
+        session[f'{current_user.id}'] = {'comments': {f'{comment_id}': mark}}
+    elif 1 >= int(session[f'{current_user.id}']['comments'][str(comment_id)]) + int(mark) >= -1:
+        comment.mark += int(mark)
+        comment.mark -= int(session[f'{current_user.id}']['comments'][str(comment_id)])
+        session[f'{current_user.id}'] = {'comments': {f'{comment_id}': mark}}
+    elif int(session[f'{current_user.id}']['comments'][str(comment_id)]) + int(mark) <= -1 or int(
+            session[f'{current_user.id}']['comments'][str(comment_id)]) + int(mark) >= 1:
+        comment.mark -= int(mark)
+        session[f'{current_user.id}'] = {'comments': {f'{comment_id}': '0'}}
+    db_sess.commit()
