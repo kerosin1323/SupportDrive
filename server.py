@@ -41,6 +41,13 @@ def filter_articles(filter_time: str, filter_type: str):
     return render_template('index.html', all_news=all_news, data_news=get_article_data(all_news), top_articles=get_top(), data=get_article_data(filtered_articles), articles=filtered_articles, leaders=get_leaders())
 
 
+@app.get('/filter_questions/time=<string:filter_time>$type=<string:filter_type>')
+def filter_questions(filter_time: str, filter_type: str):
+    filtered_articles = sort_questions_by_time_and_type(filter_time, filter_type)
+    top_experts = get_experts()
+    return render_template('forum.html', data=get_question_data(filtered_articles), questions=filtered_articles, experts=top_experts)
+
+
 @app.get('/delete_article/<int:article_id>')
 def delete_article(article_id: int):
     delete(article_id)
@@ -129,6 +136,8 @@ def reading_article(article_id: int):
 def reading_question(question_id: int):
     make_answer = request.form.get('answer')
     answer_text = request.form.get('answer_input')
+    right_answer = request.form.get('right_answer')
+    false_answer = request.form.get('false_answer')
     if make_answer and answer_text != '':
         create_answer(answer_text, question_id)
     current_question = get_question(question_id)
@@ -141,13 +150,16 @@ def reading_question(question_id: int):
         subscribe(creator.id)
     if answer_make_mark:
         answer_id, answer_mark = answer_make_mark.split(',')
-        mark_answer(answer_id, int(answer_mark), current_user.id)
+        mark_answer(answer_id, int(answer_mark))
+    if right_answer:
+        make_right_answer(int(right_answer))
+    if false_answer:
+        make_false_answer(int(false_answer))
     question_mark = mark_question(question_id, int(mark))
     return render_template('reading_question.html', time=text_delta(datetime.datetime.now() - current_question.created_date),
                            is_subscribed=check_subscribe(creator.id), short_amount_answers=short_form(len(all_answers)),
                            question=current_question, current_user=current_user, user=creator, all_answers=all_answers, short_mark=short_form(current_question.mark),
                            data_answers=data_answers, mark=int(question_mark), short_readings=short_form(current_question.readings))
-
 
 
 @app.route('/create_article', methods=['GET', 'POST'])

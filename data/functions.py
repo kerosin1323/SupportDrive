@@ -75,7 +75,7 @@ def add_photo(file, article, app) -> None:
 
 def get_on_category(category: str = None) -> list[Type[articles.Articles]]:
     if category is None:
-        return db_sess.query(articles.Articles).all()[::-1][:20]
+        return db_sess.query(articles.Articles).filter(articles.Articles.categories != 'Новости').all()[::-1][:20]
     elif category == 'subscribed' and current_user.is_authenticated:
         return get_article_subscribed(current_user)
     elif category != 'subscribed':
@@ -90,9 +90,9 @@ def get_on_category(category: str = None) -> list[Type[articles.Articles]]:
             return db_sess.query(articles.Articles).filter(articles.Articles.categories == categories[category]).all()[
                ::-1][:20]
         elif category in body_categories.keys():
-            return db_sess.query(articles.Articles).filter(articles.Articles.body.in_(body_categories[category])).all()[
+            return db_sess.query(articles.Articles).filter(and_(articles.Articles.body.in_(body_categories[category]), articles.Articles.categories != 'Новости')).all()[
                ::-1][:20]
-        return db_sess.query(articles.Articles).filter(articles.Articles.brand.in_(countries[category])).all()[
+        return db_sess.query(articles.Articles).filter(and_(articles.Articles.brand.in_(countries[category]), articles.Articles.categories != 'Новости')).all()[
                ::-1][:20]
     return []
 
@@ -111,12 +111,12 @@ def get_top() -> TopArticle:
 
 
 def get_all_news():
-    return db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Новости').all()
+    return db_sess.query(articles.Articles).filter(articles.Articles.categories == 'Новости').all()[:4]
 
 
 def get_article_subscribed(user: Users) -> list[Type[articles.Articles]]:
     all_subs = [int(i) for i, k in json.loads(user.subscribed).items() if k == '1']
-    return db_sess.query(articles.Articles).filter(articles.Articles.user_id.in_(all_subs)).all()
+    return db_sess.query(articles.Articles).filter(and_(articles.Articles.user_id.in_(all_subs), articles.Articles.categories != 'Новости')).all()
 
 
 def get_article_from_user(user_id: Users.id) -> list[Type[articles.Articles]]:
@@ -595,7 +595,9 @@ def get_experts() -> list | None:
 
 
 def get_answers_on_question(question_id: int):
-    return db_sess.query(answers.Answers).filter(answers.Answers.question_id == question_id).all()
+    popular_right = db_sess.query(answers.Answers).filter(and_(answers.Answers.is_right == True, answers.Answers.question_id == question_id)).all()
+    popular_not_right = db_sess.query(answers.Answers).filter(and_(answers.Answers.is_right != 1, answers.Answers.question_id == question_id)).all()
+    return [*popular_right, *popular_not_right]
 
 
 def create_answer(text, question_id):
@@ -613,18 +615,61 @@ def get_answers_data(all_answers):
     return data
 
 
-def mark_answer(answer_id, mark, user_id):
-    comment = db_sess.query(comments.Comments).filter(comments.Comments.id == comment_id).first()
-    if f'{current_user.id}' not in session or 'comments' not in session[str(current_user.id)] or str(
-            comment_id) not in session[f'{current_user.id}']['comments']:
-        comment.mark += mark
-        session[f'{current_user.id}'] = {'comments': {f'{comment_id}': mark}}
-    elif 1 >= int(session[f'{current_user.id}']['comments'][str(comment_id)]) + int(mark) >= -1:
-        comment.mark += int(mark)
-        comment.mark -= int(session[f'{current_user.id}']['comments'][str(comment_id)])
-        session[f'{current_user.id}'] = {'comments': {f'{comment_id}': mark}}
-    elif int(session[f'{current_user.id}']['comments'][str(comment_id)]) + int(mark) <= -1 or int(
-            session[f'{current_user.id}']['comments'][str(comment_id)]) + int(mark) >= 1:
-        comment.mark -= int(mark)
-        session[f'{current_user.id}'] = {'comments': {f'{comment_id}': '0'}}
+def mark_answer(answer_id, mark):
+    answer = db_sess.query(answers.Answers).filter(answers.Answers.id == answer_id).first()
+    if f'{current_user.id}' not in session or 'answers' not in session[str(current_user.id)] or str(
+            answer_id) not in session[f'{current_user.id}']['answers']:
+        answer.mark += mark
+        session[f'{current_user.id}'] = {'answers': {f'{answer_id}': mark}}
+    elif 1 >= int(session[f'{current_user.id}']['answers'][str(answer_id)]) + int(mark) >= -1:
+        answer.mark += int(mark)
+        answer.mark -= int(session[f'{current_user.id}']['answers'][str(answer_id)])
+        session[f'{current_user.id}'] = {'answers': {f'{answer_id}': mark}}
+    elif int(session[f'{current_user.id}']['answers'][str(answer_id)]) + int(mark) <= -1 or int(
+            session[f'{current_user.id}']['answers'][str(answer_id)]) + int(mark) >= 1:
+        answer.mark -= int(mark)
+        session[f'{current_user.id}'] = {'answers': {f'{answer_id}': '0'}}
     db_sess.commit()
+
+
+def make_right_answer(answer_id: int):
+    answer = db_sess.query(answers.Answers).filter(answers.Answers.id == answer_id).first()
+    answer.is_right = True
+    user = get_user(answer.user_id)
+    user.right_answers += 1
+    question = get_question(answer.question_id)
+    question.is_solved = True
+    db_sess.commit()
+
+
+def make_false_answer(answer_id: int):
+    answer = db_sess.query(answers.Answers).filter(answers.Answers.id == answer_id).first()
+    answer.is_right = False
+    user = get_user(answer.user_id)
+    user.right_answers -= 1
+    db_sess.commit()
+    question = get_question(answer.question_id)
+    question_right_answers = db_sess.query(answers.Answers).filter(and_(answers.Answers.is_right == True, answers.Answers.question_id == question.id)).all()
+    if not question_right_answers:
+        question.is_solved = False
+        db_sess.commit()
+
+
+
+def sort_questions_by_time_and_type(time: str, type_sorted: str):
+    time_dict = {
+        'h': datetime.datetime.now() - datetime.timedelta(hours=1),
+        'd': datetime.datetime.now() - datetime.timedelta(days=1),
+        'm': datetime.datetime.now() - datetime.timedelta(days=30),
+        'y': datetime.datetime.now() - datetime.timedelta(days=365),
+        'o': datetime.datetime.now() - datetime.timedelta(days=365*2000)
+    }
+    type_dict = {
+        'm': questions.Questions.mark,
+        'r': questions.Questions.readings,
+        'p': questions.Questions.id
+    }
+    if type_sorted == 's':
+        return db_sess.query(questions.Questions).filter(
+            and_(questions.Questions.created_date > time_dict[time], questions.Questions.is_solved == True)).all()
+    return db_sess.query(questions.Questions).order_by(desc(type_dict[type_sorted])).filter(questions.Questions.created_date > time_dict[time]).all()

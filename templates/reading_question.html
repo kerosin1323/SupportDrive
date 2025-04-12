@@ -117,6 +117,9 @@
                         <span style="font-size:14px;color:#A8A8A8">
                             {{data_answers[answer.id|string][3]}}
                         </span>
+                        {% if answer.is_right %}
+                        <span title="Правильный ответ">✅</span>
+                        {% endif %}
                     </span>
                 </a>
                 <div class="text_answer">{{answer.text|safe}}</div>
@@ -135,8 +138,10 @@
                         </div>
                         {% endif %}
                     </div>
-                <button name="comment_mark" class="btn btn-outline-danger" value="{{ answer.id }},-1">-1</button>
-                <button name="comment_mark" class="btn btn-outline-success"  value="{{ answer.id }},1">+1</button>
+                <button name="answer_mark" class="btn btn-outline-danger" value="{{ answer.id }},-1">-1</button>
+                <button name="answer_mark" class="btn btn-outline-success"  value="{{ answer.id }},1">+1</button>
+                <button name="right_answer" class="btn btn-outline-success"  value="{{ answer.id }}">Правильный ответ</button>
+                <button name="false_answer" class="btn btn-outline-success"  value="{{ answer.id }}">Неверный ответ</button>
             </div>
         {% endfor %}
     </div>

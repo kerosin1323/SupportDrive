@@ -9,7 +9,7 @@ class Answers(db_session.SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-    is_right = sqlalchemy.Column(sqlalchemy.Boolean)
+    is_right = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     text = sqlalchemy.Column(sqlalchemy.String)
     mark = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     level = sqlalchemy.Column(sqlalchemy.Integer, default=0)

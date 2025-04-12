@@ -4,13 +4,13 @@
 <form class="all_articles" method="post" novalidate>
     <div class="welcome_page" style="float:left;">
     <div class="filter" style="margin-bottom:50px;">
-        <span><select name="filter_time" style='width:30%' class="selector_form" id="filter_time" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+this.value+'$type='+document.getElementById('filter_type').value">
+        <span><select name="filter_time" style='width:30%' class="selector_form" id="filter_time" onchange="submitForm(); if (this.value) window.location.href='/filter_questions/time='+this.value+'$type='+document.getElementById('filter_type').value">
             <option value="h">За час</option>
             <option value="d" selected>За день</option>
             <option value="m">За месяц</option>
             <option value="y">За год</option>
         </select></span>
-        <span><select name="filter_time" style='width:30%' class="selector_form" id="filter_type" onchange="submitForm(); if (this.value) window.location.href='/filter/time='+document.getElementById('filter_time').value+'$type='+this.value">
+        <span><select name="filter_time" style='width:30%' class="selector_form" id="filter_type" onchange="submitForm(); if (this.value) window.location.href='/filter_questions/time='+document.getElementById('filter_time').value+'$type='+this.value">
             <option value="r">Просмотры</option>
             <option value="s">Решенные</option>
             <option value="m">Оценка</option>
@@ -38,7 +38,7 @@
     {% include 'all_questions.html' %}
     </div>
     <div class="leaders" style="float: right;margin-right:50px;">
-        {% if leaders %}
+        {% if experts %}
         <div class="mark_leaders">
             <div style="font-size:20px; color: gray;">Эксперты:</div>
             <div style="margin-top:10px;color:#A8A8A8">
@@ -46,31 +46,31 @@
                     <span style="float: left;">
                         <img src="/static/images/{{ experts[0].photo }}" width="30px" height="30px" class="logo_user">
                         {{ experts[0].name }}</span>
-                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[0].amount_answers }}</span>
+                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[0].right_answers }}</span>
                 </div></a>
                 <a href="/profile/{{ experts[1].id }}"><div style="overflow: hidden;margin-bottom:20px;">
                     <span style="float: left;">
                         <img src="/static/images/{{ experts[1].photo }}" width="30px" height="30px" class="logo_user">
                         {{ experts[1].name }}</span>
-                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[1].amount_answers }}</span>
+                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[1].right_answers }}</span>
                 </div></a>
                 <a href="/profile/{{ experts[2].id }}"><div style="overflow: hidden;margin-bottom:20px;">
                     <span style="float: left;">
                         <img src="/static/images/{{ experts[2].photo }}" width="30px" height="30px" class="logo_user">
                         {{ experts[2].name }}</span>
-                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[2].amount_answers }}</span>
+                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[2].right_answers }}</span>
                 </div></a>
                 <a href="/profile/{{ experts[3].id }}"><div style="overflow: hidden;margin-bottom:20px;">
                     <span style="float: left;">
                         <img src="/static/images/{{ experts[3].photo }}" width="30px" height="30px" class="logo_user">
                         {{ experts[3].name }}</span>
-                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[3].amount_answers }}</span>
+                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[3].right_answers }}</span>
                 </div></a>
-                <a href="/profile/{{ leaders[4].id }}"><div style="overflow: hidden;">
+                <a href="/profile/{{ experts[4].id }}"><div style="overflow: hidden;">
                     <span style="float: left;">
-                        <img src="/static/images/{{ leaders[4].photo }}" width="30px" height="30px" class="logo_user">
+                        <img src="/static/images/{{ experts[4].photo }}" width="30px" height="30px" class="logo_user">
                         {{ experts[4].name }}</span>
-                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[4].amount_answers }}</span>
+                    <span style="float: right;margin-right:10px;color:#039be5;">{{ experts[4].right_answers }}</span>
                 </div></a>
             </div>
         </div>
