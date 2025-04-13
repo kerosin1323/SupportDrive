@@ -13,6 +13,14 @@ def load_user(user_id: int):
     return db_sess.query(users.Users).get(user_id)
 
 
+@app.before_request
+def before_request():
+    if db_sess.get_transaction() is None and current_user.is_authenticated:
+        user = get_user(current_user.id)
+        user.last_time_online = datetime.datetime.now()
+        db_sess.commit()
+
+
 @app.get('/')
 @app.get('/all/<string:category>')
 def welcome_page(category=None):
@@ -126,10 +134,12 @@ def reading_article(article_id: int):
         comment_id, comment_mark = comment_make_mark.split(',')
         mark_comment(comment_id, int(comment_mark))
     article_mark = mark_article(article_id, int(mark))
+    other_articles = get_five_other_articles(creator.id, current_article)
+    data_other = get_article_data(other_articles)
     return render_template('reading_article.html', time=text_delta(datetime.datetime.now() - current_article.created_date),
                            is_subscribed=check_subscribe(creator.id), to_answer=to_answer, short_amount_comments=short_form(len(all_comments)),
                            article=current_article, current_user=current_user, user=creator, all_comments=all_comments, short_mark=short_form(current_article.mark),
-                           data_comments=data_comments, mark=int(article_mark), short_readings=short_form(current_article.readings))
+                           data_comments=data_comments, mark=int(article_mark), short_readings=short_form(current_article.readings), other_articles=other_articles, data_other=data_other)
 
 
 @app.route('/read_question/<int:question_id>', methods=['GET', 'POST'])
@@ -242,6 +252,10 @@ def profile_user(user_id: int):
         all_subscriptions = get_subscriptions(user_id)
     else:
         all_subscriptions = []
+    if form.answers.data:
+        all_answers = get_all_answers_by_user_id(user_id)
+    else:
+        all_answers = []
     if request.form.get('to_subscribe'):
         subscribe(user_id)
     if form.add_data.data:
@@ -250,10 +264,15 @@ def profile_user(user_id: int):
         logout_user()
         return redirect('/')
     is_subscribed = check_subscribe(user_id)
-    return render_template('profile_check.html', show_articles=show_articles, articles_data=articles_data,
-                           is_subscribed=is_subscribed,
+    position_rating = get_position_rating(user_id)
+    last_time_online = get_last_time_online(user_id)
+    data_creating_account = get_data_creating_account(user_id)
+    return render_template('profile_check.html', articles=show_articles, articles_data=articles_data,
+                           is_subscribed=is_subscribed,data=get_article_data(show_articles),
                            form=form, current_user=current_user, user=get_user(user_id),
-                           all_subscriptions=all_subscriptions)
+                           all_subscriptions=all_subscriptions, all_answers=all_answers,
+                           position_rating=position_rating, last_time_online=last_time_online,
+                           data_creating_account=data_creating_account, data_answers=get_answers_data(all_answers))
 
 
 @app.route('/profile_data/<int:user_id>', methods=['GET', 'POST'])

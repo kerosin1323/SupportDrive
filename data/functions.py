@@ -1,5 +1,5 @@
 from data import users, articles, db_session, comments, questions, answers
-from sqlalchemy import desc, and_
+from sqlalchemy import desc, and_, or_
 from flask import *
 from email_validator import validate_email
 from typing import NamedTuple, Type
@@ -174,6 +174,7 @@ def get_article(article_id: articles.Articles.id) -> Type[articles.Articles]:
 
 
 def mark_article(article_id: articles.Articles.id, mark: int) -> str:
+    if not current_user.is_authenticated: return '0'
     article = get_article(article_id)
     user = get_user(current_user.id)
     author = get_user(article.user_id)
@@ -673,3 +674,41 @@ def sort_questions_by_time_and_type(time: str, type_sorted: str):
         return db_sess.query(questions.Questions).filter(
             and_(questions.Questions.created_date > time_dict[time], questions.Questions.is_solved == True)).all()
     return db_sess.query(questions.Questions).order_by(desc(type_dict[type_sorted])).filter(questions.Questions.created_date > time_dict[time]).all()
+
+
+def get_five_other_articles(user_id: int, article: articles.Articles):
+    user_articles = get_article_from_user(user_id)
+    similar_articles = get_similar_articles(article.brand, article.body, article.categories)
+    if len(user_articles) < 2:
+        return [*user_articles, similar_articles[:4-len(user_articles)]]
+    return [*user_articles[:2], *similar_articles[:2]]
+
+
+def get_similar_articles(brand, body, category):
+    return db_sess.query(articles.Articles).order_by(articles.Articles.readings).filter(
+        or_(articles.Articles.body == body,
+            articles.Articles.brand == brand,
+            articles.Articles.categories == category)
+    ).all()
+
+
+def get_all_answers_by_user_id(user_id: int):
+    return db_sess.query(answers.Answers).filter(and_(answers.Answers.user_id == user_id, answers.Answers.is_right == True)).all()
+
+
+def get_position_rating(user_id: int):
+    user = get_user(user_id)
+    return db_sess.query(users.Users).order_by(users.Users.mark).all().index(user) + 1
+
+
+def get_last_time_online(user_id: int):
+    time = get_user(user_id).last_time_online
+    delta = datetime.datetime.now() - time
+    if int(delta.seconds) <= 3: return 'Сейчас в сети'
+    return text_delta(datetime.datetime.now() - time)
+
+
+def get_data_creating_account(user_id: int):
+    months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+    date = get_user(user_id).created_date
+    return f'{date.day} {months[date.month - 1]} {date.year} года'

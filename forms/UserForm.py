@@ -24,9 +24,10 @@ class EmailForm(FlaskForm):
 class ProfileView(FlaskForm):
     created_articles = SubmitField('Созданные статьи')
     exit = SubmitField('Выйти')
-    add_data = SubmitField('Изменить')
+    add_data = SubmitField('Настройки')
     follow = SubmitField('Избранные')
     subscribe = SubmitField('Подписки')
+    answers = SubmitField('Ответы')
 
 
 class DescriptionProfile(FlaskForm):

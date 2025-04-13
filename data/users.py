@@ -1,5 +1,6 @@
 import sqlalchemy
 from sqlalchemy import orm
+import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from .db_session import SqlAlchemyBase
@@ -16,6 +17,8 @@ class Users(SqlAlchemyBase, UserMixin):
     marked_questions = sqlalchemy.Column(sqlalchemy.String, default='{}')
     subscribed = sqlalchemy.Column(sqlalchemy.String, default='{}')
     reading = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    last_time_online = sqlalchemy.Column(sqlalchemy.DateTime)
+    created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     right_answers = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     description = sqlalchemy.Column(sqlalchemy.String, default='')
     contacts = sqlalchemy.Column(sqlalchemy.String, default='')
