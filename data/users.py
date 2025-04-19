@@ -17,7 +17,7 @@ class Users(SqlAlchemyBase, UserMixin):
     marked_questions = sqlalchemy.Column(sqlalchemy.String, default='{}')
     subscribed = sqlalchemy.Column(sqlalchemy.String, default='{}')
     reading = sqlalchemy.Column(sqlalchemy.Integer, default=0)
-    last_time_online = sqlalchemy.Column(sqlalchemy.DateTime)
+    last_time_online = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     right_answers = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     description = sqlalchemy.Column(sqlalchemy.String, default='')

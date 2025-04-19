@@ -1,26 +1,25 @@
 <div class="toolbar">
-	<a href="#" class="toolbar-b fas fa-bold" title="Жирный"></a>
-	<a href="#" class="toolbar-i fas fa-italic" title="Курсив"></a>
-	<a href="#" class="toolbar-u fas fa-underline" title="Подчёркнутый"></a>
-	<a href="#" class="toolbar-s fas fa-strikethrough" title="Зачёркнутый"></a>
-	<a href="#" class="toolbar-sup fas fa-superscript" title="Верхний индекс"></a>
-	<a href="#" class="toolbar-sub fas fa-subscript" title="Нижний индекс"></a>
-	<a href="#" class="toolbar-ul fas fa-list-ul" title="Маркированный список"></a>
-	<a href="#" class="toolbar-ol fas fa-list-ol" title="Нумерованный список"></a>
+	<a href="#" class="toolbar-b fas fa-bold" title="Жирный"><img src="/static/B.jpg" width="25px;"></a>
+	<a href="#" class="toolbar-i fas fa-italic" title="Курсив"><img src="/static/I_kursiv.png" width="25px;"></a>
+	<a href="#" class="toolbar-u fas fa-underline" title="Подчёркнутый"><img src="/static/U_zachork.png" width="25px;"></a>
+	<a href="#" class="toolbar-s fas fa-strikethrough" title="Зачёркнутый"><img src="/static/S_podchork.png" width="25px;"></a>
+	<a href="#" class="toolbar-sup fas fa-superscript" title="Верхний индекс"><img src="/static/X_vverh.png" width="25px;"></a>
+	<a href="#" class="toolbar-sub fas fa-subscript" title="Нижний индекс"><img src="/static/X_niz.png" width="25px;"></a>
+	<a href="#" class="toolbar-ul fas fa-list-ul" title="Маркированный список"><img src="/static/mark_spisok.png" width="25px;"></a>
+	<a href="#" class="toolbar-ol fas fa-list-ol" title="Нумерованный список"><img src="/static/num_spisok.png" width="25px;"></a>
 	<a href="#" class="toolbar-p" title="Параграф">p</a>
 	<a href="#" class="toolbar-h1" title="Заголовок">H1</a>
 	<a href="#" class="toolbar-hr" title="Горизонтальная линия">hr</a>
-	<a href="#" class="toolbar-blockquote fas fa-quote-right" title="Цитата"></a>
-	<a href="#" class="toolbar-img far fa-image" title="Изображение"></a>
- 	<a href="#" class="toolbar-a fas fa-link" title="Ссылка"></a>
-	<a href="#" class="toolbar-unlink fas fa-unlink" title="Удаление ссылки"></a>
+	<a href="#" class="toolbar-blockquote fas fa-quote-right" title="Цитата"><img src="/static/zitata.png" width="25px;"></a>
+	<a href="#" class="toolbar-img far fa-image" title="Изображение"><img src="/static/image.png" width="25px;"></a>
+ 	<a href="#" class="toolbar-a fas fa-link" title="Ссылка"><img src="/static/ccilka.png" width="25px;"></a>
 	<a href="#" class="toolbar-html" title="Вставить html">HTML</a>
 	<a href="#" class="toolbar-text" title="Вставить текст">Text</a>
 	<br>
-	<a href="#" class="toolbar-left fas fa-align-left" title="по левому краю"></a>
-	<a href="#" class="toolbar-center fas fa-align-center" title="по центру"></a>
-	<a href="#" class="toolbar-right fas fa-align-right" title="по правому краю"></a>
-	<a href="#" class="toolbar-justify fas fa-align-justify" title="по ширине"></a>
+	<a href="#" class="toolbar-left fas fa-align-left" title="по левому краю"><img src="/static/po_lv_kr.png" width="25px;"></a>
+	<a href="#" class="toolbar-center fas fa-align-center" title="по центру"><img src="/static/shr.png" width="25px;"></a>
+	<a href="#" class="toolbar-right fas fa-align-right" title="по правому краю"><img src="/static/po_pr_cr.png" width="25px;"></a>
+	<a href="#" class="toolbar-justify fas fa-align-justify" title="по ширине"><img src="/static/po_cr.png" width="25px;"></a>
 	<select class="toolbar-font">
 		<option selected="selected" disabled="disabled">Шрифт</option>
 		<option value="arial">Arial</option>
@@ -44,13 +43,13 @@
 	<span>Цвет</span> <input class="toolbar-color" type="color" value="#ff0000">
 	<span>Фон</span> <input class="toolbar-bg" type="color" value="#ffff00">
 	<br>
-	<a href="#" class="toolbar-undo fas fa-undo" title="Отмена"></a>
-	<a href="#" class="toolbar-redo fas fa-redo" title="Повтор"></a>
-	<a href="#" class="toolbar-delete far fa-trash-alt" title="Удалить"></a>
+	<a href="#" class="toolbar-undo fas fa-undo" title="Отмена"><img src="/static/otmena.png" width="25px;"></a>
+	<a href="#" class="toolbar-redo fas fa-redo" title="Повтор"><img src="/static/povtor.png" width="25px;"></a>
+	<a href="#" class="toolbar-delete far fa-trash-alt" title="Удалить"><img src="/static/ydal.png" width="25px;"></a>
 	<a href="#" class="toolbar-selectAll">Выделить всё</a>
 	<a href="#" class="toolbar-removeFormat">Очистить стили</a>
-	<a href="#" class="toolbar-cut fas fa-cut" title="Вырезать"></a>
-	<a href="#" class="toolbar-copy fas fa-copy" title="Копировать"></a>
+	<a href="#" class="toolbar-cut fas fa-cut" title="Вырезать"><img src="/static/virez.png" width="25px;"></a>
+	<a href="#" class="toolbar-copy fas fa-copy" title="Копировать"><img src="/static/copy.png" width="25px;"></a>
 </div>
 
 <link rel="stylesheet" href="https://snipp.ru/cdn/fontawesome/5.11.2/css/all.css">
@@ -59,14 +58,13 @@
 .toolbar a {
 	display: inline-block;
 	border: 1px solid #888;
-	padding: 5px 8px;
 	margin: 0 5px 10px 0;
+	padding: 0!important;
 	color: #000;
 	border-radius: 3px;
 	font-size: 12px;
 	box-shadow: 1px 1px 2px #ddd;
 	background: #fff;
-	vertical-align: top;
 	text-decoration: none;
 }
 .toolbar select {

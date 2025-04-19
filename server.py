@@ -15,7 +15,7 @@ def load_user(user_id: int):
 
 @app.before_request
 def before_request():
-    if db_sess.get_transaction() is None and current_user.is_authenticated:
+    if (db_sess.get_transaction()  or not db_sess.get_transaction()) is None and current_user.is_authenticated:
         user = get_user(current_user.id)
         user.last_time_online = datetime.datetime.now()
         db_sess.commit()
