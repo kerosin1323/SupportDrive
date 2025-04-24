@@ -99,7 +99,7 @@
             </div>
             {% endif %}
         <div style=" margin-top:15px">
-            <h1>Комментарии ({{ short_amount_answers }})</h1>
+            <h1>Ответы ({{ short_amount_answers }})</h1>
         </div>
         </div>
         <div style="padding-bottom:10px" class="all_comments">
@@ -140,8 +140,10 @@
                     </div>
                 <button name="answer_mark" class="btn btn-outline-danger" value="{{ answer.id }},-1">-1</button>
                 <button name="answer_mark" class="btn btn-outline-success"  value="{{ answer.id }},1">+1</button>
-                <button name="right_answer" class="btn btn-outline-success"  value="{{ answer.id }}">Правильный ответ</button>
-                <button name="false_answer" class="btn btn-outline-success"  value="{{ answer.id }}">Неверный ответ</button>
+                {% if question.user_id == current_user.id %}
+                    <button name="right_answer" class="btn btn-outline-success"  value="{{ answer.id }}">Правильный ответ</button>
+                    <button name="false_answer" class="btn btn-outline-danger"  value="{{ answer.id }}">Неверный ответ</button>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

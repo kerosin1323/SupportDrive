@@ -92,8 +92,8 @@
         {% for article in other_articles %}
         <a href="/read/{{article.id}}" style="text-decoration:none;">
             <div class="news" style="margin-right:30px; background:linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,1)), url(/static/images/{{article.photo}});background-repeat: no-repeat; background-size:cover;width:300px; height:200px;border-radius:2rem;">
-            <div class="name_news" style="padding-top:100px;margin-left:20px;font-size:25px;">{{article.name[:10]}}</div>
-            <div class="short_describe_news" style="margin-left:20px;font-size:15px;">{{article.describe[:10]}}</div>
+            <div class="name_news" style="padding-top:70px;margin-left:20px;font-size:20px;">{{article.name[:50]}}</div>
+            <div class="short_describe_news" style="margin-left:20px;font-size:15px;">{{article.describe[:30]}}</div>
             <a class="creator_news" style="margin-left:20px;font-size:15px;text-decoration:none;" href="/profile/{{article.user_id}}">
                 <img src="/static/images/{{ data_other[article.id|string][1] }}" alt="photo" height="20px" width="20px" class="logo_user_article">
                 <span>{{data_other[article.id|string][0]}}</span>
@@ -105,7 +105,7 @@
     <div class="comments">
         <div class="make_comment">
             {% if current_user.is_authenticated %}
-            <div class="comment_form" style="width: 80%;margin:40px;">
+            <div class="comment_form" style="width: 80%;">
                 <textarea name="comment_input" class="comment_form"></textarea>
             </div>
             <button class="btn btn-primary" name="comment" value="1">Создать</button>
