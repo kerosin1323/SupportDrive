@@ -123,6 +123,10 @@ def get_article_from_user(user_id: Users.id) -> list[Type[articles.Articles]]:
     return db_sess.query(articles.Articles).filter(articles.Articles.user_id == user_id).all()
 
 
+def get_other_articles_from_user(user_id, article_id):
+    return db_sess.query(articles.Articles).filter(and_(articles.Articles.user_id == user_id, articles.Articles.id != article_id)).all()
+
+
 def get_article_data(all_articles: list[Type[articles.Articles]]) -> dict:
     """
         DATA[0] = username
@@ -677,19 +681,19 @@ def sort_questions_by_time_and_type(time: str, type_sorted: str):
 
 
 def get_five_other_articles(user_id: int, article: articles.Articles):
-    user_articles = get_article_from_user(user_id)
-    similar_articles = get_similar_articles(article.brand, article.body, article.categories)
+    user_articles = get_other_articles_from_user(user_id, article.id)
+    similar_articles = get_similar_articles(article.brand, article.body, article.categories, user_id)
     if len(user_articles) < 2:
-        return [*user_articles, similar_articles[:4-len(user_articles)]]
+        return [*user_articles, *similar_articles[:4-len(user_articles)]]
     return [*user_articles[:2], *similar_articles[:2]]
 
 
-def get_similar_articles(brand, body, category):
+def get_similar_articles(brand, body, category, user_id):
     return db_sess.query(articles.Articles).order_by(articles.Articles.readings).filter(
-        or_(articles.Articles.body == body,
+        and_(or_(articles.Articles.body == body,
             articles.Articles.brand == brand,
             articles.Articles.categories == category)
-    ).all()
+             ), articles.Articles.user_id != user_id).all()
 
 
 def get_all_answers_by_user_id(user_id: int):
